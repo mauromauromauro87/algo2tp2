@@ -1,0 +1,4 @@
+\select@language {spanish}
+\contentsline {section}{\numberline {1}M\IeC {\'o}dulo Sistema DCNet}{2}{section.1}
+\contentsline {subsection}{\numberline {1.1}Interfaz}{2}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}Representaci\IeC {\'o}n}{2}{subsection.1.2}

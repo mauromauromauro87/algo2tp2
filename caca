@@ -1,0 +1,12 @@
+
+	 \textbf{if} $ (*r.izq) = \NULL $ \textbf{then}
+	 \textbf{else} \textbf{fi}
+	$ \ $ $res \larr definido(r.val,s)$
+	 \textbf{else} \\
+  $ \ $ \textbf{if} $(*r.der) = \NULL$ \textbf{then} \\
+	$ \ \ $ $ res \larr  Verifica(r.izq,s) $
+	$ \ $ \textbf{else} \\
+	$ \ \ \ $ \textbf{if} $(*r.val) = "AND"$ \textbf{then}
+	$ \ \ \ \ $ $ res \larr Verifica(*r.izq,s) \land Verifica(*r.der,s) $ \\
+	$ \ \ \ $ \textbf{else} \\
+	$ \ \ \ \ $ $res \larr Verifica(*r.izq,s) \lor Verifica(*r.der,s)$

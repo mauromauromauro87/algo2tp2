@@ -1,0 +1,93 @@
+%!TEX root = tp2.tex
+
+\section{Módulo Sistema DCNet}
+
+Una DCNet es
+
+\subsection{Interfaz}
+
+\sexc{DCNet}
+\generos{dcnet}
+
+\subsubsection*{Operaciones}
+
+\operacion{Ejemplo}{in r: restricción, in s : itConj(String)}{res : bool}
+ {true}
+ {$\var{res} \igobs (\paratodo{String}{c}) \ esta?(c,secuSubY(s)) \Rightarrow verifica?(c,r)$}
+ {Verifica si todo String del iterador verifica en la restricción.}
+ {O(R)}
+
+
+\subsection{Representación}
+
+
+\serc{city}{
+	\\
+	\donde{city}{\tupla{
+			Compus : \mbox{arreglo(IP, itColaLogP, itColaLog)},
+			PaquetesPorPrioridad : \mbox{diccPref(compu, colaLogP(paquete))},
+			PaquetesPorID : \mbox{diccPref(compu, colaLog(paquete))},
+			CompusPor\#Envios : \mbox{colaLogP(compus)}
+	}}
+}
+
+% \serc{restr}{
+% 	\\
+% 	\donde{restr}{\tupla{
+% 			Compus : \mbox{arreglo(IP, itColaLogP, itColaLog)}
+% 			% PaquetesPorPrioridad : diccPref(compu, colaLogP(paquete))
+% 			% PaquetesPorID : diccPref(compu, colaLog(paquete))
+% 			% CompusPor#Envios: colaLogP(compus)
+
+% 	}}
+% }
+
+\subsubsection*{Invariante de representación}
+
+\begin{enumerate}
+	\item si son hojas son tags
+	\item sino, son operadores
+	\item si el operador es unario, tiene solo hijo izquierdo
+
+		\rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
+		\textbf{if} ($r.der = \NULL$) \textbf{then} \\
+		$*r.val = "NOT" \land rep(*r.izq)$ \\
+		\textbf{else} $*r.val \in Ag("OR", Ag("AND",vacio)) \land rep(*r.izq) \land rep(*r.der)$
+		\end{enumerate}
+
+\subsubsection*{Función de abstracción}
+
+ \abs{restricción}{ab}{r}{a} \\
+ $(\fun{*r.izq} = \NULL \land \fun{*r.der} = \NULL \ssi nil?(a)) \ \oluego$ \\
+ $\fun{*r.izq} = izq(a) \land \fun{*r.der} = der(a) \ \land$
+$r.val = raiz(a) $
+
+
+\subsubsection*{Algoritmos}
+
+
+
+\algoritmo{iVerifica}{in r : restricción, in s : trie($\alpha$)}{res : bool}{
+	 \If{$(*r.izq) = \NULL $ }	\complejidad{O($1$)}
+		\State $res \larr definido(r.val, s)$
+			\complejidad{O(1)}
+	\Else
+	\If {$(*r.der) = \NULL$} \complejidad{O(1)}
+	\State $res \larr \neg Verifica(*(r.izq),s)$
+			\complejidad{O($R$)}
+			\Else
+			\If {$(*(r.val)) = "AND"$}
+			\complejidad{O(1)}
+			\State $res \larr Verifica(*(r.izq,s) \land Verifica(*(r.der),s)$
+			\complejidad{O($R + R$)}
+			\Else
+			\State $res \larr Verifica(*(r.izq),s) \lor Verifica(*(r.der),s)$
+			\complejidad{O($R + R$)}
+			\EndIf
+
+	\EndIf
+
+	\EndIf
+}{O(R)}
+
+
