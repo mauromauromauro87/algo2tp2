@@ -2,8 +2,6 @@
 
 % (\paratodo{String}{c}) \ esta?(c,secuSubY(s)) \Rightarrow verifica?(c,r)$}
 
-\section{Módulo Sistema DCNet}
-
 Una DCNet es
 
 \subsection{Interfaz}
@@ -23,134 +21,83 @@ Una DCNet es
  {O(?????)}
 
 \operacion{dameRed}{in s: dcnet}{res : red}
- {true}
+ {$true$}
  {$\var{res} \igobs red(s)$}
  {Devuelve la red de DCNet.}
- {O(?????)}
+ {O($?????$)}
 
 \operacion{caminoRecorrido}{in s: dcnet, in p: paquete}{res : secu(compu)}
- {paqueteEnTransito?(s,p)}
+ {$paqueteEnTransito?(s,p)$}
  {$\var{res} \igobs caminoRecorrido(s,p)$}
  {Devuelve el camino recorrido hasta el momento por un paquete.}
- {O(n \times\  log(max(n,k)))}
+ {O($n \times\  log(max(n,k))$)}
 
 \operacion{laQueMasEnvio}{in s: dcnet}{res : compu}
- {true}
+ {$true$}
  {$\var{res} \igobs laQueMasEnvio(s,p)$}
  {Devuelve la computadora que más paquetes envió.}
  {O(1)}
 
 \operacion{crearPaquete}{in/out s: dcnet, p: paquete}{}
- {s \igobs s_0 \land FALTA CHOCLO}
+ {$s \igobs s_0 \land FALTA CHOCLO$}
  {$enEspera(s,\pi_3(p)) \igobs enEspera(s_0,\pi_3(p) \cup \{p\}$}
- {Crea un paquete y lo agrega a la computadora correspondiente.}
- {O(L + log(k))}
+ {$Crea un paquete y lo agrega a la computadora correspondiente.$}
+ {O($L + log(k)$)}
 
 \operacion{enEspera}{in s: dcnet, c: compu}{res: ItColaLogP(paquete)}
- {c \in computadoras(red(s))}
+ {$c \in computadoras(red(s))$}
  {$\var{res} \igobs enEspera(s,c) DUDOSO?????????????????$}
  {Devuelve un iterador a los paquetes de la computadora.}
  {O(L)}
 
 \operacion{avanzarSegundo}{in/out s: dcnet}{}
- {s \igobs s_0}
+ {$s \igobs s_0$}
  {$completar$}
  {Avanza un segundo el sistema. Todas las computadoras envían su respectivo paquete y en consecuencia se actualizar los paquetes en espera de cada una de ellas.}
- {O(n \times\ (L + log(n) + log(k)))}
+ {O($n \times\ (L + log(n) + log(k))$)}
 
 \operacion{cantidadEnviados}{in s: dcnet, in c: compu}{res : nat}
- {c \in computadoras(red(s))}
+ {$c \in computadoras(red(s))$}
  {$\var{res} \igobs cantidadEnviados(s,c)$}
  {Devuelve la cantidad de paquetes enviados por una computadora.}
  {O(ESTO FALTA AGREGARLO A LA ESTRUCTURA NO ???)}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Representación}
 
-\serc{sistema}{
-	\\
-	\donde{sistema}{\tupla{
-			Compus : \mbox{arreglo(\tupla{IP: String , pP: itColaLogP, pN: itColaLog})}, %esto quedo feo
-			PaquetesPorPrioridad : \mbox{diccPref(compu, colaLogP(paquete))},
-			PaquetesPorID : \mbox{diccPref(compu, colaLog(paquete))},
-			CompusPor\#Envios : \mbox{colaLogP(compus)}
-	}}
-}
+%\subsection{Representación}
 
-\subsubsection*{Invariante de representación}
-
-\begin{enumerate}
-	\item si son hojas son tags
-	\item sino, son operadores
-	\item si el operador es unario, tiene solo hijo izquierdo
-
-		\rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
-		\textbf{if} ($r.der = \NULL$) \textbf{then} \\
-		$*r.val = "NOT" \land rep(*r.izq)$ \\
-		\textbf{else} $*r.val \in Ag("OR", Ag("AND",vacio)) \land rep(*r.izq) \land rep(*r.der)$
-		\end{enumerate}
-
-\subsubsection*{Función de abstracción}
-
- \abs{sistema}{sist}{dcnet}{s} \\
- $(\fun{s.} = \NULL \land \fun{*r.der} = \NULL \ssi nil?(a)) \ \oluego$ \\
- $\fun{*r.izq} = izq(a) \land \fun{*r.der} = der(a) \ \land$
-$r.val = raiz(a) $
+%\serc{sistema}{
+%	\\
+%	\donde{sistema}{\tupla{
+%			Compus : \mbox{arreglo(\tupla{IP: String , pP: itColaLogP, pN: itColaLog})}, %esto quedo feo
+%			PaquetesPorPrioridad : \mbox{diccPref(compu, colaLogP(paquete))},
+%			PaquetesPorID : \mbox{diccPref(compu, colaLog(paquete))},
+%			CompusPor\#Envios : \mbox{colaLogP(compus)}
+%	}}
+%}
 
 
-\subsubsection*{Algoritmos}
+%\subsubsection*{Invariante de representación}
+
+%\begin{enumerate}
+%	\item si son hojas son tags
+%	\item sino, son operadores
+%	\item si el operador es unario, tiene solo hijo izquierdo
+
+%		\rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
+%		\textbf{if} ($r.der = \NULL$) \textbf{then} \\
+%		$*r.val = "NOT" \land rep(*r.izq)$ \\
+%		\textbf{else} $*r.val \in Ag("OR", Ag("AND",vacio)) \land rep(*r.izq) \land rep(*r.der)$
+%		\end{enumerate}
+
+%\subsubsection*{Función de abstracción}
+
+ %\abs{sistema}{sist}{dcnet}{s} \\
+ %$(\fun{s.} = \NULL \land \fun{*r.der} = \NULL \ssi nil?(a)) \ \oluego$ \\
+% $\fun{*r.izq} = izq(a) \land \fun{*r.der} = der(a) \ \land$
+%$r.val = raiz(a) $
+
+%\subsubsection*{Algoritmos}
 
 
 
-\algoritmo{iCrear}{in r : red$}{res : dcnet}{
-	 \If{$(*r.izq) = \NULL $ }	\complejidad{O($1$)}
-		\State $res \larr definido(r.val, s)$
-			\complejidad{O(1)}
-	\Else
-	\If {$(*r.der) = \NULL$} \complejidad{O(1)}
-	\State $res \larr \neg Verifica(*(r.izq),s)$
-			\complejidad{O($R$)}
-			\Else
-			\If {$(*(r.val)) = "AND"$}
-			\complejidad{O(1)}
-			\State $res \larr Verifica(*(r.izq,s) \land Verifica(*(r.der),s)$
-			\complejidad{O($R + R$)}
-			\Else
-			\State $res \larr Verifica(*(r.izq),s) \lor Verifica(*(r.der),s)$
-			\complejidad{O($R + R$)}
-			\EndIf
-
-	\EndIf
-
-	\EndIf
-}{O(R)}
-
-\operacion{caminoRecorrido}{in s: dcnet, in p: paquete}{res : secu(compu)}
- {paqueteEnTransito?(s,p)}
- {$\var{res} \igobs caminoRecorrido(s,p)$}
- {Devuelve el camino recorrido hasta el momento por un paquete.}
- {O(n \times\  log(max(n,k)))}
-
-
-\algoritmo{icaminoRecorrido}{in s: dcnet, in p:paquete$}{res : secu(compu)}{
-	 \If{$(*r.izq) = \NULL $ }	\complejidad{O($1$)}
-		\State $res \larr definido(r.val, s)$
-			\complejidad{O(1)}
-	\Else
-	\If {$(*r.der) = \NULL$} \complejidad{O(1)}
-	\State $res \larr \neg Verifica(*(r.izq),s)$
-			\complejidad{O($R$)}
-			\Else
-			\If {$(*(r.val)) = "AND"$}
-			\complejidad{O(1)}
-			\State $res \larr Verifica(*(r.izq,s) \land Verifica(*(r.der),s)$
-			\complejidad{O($R + R$)}
-			\Else
-			\State $res \larr Verifica(*(r.izq),s) \lor Verifica(*(r.der),s)$
-			\complejidad{O($R + R$)}
-			\EndIf
-
-	\EndIf
-
-	\EndIf
-}{O(R)}
