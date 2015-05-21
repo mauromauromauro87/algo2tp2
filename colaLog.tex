@@ -1,0 +1,565 @@
+%!TEX root = tp2.tex
+
+\section{M\'odulo Cola Logar\'itmica de Prioridad($\alpha$)}
+
+El m\'odulo Cola Logar\'itmica de Prioridad provee una Cola en la que acceder al elemento con mayor prioridad es $O(1)$, al igual que insertar un elemento al final (con "prioridad cero"). El resto de las operaciones son logar\'itmicas.
+En cuanto al recorrido de los elementos, se provee un iterador que permite borrar un elemento con costo logar\'itmico.
+
+\subsection{Interfaz}
+
+\sexc{Cola de Prioridad$(\alpha)$, Iterador Bidireccional$(\alpha)$}
+\usa{Puntero($\alpha$), Nat, ... }
+\generos{colaLog($\alpha$), itColaLog($\alpha$)}
+
+
+
+
+%%%%% OPERACIONES
+
+\subsubsection*{Operaciones básicas de colaLog}
+
+\operacion{Vacío}{}{res : colaLog($\alpha$)}
+{true}
+{$\var{res} \igobs \fun{vacía{}}$}
+{Genera una cola vacía.}
+{$O(1)$}
+{}
+
+\operacion{Agregar}{in a : tupla(\mbox{nat, nat}),in/out cl : colaLog(tupla(\mbox{nat,nat}))}{}
+{\var h = $h_{0}$}
+{\var h = \fun encolar(\var a,$h_{0}$)}
+{Agrega un elemento a la cola.}
+{O(1)}
+{}
+
+
+\operacion{SacarMax}{in/out cl : colaLog}{res: tupla(nat,nat)}
+{$\lnot \fun{Vacía?}(h) \land h = h_{0}$}
+{$h = \fun{desencolar}(h_{0}) \land res = \fun{próximo}(h_{0}) \land \fun{tamaño}(h) = (\fun{tamaño}(h_{0})-1)$}
+{Saca el elemento con mayor prioridad y lo devuelve.}
+{$O(1)$}
+{\var{res} no es modificable.}
+
+\operacion{Eliminar}{in a: tupla(\mbox{nat,nat}),in/out cl: colaLog}{}
+{$h = h_{0}$}
+{$h \igobs \fun{eliminarElem}(a,h_{0}) $}
+{Elimina un elemento de la cola.}
+{$O(1)$}
+{}
+
+\operacion{EsVacía?}{in cl : colaLog}{res : bool}
+{true}
+{res = vacía?(h)}
+{Devuelve true si la cola no tiene elementos.}
+{}
+{}
+
+
+
+\subsection{Especificación de las operaciones auxiliares utilizadas en la interfaz}
+
+\textbf{TAD} \tad{Cola de Prioridad Extendida(\alpha)}
+
+\textbf{extiende} \tad{Cola de Prioridad(\alpha)}
+
+\textbf{otras operaciones (no exportadas)}\\
+\fannot{eliminar}{\fun{colaPrior}(\alpha) \x \alpha}{\fun{colaPrior}(\alpha)}{}
+\textbf{axiomas} \\
+$\fun{eliminar}(c,a) \equiv$ \begin{alignhere}  \textbf{if} vacía?(c) \textbf{then} \\
+													\ \ \ \ vacía \\
+												\textbf{else}\\
+													\ \ \ \ \ \ \textbf{if} próximo(c) = a \textbf{then}\\
+														\ \ \ \ \ \ \ \ \ \ desencolar \\
+													\ \ \ \ \ \ \textbf{else} \\
+														\ \ \ \ \ \ \ \ \ encolar(proximo(c), eliminar(a, desencolar(c)))
+													\\ \ \ \ \ \ \textbf{fi}
+												\\ \textbf{fi}
+								\end{alignhere}
+
+
+
+
+%%%%% REPRESENTACION
+
+\subsection{Representación}
+
+\serc{heap}{
+	\\
+	\donde{heap}{\tupla{
+		raiz : puntero(Nodo) ,
+		últimoPadre : puntero(Nodo),
+		tamanio : nat
+	}}
+}
+
+\serc{Nodo}{
+	\\
+	\donde{Nodo}{\tupla{
+			padre : \mbox{puntero(Nodo)} ,
+		izq: \mbox{puntero(Nodo)},
+		der: \mbox{puntero(Nodo)},
+		dato: \mbox{Tupla(infraccion : nat, rur: nat)}
+	}}
+}
+
+\subsubsection*{Invariante de representación}
+
+\begin{enumerate}[wide]
+\item \textbf{heap} es un árbol perfectamente balanceado: su altura es igual al $[\log_2 (n)] + 1$, donde n es la cantidad de nodos.
+\item \textbf{heap} es un MáxHeap: la prioridad de cada nodo es mayor o igual que la de sus hijos.
+\item Todo subárbol es un \textbf{heap}.
+\item \textbf{heap} es izquierdista: cuando se agrega un nodo se lo agrega como hijo derecho solo si no se lo puede agregar como hijo izquierdo.
+\item Todas las ramas llevan a NULL (no hay ciclos).
+\item El tamaño de \textbf{heap} es igual a la \# nodos
+\end{enumerate}
+
+
+
+% \rep{city}{c}
+% \begin{enumerate}
+% \item $\fun{claves}(w.\fun{promesas}) \igobs \fun{proy}(w.\fun{clientes})$
+
+% \item $(\paratodo{cliente}{c})(c \in \fun{claves}(w.\fun{promesa}) \impluego\\\hspace*{1em} (\paratodo{promesa}{p1,p2})(p1, p2 \in \fun{obtener}(c,w.\fun{promesas}) \impluego\\\hspace*{2em}\fun{título}(p1) \nigobs \fun{título}(p2) \lor \fun{tipo}(p1) \nigobs \fun{tipo}(p2)))$
+
+% \item $w.\fun{cache}.\fun{promesas} \nigobs \NULL \impluego \\\quadx(w.\fun{cache}.\fun{cliente} \in \fun{claves}(w.\fun{promesas}) \yluego\\\quadx *(w.\fun{cache}.\fun{promesas}) \igobs \fun{obtener}(w.\fun{cache}.
+% \fun{cliente}, w.\fun{promesas}))$
+
+% \item $\fun{claves}(w.\fun{plantilla}) \igobs \fun{claves}(w.\fun{promesas}) \yluego \\(\paratodo{cliente}{c})(c \in \fun{claves}(w.\fun{plantilla}) \impluego \fun{obtener}(c, w.\fun{plantilla}) \igobs \langle0, \NULL, \NULL\rangle)$
+% \item $(\paratodo{nat}{i})(0 \leq i \leq \fun{long}(v) -2 \impluego w.\fun{clientes}[i].\fun{accTotales} \leq w.\fun{clientes}[i+1].\fun{accTotales}$)
+
+% \item $\fun{claves}(w.\fun{datos}) \igobs \fun{nombres}(w.\fun{títulos}) \yluego\\ (\paratodo{título}{t})(t \in w.\fun{titulos} \impluego\\\quadx \fun{obtener}(\fun{nombre}(t), w.\fun{datos}).\fun{título} \nigobs \NULL \yluego\\\quadx *(\fun{obtener}(\fun{nombre}(t), w.\fun{datos}).\fun{título}) \igobs t \land \\\quadx\fun{claves}(\fun{obtener}(\fun{nombre}(t), w.\fun{datos}).\fun{porCliente}) \igobs \fun{claves}(w.
+% \fun{promesas}) \land\\\quadx \fun{sumadeT}(\fun{obtener}(\fun{nombre}(t), w.\fun{datos}).\fun{porCliente},\fun{claves}(w.\fun{promesas})) \igobs \\\quadx\quadx\fun{maxAcciones}(t) - \fun{obtener}(\fun{nombre}(t), w.\fun{datos}).\fun{disponibles})$
+
+% \item $(\paratodo{cliente}{c})(c \in \fun{claves}(w.\fun{promesas}) \impluego \\\quadx(\paratodo{promesa}{p})(p \in \fun{obtener}(c, w.\fun{promesas}) \impluego \\\quadx\quadx(\existe{título}{t})(t \in w.\fun{títulos} \land \fun{nombre}(t) \igobs \fun{título}(p))))$
+
+% \item $(\paratodo{título}{t})(\paratodo{cliente}{c}) t \in w.\fun{títulos} \land c \in \fun{claves}(w.\fun{promesas}) \impluego$
+% \begin{enumerate}
+% \item obtener(\var c, obtener(nombre(\var t), \var w.datos).porCliente).promCompra $\nigobs$ \NULL $\impluego$\\\quadx (siguiente(*(obtener(\var c, obtener(nombre(\var t), \var w.datos).porCliente).promCompra)) $\in$ \\\quadx\quadx obtener(\var c, \var w.promesas) $\land$\\\quadx título(siguiente(*(obtener(\var c, obtener(nombre(\var t), \var w.datos).porCliente).promCompra))) \\\quadx\quadx\igobs \var t $\land$\\\quadx tipoOp(siguiente(*(obtener(\var c, obtener(nombre(\var t), \var w.datos).porCliente).promCompra)) \\\quadx\quadx\igobs compra)
+% \end{enumerate}
+% \end{enumerate}
+% b. obtener(\var c, obtener(nombre(\var t), \var w.datos).porCliente).promVenta $\nigobs$ \NULL $\impluego$\\ (siguiente(*(obtener(\var c, obtener(nombre(\var t), \var w.datos).porCliente).promVenta)) pertenece a obtener(\var c, \var w.promesas), título(siguiente(*(obtener(\var c, obtener(nombre(\var t), \var w.datos).porCliente).promVenta))) = \var t y tipoOp(siguiente(*(obtener(\var c, obtener(nombre(\var t), \var w.datos).porCliente).promVenta)) = Venta)
+
+% c. obtener(\var c, obtener(nombre(\var t), \var w.datos).porCliente).promCompra = \NULL si y sólo si existe p : promesa, p en obtener(\var c, \var w.promesas) con título(\var p) = \var t y tipoOp(\var p) = Compra
+
+% d. obtener(\var c, obtener(nombre(\var t), \var w.datos).porCliente).promVenta = \NULL si y sólo si sólo si existe p : promesa, p en obtener(\var c, \var w.promesas) con título(\var p) = \var t y tipoOp(\var p) = Venta
+
+% 9. Para i = 0 . . . |w.clientes| clientes[i ].accTotales = sumadeC(w.datos,i,w.titulos)
+
+% 10. para todo c : cliente, c en claves(w.promesas), para todo t: titulo, t en w.titulos, para toda p : promesa, p en obtener(c,w.promesas) tal que tipo(p) = Venta y titulo(p) = nombre(t):
+% cantidad(p) <= obtener(c, obtener(nombre(t), w .datos).porCliente).cantAcciones.
+
+% aux:
+
+% nombres : conj(titulo) -> conj(string)\\
+% nombres(Ag(t, ts)) = Ag(nombre(t), nombres(ts))\\
+% nombres(vacio) = vacio
+
+% sumadeT: dicclog(cliente, clidat) x conj(cliente) -> nat\\
+% sumadeT(d, Ag(c,cs)) = obtener(c,d).cantAcciones + sumadeT(d, cs)\\
+% sumadeT(d, vacio) = 0
+
+% sumadeC: diccpref(string,titdat) x cliente x conj(titulo) -> nat\\
+% sumadeC(d,c,vacio) = 0\\
+% sumadeC(d,c,Ag(t,ts)) = sumadeC(d,c,ts) + obtener(c,obtener(nombre(t),d).porCliente).cantAcciones
+
+% proy: vector(tupla<a,b>) -> conj(a)\\
+% proy($\textlangle\textrangle$) = vacio\\
+% proy(t . ts) = Ag($\Pi_1(t)$,proy(ts))
+
+
+
+%%%%%% ABS
+
+
+\subsubsection*{Función de abstracción}
+
+\abs{city}{ciudad}{c}{d}
+% \begin{enumerate}
+% \item $\fun{clientes}(w) \igobs \fun{claves}(e.\fun{promesas})\ \land$
+% \item $\fun{titulos}(w) \igobs e.\fun{titulos}\ \land$
+% \item $(\paratodo{cliente}{c})\ c \in \fun{clientes}(w) \impluego$
+% \begin{enumerate}
+% \item $(\fun{promesasDe}(c, w) \igobs \fun{obtener}(c, e.\fun{promesas}))\ \land$
+% \item $(\paratodo{título}{t})(t \in \fun{títulos}(w) \impluego\fun{accionesPorCliente}(c, \fun{nombre}(t), w) \igobs$\\\hspace*{1em}$\fun{obtener}(c, \fun{obtener}(\fun{nombre}(t), e.\fun{datos}).\fun{porCliente}).\fun{cantAcciones})$
+% \end{enumerate}
+% \end{enumerate}
+
+
+
+
+%%%%% ALGORITMOS
+
+
+\subsubsection*{Algoritmos}
+
+	\algoritmo{iVacío}{}{res: heap}{
+		\State $h.raiz \larr \NULL $
+			\complejidad{$O(1)$}
+		\State $h.ultimoPadre \larr \NULL $
+			\complejidad{$O(1)$}
+			\State $h.tamanio = 0$
+			\complejidad{$O(1)$}
+
+	}{$O(1)$}
+
+	\algoritmo{iRestaurar}{in n : puntero(Nodo), in/out h : heap}{}{
+    \Var{i : nat}
+		\Var{n : nodo}
+		\State $n \larr h.raiz $
+		\State $i \larr 1$
+		\While {$(n.izq \neq \NULL$) }
+		\complejidad{O($log(tamanio)$)}
+		\State $i \larr i + 1$
+		\complejidad{O($1$)}
+		\State $n = n.izq$
+		\EndWhile
+		\complejidad{O($1$)}
+		\If {$(log(tamanio) + 1 = i)$ }
+			\complejidad{$O(1)$}
+						\Var{actual: Nodo(tupla(\mbox{nat,nat}))}
+		\State $\var actual \larr \var{c}.\fun{raiz}$
+			\complejidad{$O(1)$}
+						\While{($actual.izq \neq \NULL $ )}
+						\complejidad{$O(log(Ne))$}
+		\State $\var actual \larr \var actual.\fun{izq}$
+			\complejidad{$O(1)$}
+		\EndWhile
+		\State $\fun{h.últimoPadre} \larr \var actual$
+					\Else
+		\While {$n.padre.izq \neq n$}
+		\complejidad{$O(log(h.tamanio))$}
+		\State $n = n.padre$
+			\complejidad{$O(1)$}
+\EndWhile
+			\State $n = n.padre$
+			\complejidad{$O(1)$}
+			\While {$\neg (n.izq = \NULL \land n.der = \NULL)$}
+			\complejidad{O$(log(h.tamanio))$}
+			\State $n = n.izq$
+			\complejidad{$O(1)$}
+			\EndWhile
+		\State $h.ultimoPadre \larr n$
+					\EndIf
+
+	}{$O(log(h.tamanio))$}
+	\algoritmo{iAgregar}{in a: tupla(\mbox{nat,nat}),in/out h : heap}{res: itHeap}{
+		\Var{n: Nodo(tupla(\mbox{nat,nat}))}
+		\State $\var{n}.\fun{dato} \larr \var a $
+			\complejidad{$O(1)$}
+		\State $\var{n}\fun{padre} \larr \fun{h.últimoPadre} $
+			\complejidad{$O(1)$}
+			\State $h.tamanio = h.tamanio + 1$
+			\complejidad{($O(1)$)}
+		\State \If {(\fun{h.últimoPadre}.\fun{izq} == \NULL)}
+			\complejidad{$O(1)$}
+		\State $\fun{h.últimoPadre}.\fun{izq} \larr \var n$
+			\complejidad{$O(1)$}
+				\Else
+		\State $\fun{h.últimoPadre.der} \larr \var n$
+			\complejidad{$O(1)$}
+			\State $restaurar(h.ultimoPadre,h)$
+				\EndIf
+				\State $subir(h,\&n)$
+				\State $res \larr CrearIt(subir(h,\&n),n)$
+			}{O(1)}
+
+
+% \algoritmo{iClientes}{in w : wolfstr}{res: conj(cliente)}{
+% 	\State $\var{res} \larr \Fun{CrearIt}(\Fun{Claves}(w.\fun{promesas}))$
+% 		\complejidad{O(1)}
+% }{O(1)}
+
+% \algoritmo{iTítulos}{in w : wolfstr}{res: conj(título)}{
+% 	\State $\var{res} \larr \Fun{CrearIt}(\Fun{Claves}(w.\fun{datos}))$
+% 		\complejidad{O(1)}
+% }{O(1)}
+
+% \algoritmo{iPromesasDe}{in c : cliente,in w : wolfstr}{res : conj(promesa)}{
+% 	\If{$w.\fun{cache}.\fun{promesas} = \NULL \lor w.\fun{cache}.\fun{cliente} \neq c$} \complejidad{O(1)}
+% 		\State $\var{res} \larr *(w.\fun{cache}.\fun{promesas})$
+% 			\complejidad{O(1)}
+% 	\Else
+% 		\State $\var{res} \larr \Fun{Significado}(c, w.\fun{promesas})$
+% 			\complejidad{O($\log(C)$)}
+% 		\State $w.\fun{cache}.\fun{cliente} \larr c$
+% 			\complejidad{O(1)}
+% 		\State $w.\fun{cache}.\fun{promesas} \larr \&res$
+% 			\complejidad{O(1)}
+% 	\EndIf
+% }{O($\log(C)$), O(1) en cache hit}
+
+
+% \algoritmo{iAccionesPorCliente}{in c : cliente,in nt : string,in w : wolfstr}{res : nat}{
+% 	\Var{t : titdat}
+% 	\State $t \larr \Fun{Significado}(\var{nt}, w.\fun{datos})$
+% 		\complejidad{O($|nt|$)}
+% 	\State $\var{res} \larr \Fun{Significado}(c,t.\fun{porCliente}).\fun{cantAcciones}$
+% 		\complejidad{O($\log(C)$)}
+% }{O($|nt| + \log(C)$)}
+
+% \algoritmo{iInaugurarWolfie}{in cs : conj(cliente)}{res : wolfstr}{
+% 	\Var{i : itConj(cliente), nada : clidat}
+% 	\State $i \larr \Fun{CrearIt}(\var{cs})$
+% 		\complejidad{O(1)}
+% 	\State $\var{res}.\fun{clientes} \larr \Fun{Vacío}()$
+% 		\complejidad{O(1)}
+% 	\While{$\Fun{HaySiguiente}(i)$} \complejidad{O($\#cs$)}
+% 		\State $\Fun{AgregarAtrás}(\var{res}.\fun{clientes}, \Fun{Siguiente}(i))$
+% 		\State $\Fun{Avanzar}(i)$
+% 	\EndWhile
+% 	\State $\var{res}.\fun{títulos} \larr \Fun{Vacío}()$
+% 		\complejidad{O(1)}
+% 	\State $\var{res}.\fun{promesas} \larr \Fun{Inicializar}(\var{cs}, \Fun{Vacío}())$
+% 		\complejidad{O($\#cs * \log(\#cs) + \#cs$)}
+% 	\State $\var{res}.\fun{cache}.\fun{cliente} \larr 0$
+% 		\complejidad{O(1)}
+% 	\State $\var{res}.\fun{cache}.\fun{promesas} \larr \NULL$
+% 		\complejidad{O(1)}
+% 	\State $\var{res}.\fun{datos} \larr \Fun{Vacío}()$
+% 		\complejidad{O(1)}
+% 	\State $\var{nada}.\fun{cantAcciones} \larr 0$
+% 		\complejidad{O(1)}
+% 	\State $\var{nada}.\fun{promCompra} \larr \NULL$
+% 		\complejidad{O(1)}
+% 	\State $\var{nada}.\fun{promVenta} \larr \NULL$
+% 		\complejidad{O(1)}
+% 	\State $\var{res}.\fun{plantilla} \larr \Fun{Inicializar}(\var{cs}, \var{nada})$
+% 		\complejidad{O($\#cs * \log(\#cs) + \#cs$)}
+% }{O($\#cs * \log(\#cs)$)}
+
+% \textbf{Complejidad del ciclo while}\\
+% El ciclo consiste en aplicar \#cs veces la operación de \Fun{AgregarAtrás} a un vector que inicialmente es vacío. La operación de \Fun{AgregarAtrás} tiene complejidad O($f(\fun{long}(v)) + \var{copy}(a)$), donde \var a es el valor insertado, $\var{copy}(a)$ la complejidad de copiado de $a$, $\fun{long}(v)$ la longitud del vector, y $f(n) = n$ si \var n es potencia de 2, 1 si no. (Así requerimos que sea en la sección de servicios usados.) Como en este caso \var a es de tipo \tipo{cliente}, que es sinónimo de \tipo{nat}, $\var{copy}(a) = \mathrm O(1)$.
+
+% Sea \var k natural tal que $2^k \leq \#cs-1 < 2^{k+1}$ (i.e. $k = \lfloor\log_2(\#cs-1)\rfloor$). Luego la complejidad del ciclo es (O-grande de lo que sigue, pero omitimos la notación para que sea más conciso):
+
+% \begin{gather*}
+% f(0) + 1 + f(1) + 1 + \dots + f(\#cs - 1) + 1 =\\
+% \#cs + f(0) + \dots + f(\#cs - 1) =\\
+% \#cs + 2^0 + 2^1 + \dots + 2^k + (\#cs - 1 - k) * 1
+% \end{gather*}
+
+% Pues hay $k+1$ potencias de 2, y $\#cs - 1 - k$ enteros que no son potencias de 2 entre 0 y $\#cs - 1$ inclusive. Esto es igual a
+
+% \begin{gather*}
+% 2*\#cs + 2^{k+1} -1 - 1 - k = \\
+% 2*\#cs + 2*2^k - 2 - k < 2*\#cs + 2*(\#cs -1) - 2 - k =	\\
+% 4*\#cs - 4 - k \leq 4*\#cs = \\
+% O(\#cs).
+% \end{gather*}
+
+
+% \algoritmo{iAgregarTitulo}{in t : título,in/out w : wolfstr}{res : wolfstr}{
+% 	\Var{i : itConj(título), ptit : puntero(título), tdat : titdat}
+% 	\State $i \larr \Fun{AgregarRápido}(w.\fun{titulos},t)$
+% 		\complejidad{O($|\fun{nombre}(t)|$)}
+% 	\State $\var{ptit} \larr \&(\Fun{Siguiente}(i))$
+% 		\complejidad{O(1)}
+% 	\State $\var{tdat}.\fun{título} \larr \var{ptit}$
+% 		\complejidad{O(1)}
+% 	\State $\var{tdat}.\fun{disponibles} \larr \#\Fun{MaxAcciones}(t)$
+% 		\complejidad{O(1)}
+% 	\State $\var{tdat}.\fun{porCliente} \larr w.\fun{plantilla}$
+% 		\complejidad{O(1)}
+% 	\State $\Fun{Definir}(w.\fun{datos}, \fun{nombre}(t), \var{tdat})$
+% 		\complejidad{O($|\fun{nombre}(t)| + C$)}
+% }{O($|\fun{nombre}(t)| + C$)}
+
+% \algoritmo{iActualizarCotización}{in nt: string,in cot: nat,in/out w: wolfie}{res: wolfie}{
+% 	\State $w.\fun{cache}.\fun{promesas} = \NULL$
+% 		\complejidad{O(1)}
+% 	\State $\var{tdat} \larr \Fun{Significado}(\var{nt},w.\fun{datos})$
+% 		\complejidad{O($|nt|$)}
+% 	\State $\Fun{Recotizar}(\var{cot}, *(\var{tdat}.\fun{titulo}))$
+% 		\complejidad{O(1)}
+% 	\State // Ventas:
+% 	\Var{i : nat}
+% 	\State $i \larr 0$
+% 		\complejidad{O(1)}
+% 	\While{$i < \Fun{Longitud}(w.\fun{clientes})-1$} \complejidad{$C\times$}
+% 		\State $\var{cn} \larr w.\fun{clientes}[i]$
+% 			\complejidad{\quad O(1)}
+% 		\State $\var{cldat} \larr \Fun{Significado}(\var{cn}.\fun{cliente},\var{tdat}.\fun{porCliente})$
+% 			\complejidad{\quad O($\log(C)$)}
+% 		\If{$\var{cldat}.\fun{promVenta} \neq \NULL$} \complejidad{O(1)}
+% 			\State $\var{pi} \larr *(\var{cldat}.\fun{promVenta})$
+% 				\complejidad{\quad O(1)}
+% 			\State $p \larr \Fun{Siguiente}(\var{pi})$
+% 				\complejidad{\quad O(1)}
+% 			\If{$\Fun{PromesaEjecutable}(p, \var{cot}, \var{tdat}.\fun{disponibles})$}	\complejidad{\quad O(1)}
+% 				\State $\var{tdat}.\fun{disponibles} \larr \var{tdat}.\fun{disponibles} + \Fun{Cantidad}(p)$
+% 					\complejidad{\quad O(1)}
+% 				\State $\var{cn}.\fun{accTotales} \larr \var{cn}.\fun{accTotales} - \Fun{Cantidad}(p)$
+% 					\complejidad{\quad O(1)}
+% 				\State $\var{cldat}.\fun{cantAcciones} \larr \var{cldat}.\fun{cantAcciones} - \Fun{Cantidad}(p)$
+% 					\complejidad{\quad O(1)}
+% 				\State $\Fun{EliminarSiguiente}(\var{pi})$
+% 					\complejidad{\quad O(1)}
+% 			\EndIf
+% 		\EndIf
+% 		\State $i \larr i+1$
+% 			\complejidad{\quad O(1)}
+% 	\EndWhile
+% 	\State $\Fun{OrdenarClientes}(w.\fun{clientes})$
+% 		\complejidad{O($C*\log(C)$)}
+
+% 	\State // Compras:
+% 	\State $i \larr 0$
+% 		\complejidad{O(1)}
+% 	\While{$i < \Fun{Longitud}(w.\fun{clientes})-1$} \complejidad{$C\times$}
+% 		\State $\var{cn} \larr w.\fun{clientes}[i]$
+% 			\complejidad{\quad O(1)}
+% 		\State $\var{cldat} \larr \Fun{Significado}(\var{cn}.\fun{cliente},\var{tdat}.\fun{porCliente})$
+% 			\complejidad{\quad O($\log(C)$)}
+% 		\If{$\var{cldat}.\fun{promCompra} \neq \NULL$} \complejidad{O(1)}
+% 			\State $\var{pi} \larr *(\var{cldat}.\fun{promCompra})$
+% 				\complejidad{\quad O(1)}
+% 			\State $p \larr \Fun{Siguiente}(\var{pi})$
+% 				\complejidad{\quad O(1)}
+% 			\If{$\Fun{PromesaEjecutable}(p, \var{cot}, \var{tdat}.\fun{disponibles})$}	\complejidad{\quad O(1)}
+% 				\State $\var{tdat}.\fun{disponibles} \larr \var{tdat}.\fun{disponibles} - \Fun{Cantidad}(p)$
+% 					\complejidad{\quad O(1)}
+% 				\State $\var{cn}.\fun{accTotales} \larr \var{cn}.\fun{accTotales} + \Fun{Cantidad}(p)$
+% 					\complejidad{\quad O(1)}
+% 				\State $\var{cldat}.\fun{cantAcciones} \larr \var{cldat}.\fun{cantAcciones} + \Fun{Cantidad}(p)$
+% 					\complejidad{\quad O(1)}
+% 				\State $\Fun{EliminarSiguiente}(\var{pi})$
+% 					\complejidad{\quad O(1)}
+% 			\EndIf
+% 		\EndIf
+% 		\State $i \larr i+1$
+% 			\complejidad{\quad O(1)}
+% 	\EndWhile
+% }{}
+
+% \algoritmo{iAgregarPromesa}{in c: cliente,in p: promesa,in/out w: wolfstr}{res: wolfstr}{
+% 	\State $w.\fun{cache}.\fun{promesas} \larr \NULL$
+% 		\complejidad{O(1)}
+% 	\State $\var{cp} \larr \Fun{Significado}(c,w.\fun{promesas})$
+% 		\complejidad{O($\log(C)$)}
+% 	\State $i \larr \Fun{AgregarRápido}(\var{cp},p)$
+% 		\complejidad{O($|\fun{nombre}(\fun{título}(p))|$)}
+% 	\State $\var{PC} \larr \Fun{Significado}(\Fun{Nombre}(\Fun{Título}(p)),w.\fun{datos}).\fun{porCliente}$
+% 		\complejidad{O($|\fun{nombre}(\fun{título}(p))|$)}
+% 	\State $\var{clidat} \larr \Fun{Significado}(c,\var{PC})$
+% 		\complejidad{O($\log(C)$)}
+% 	\If{$\Fun{Tipo}(p) = \fun{compra}$} \complejidad{O(1)}
+% 		\State $\var{clidat}.\fun{promCompra} \larr \&i$
+% 			\complejidad{O(1)}
+% 	\Else
+% 		\State $\var{clidat}.\fun{promVenta} \larr \&i$
+% 			\complejidad{O(1)}
+% 	\EndIf
+% }{}
+
+% \algoritmo{iEnAlza}{in nt : string,in w : wolfstr}{res : bool}{
+% 	\State $\var{pt} \larr \Fun{Significado}(\var{nt},w.\fun{datos}).\fun{título}$
+% 		\complejidad{O($|nt|$)}
+% 	\State $\var{res} \larr (\var{pt}\rarr\fun{enAlza})$
+% 		\complejidad{O(1)}
+% }{}
+
+
+
+%%%%% AUXILIARES
+
+\subsubsection*{Auxiliares}
+
+% Axiomatizamos la siguiente operación a ser usada en la especificación de estos auxiliares:
+
+% \fannot{ordenado?}{secu(nat)}{bool}{}
+% $\fun{ordenado?}(\textlangle\textrangle) \equiv$ true\\
+% $\fun{ordenado?}(s \bullet \textlangle\textrangle) \equiv$ true\\
+% $\fun{ordenado?}(s_1 \bullet (s_2 \bullet s)) \equiv$
+% \hspace*{1em}\begin{alignhere}
+% \textbf{if} $s_1 \leq s_2$ \textbf{then}\\
+% \quad $\fun{ordenado?}(s_2 \bullet s)$ \\
+% \textbf{else}\\
+% \quad false\\
+% \textbf{fi}
+% \end{alignhere}
+
+% \def\tnn{\tipo{tupla\text{\rm\textlangle}nat,nat\text{\rm\textrangle}}}
+
+% \auxiliar{trepar}{in/out v : vector(\tnn))}{}
+% {}
+% {}
+% {\State $\Fun{MergeSort}(v)$ \complejidad{O(?)}}
+% {}
+
+% \auxiliar{MergeSort}{in/out A : vector(\tnn)}{}
+% {true}
+% {ordenado?(\var A)}
+% {
+% 	\Var{mid : nat, B : vector(\tnn), C : vector(\tnn)}
+% 	\If{$\fun{longitud}(A)>1$}
+% 		\State $\var{mid} \larr \Fun{Longitud}(A)/2$
+% 		\State $B \larr \Fun{SubVector}(A,0,m-1)$
+% 		\State $C \larr \Fun{SubVector}(A,m,\Fun{Longitud}(A)-1)$
+% 		\State $\Fun{iMergeSort(B)}$
+% 		\State $\Fun{iMergeSort(C)}$
+% 		\State $\Fun{iMerge}(A,B,C)$
+% 	\EndIf
+% }
+% {}
+
+% \textbf{Complejidad:}
+% Aplicamos el teorema maestro a la recurrencia. Si $T(n)$ es la complejidad de \Fun{MergeSort} para un vector de longitud \var n, tenemos:
+% $T(n) = 2*T(n/2) + 2*n/2 + n$. El primer sumando corresponde a que se realizan dos llamadas recursivas a \Fun{MergeSort} con vectores de longitud igual a la mitad del argumento original; el segundo corresponde a las dos operaciones de \Fun{SubVector}; el tercero a la complejidad de \Fun{Merge}.
+% $T(n) = 2*T(n/2) + 2*n$
+% Por el teorema maestro, como estamos en el segundo caso, pues $f(n) = 2n = \Theta(n^1)$, con $1 = \log_2(2)$, \break $T(n) = \Theta(n*\log(n))$.
+
+
+
+% \auxiliar{Merge}{out A : vector(\tnn),in B : vector(\tnn),\\\hspace*{3.3em}in C : vector(\tnn)}{}
+% {$\fun{ordenado?}(B) \land \fun{ordenado?}(C)$}
+% {$\fun{ordenado?}(B) \land (\paratodo{nat}{n})(\fun{está?}(n, B) \implies (\fun{está?}(n,A) \lor \fun{está?}(n, C))$}
+% {
+% 	\Var{i : nat, j : nat, r : nat, k : nat}
+% 	\State $i \larr 0$, $j \larr 0$
+% 	\State $r \larr 0$
+% 	\State // Inicializar un vector
+% 	\While{$r \leq \Fun{Longitud}(B) + \Fun{Longitud}(C) - 1$}
+% 		\State $\Fun{AgregarAtrás}(A, 0)$
+% 		\State $r \larr r + 1$
+% 	\EndWhile
+% 	\For{$k \larr 0$ \textbf{to} $\Fun{Longitud}(A)-1$}
+% 		\If{$i \leq \Fun{Longitud}(B)-1 \land (j > \Fun{Longitud}(C)-1 \lor \Pi_2(B[i]) < \Pi_2(C[j]))$}
+% 			\State $A[k] \larr B[i], i \larr i+1$
+% 		\Else
+% 			\State $A[k] \larr C[j], j \larr j+1$
+% 		\EndIf
+% 	\EndFor
+% }{}
+
+% \textbf{Complejidad:}
+% Como ya hemos explicado anteriormente, la complejidad del ciclo while es lineal en la cantidad de elementos agregados, multiplicado por la complejidad de copia de cada elemento insertado, que aquí es O(1) porque los elementos son de tipo nat. Además el ciclo for consiste en operaciones O(1) repetidas una cantidad igual a la longitud de A. De esta forma la complejidad total es O(\var n) siendo \var n la suma de las longitudes de B y C.
+
+
+
+
+% \auxiliar{SubVector}{in A : vector(\tnn),in desde: nat,in hasta: nat}{res: vector(\tnn)}
+% {$\var{desde} \leq \var{hasta} \leq \fun{long}(A) -1 \land \var{hasta}-\var{desde}+1\leq \fun{long}(A)$}
+% {$\fun{long}(\var{res}) \igobs (\var{hasta}-\var{desde}+1)\ \land$\\$(\paratodo{nat}{i})(0\leq i \leq \var{hasta}-\var{desde} \impluego \var{res}[i] \igobs A[\var{desde}+i]$}
+% {
+% 	\While{$\var{desde} \leq \var{hasta}$}
+% 		\State $\Fun{AgregarAtras}(\var{res}, A[\var{desde}])$
+% 		\State $\var{desde} \larr \var{desde} + 1$
+% 	\EndWhile
+% }{}
+
+% \textbf{Complejidad:}
+% Es lineal en $\var{hasta} - \var{desde}$ por lo explicado anteriormente.
+
+
+
+\subsection{Servicios usados}
+
+% De los módulos Promesa y Título: para las operaciones \Fun{Título}, \Fun{Tipo}, \Fun{Límite} y \Fun{Cantidad} (de Promesa), y \Fun{Nombre}, \Fun{\#máxAcciones}, \Fun{Cotización} y \Fun{EnAlza} (de Título) requerimos complejidad temporal O(1). No tenemos requerimientos de \textit{aliasing}. Del módulo Promesa requerimos también la operación \Fun{PromesaEjecutable} en O(1).
+
+% Del módulo Diccionario por Prefijo: requerimos significado y definir en O($|k| + \var{copy}(s)$) donde $\var{copy}(s)$ es la complejidad de copiado del significado que se define y $|k|$ es el largo del string \var k que se busca o define; y vacío y claves en O(1). Requerimos que significado devuelva un valor modificable.
+
+% Del módulo Diccionario Logarítmico(\alpha, \beta): requerimos \Fun{Vacío} y \Fun{Claves} en O(1), \Fun{Significado} en O($\log(C) + \var{copy}(s)$), \Fun{Inicializar} en O($\#cs*\log(\#cs) + \#cs*\var{copy}(s) + \var{copy}(\var{cs})$), donde \var{cs} es el conjunto de entradas del diccionario, \var s es el significado con el cual se inicializa el diccionario y \var C es la cantidad de entradas del diccionario. Requerimos que significado devuelva un valor modificable.
+
+% Del módulo Conjunto Lineal(\alpha): requerimos \Fun{CrearIt}, \Fun{Vacío} en O(1), \Fun{AgregarRápido} en O($\var{copy}(a)$) donde $\var{copy}(a)$ es la complejidad de copiado del elemento insertado, cuando el elemento no está en el conjunto. De su iterador, requerimos \Fun{HaySiguiente}, \Fun{Avanzar} en O(1).
+% Del puntero requerimos: \NULL, comparación contra \NULL, referencia y derreferencia en O(1).
+% Del módulo Vector: requerimos \Fun{Vacío} en O(1), \Fun{AgregarAtrás} en O($f(\fun{long}(v)) + \var{copy}(a)$), donde \var a es el valor insertado, $\var{copy}(a)$ la complejidad de copiado de \var a, $\fun{long}(v)$ la longitud del vector, y $f(n) = n$ si \var n es potencia de 2, 1 si no.
