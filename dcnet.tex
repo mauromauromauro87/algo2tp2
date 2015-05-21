@@ -69,10 +69,12 @@ Una DCNet es
 \serc{sistema}{
 	\\
 	\donde{sistema}{\tupla{
-			Compus : \mbox{arreglo(\tupla{IP: String , pP: itColaLogP, pN: itColaLog})}, %esto quedo feo
-			PaquetesPorPrioridad : \mbox{diccPref(compu, colaLogP(paquete))},
-			PaquetesPorID : \mbox{diccPref(compu, colaLog(paquete))},
-			CompusPor\#Envios : \mbox{colaLogP(compus)}
+			Compus : \mbox{arreglo(\tupla{IP: String , pP: itConjLogP, pN: itConjLog})}, %esto quedo feo
+			CompusPorPref : \mbox{diccPref(compu, \tupla{It: ItconjLogP(paquete), ItP: ItconjLog(paquete)}},
+			CompusPor\#Envios : \mbox{conjLogP(compu)},
+      CaminosMinimos: \mbox{arreglo(arreglo(arreglo(compu)))},
+      PaquetePorPrioridad : \mbox{conjLogP(paquete)},
+      PaquetesPorID : \mbox{conjLog(paquete)}
 	}}
 }
 
@@ -101,3 +103,132 @@ Una DCNet es
 
 
 
+\operacion{crearPaquete}{in/out s: dcnet, p: paquete}{}
+ {$s \igobs s_0 \land FALTA CHOCLO$}
+ {$enEspera(s,\pi_3(p)) \igobs enEspera(s_0,\pi_3(p) \cup \{p\}$}
+ {$Crea un paquete y lo agrega a la computadora correspondiente.$}
+ {O($L + log(k)$)}
+
+%\algoritmo{icrearPaquete}{in/out s:dcnet, p: paquete}{}{
+%  \Var{t: tupla(iterador, iterador)}
+%  \State $t\larr \Fun{Obtener}(\pi_3(p), \var{s}.CompusPorPref
+%          \complejidad{O(L)}
+%  \Var{q : conjLogP(paquete)}
+%  \State $q \larr \Fun{Obtener}(\pi_3(p), \var{s}.PaquetesPorID)$
+%           \complejidad{O(1)}
+%                  \State $\var{res}.\fun{raíz} \larr n$
+%                      \complejidad{O(1)}
+%                        \State $\var{res}.\fun{claves} \larr \Fun{Vacío}()$
+%                            \complejidad{O(1)}
+%}
+
+%{O(1)}
+
+\algoritmo{iDefinir}{in/out t : trie($\alpha$),in s : string,in a : $\alpha$}{}{
+    \If{$\Fun{iDefinido?}(t,s)$}  \complejidad{O($|s|$)}
+        \State $n \larr \Fun{dameNodo}(t, s)$
+              \complejidad{O($|s|$)}
+                \Else
+                    \State $n \larr \Fun{CrearNodo}(t,s)$
+                          \complejidad{O($|s|$)}
+                              \State $\var{iter} \larr \Fun{AgregarRápido}(t.\fun{claves}, s)$
+                                    \complejidad{O($|s|$)}
+                                        \Var{e : definición(\alpha)}
+                                            \State $e.\fun{clave} \larr \var{iter}$
+                                                  \complejidad{O(1)}
+                                                      \State $n.\fun{definición} \larr \&e$
+                                                            \complejidad{O(1)}
+                                                              \EndIf
+                                                                \State $a' \larr \Fun{Copiar}(a)$
+                                                                    \complejidad{O($\var{copy}(a)$)}
+                                                                      \State $(*n.\fun{definición}).\fun{significado} \larr \&a'$
+                                                                          \complejidad{O(1)}
+}{O($|s| + \var{copy}(a)$)}
+
+\algoritmo{iDefinido?}{in/out t : trie($\alpha$),in s : string}{res : bool}{
+    \State $n \larr \Fun{dameNodo}(t, s)$
+        \complejidad{O($|s|$)}
+          \State $\var{res} \larr n \neq \NULL$
+              \complejidad{O(1)}
+}{O($|s|$)}
+
+\algoritmo{iSignificado}{in/out t : trie($\alpha$),in s : string}{res : \alpha}{
+    \State $n \larr \Fun{dameNodo}(t,s)$
+        \complejidad{O($|s|$)}
+          \State $\var{res} \larr (*n.\fun{definición}).\fun{significado}$
+              \complejidad{O(1)}
+}{O($|s|$)}
+
+\pagebreak
+\algoritmo{iBorrar}{in/out t : trie($\alpha$),in s : string}{}{
+    \State $n \larr \Fun{dameNodo}(t, s)$
+        \complejidad{O($|s|$)}
+          \State $\Fun{EliminarSiguiente}((*n.\fun{definición}).\fun{clave})$
+              \complejidad{O(1)}
+                \State $n.\fun{definición} \larr \NULL$
+                    \complejidad{O(1)}
+}{O($|s|$)}
+
+\algoritmo{iClaves}{in t : trie($\alpha$)}{res : conj(string)}{
+    \State $\var{res} \larr t.\fun{claves}$
+        \complejidad{O(1)}
+}{O(1)}
+
+
+
+%%%%% AUXILIARES
+
+\subsubsection*{Auxiliares}
+
+\auxiliar{dameNodo}{in t : trie($\alpha$),in s : string}{res : puntero(definicion(\alpha))}
+{$\fun{Rep}(t) \yluego d_0 \igobs \fun{Abs}(t)$}{
+    $(\var{res} \igobs \NULL \iff \lnot\fun{def?}(s, d_0))\ \land$ \\
+      $(\var{res} \nigobs \NULL \impluego \fun{Siguiente}((*res.definicion).\fun{clave}) \igobs s\ \yluego$ \\
+          \hphantom{$(\var{res} \nigobs \NULL \impluego $ }$(*\var{res.definicion}).\fun{signficado} \igobs \fun{obtener}(s, d_0))$}
+          {
+              \Var{i:nat, n:nodo(\alpha)}
+                \State $i \larr 0$
+                    \complejidad{O(1)}
+                      \State $n \larr t.\fun{raíz}$
+                          \complejidad{O(1)}
+                            \While{$i < |s| \land \Fun{Definido?}(n.\fun{hijos}, s[i])$} \complejidad{O$(|s|)\times$}
+                                \State $n \larr \Fun{Significado}(n.\fun{hijos}, s[i])$
+                                      \complejidad{\quad O(1)}
+                                          \State $i \larr i + 1$
+                                                \complejidad{\quad O(1)}
+                                                  \EndWhile
+                                                    \If{$i = |s|$} \complejidad{O(1)}
+                                                        \State $\var{res} \larr n$
+                                                               \complejidad{O(1)}
+                                                                \Else
+                                                                    \State $\var{res} \larr \NULL$
+                                                                           \complejidad{O(1)}
+                                                                            \EndIf
+          }{O($|s|$)}
+
+          \auxiliar{CrearNodo}{in/out t : trie($\alpha$), in s : string}{res : nodo(\alpha)}
+          {$\fun{Rep}(t)$}
+          {$\fun{existeNodo}(t, s) \yluego \var{res} \igobs \fun{obtenerNodo}(t, s)$}
+          {
+              \Var{i:nat, n:nodo(\alpha), iter : \mbox{itDicc(char, nodo(\alpha))}}
+                \State $i \larr 0$
+                    \complejidad{O(1)}
+                      \State $\var{res} \larr t.\fun{raíz}$
+                          \complejidad{O(1)}
+                            \While{$i < |s| \land \Fun{Definido?}(\var{res}.\fun{hijos}, s[i])$} \complejidad{O$(|s|)\times$}
+                                \State $\var{res} \larr \Fun{Significado}(\var{res}.\fun{hijos}, s[i])$
+                                      \complejidad{\quad O(1)}
+                                          \State $i \larr i + 1$
+                                                \complejidad{\quad O(1)}
+                                                  \EndWhile
+                                                    \State $n.\fun{hijos} \larr \Fun{Vacío}()$
+                                                        \complejidad{O(1)}
+                                                          \State $n.\fun{definición} \larr \NULL$
+                                                              \complejidad{O(1)}
+                                                                \While{$i < |s|$} \complejidad{O$(|s|)\times$}
+                                                                    \State $\var{iter} \larr \Fun{DefinirRápido}(\var{res}.\fun{hijos}, s[i], n)$
+                                                                          \complejidad{\quad O(1)}
+                                                                              \State $\var{res} \larr \Fun{SiguienteSignificado}(iter)$
+                                                                                    \complejidad{\quad O(1)}
+                                                                                      \EndWhile
+          }{O($|s|$)}
