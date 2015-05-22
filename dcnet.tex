@@ -77,9 +77,9 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
 	\\
 	\donde{sistema}{\tupla{
 			Compus : \mbox{arreglo(\tupla{IP: String , pP: itConjLogP, pN: itConjLog})}, %esto quedo feo
-			CompusPorPref : \mbox{diccPref(compu, ItP: ItconjLog(paquete))},
+			CompusPorPref : \mbox{diccPref(compu, \tupla{ItId: ItconjLog(paquete),ItP: ItconjLog(paquete))}},
       CaminosMinimos: \mbox{arreglo(arreglo(arreglo(compu)))},
-      %PaquetePorPrioridad : \mbox{conjLogP(paquete)},
+      PaquetePorId : \mbox{conjLog(paquete)},
       PaquetesPorPrioridad : \mbox{conjLog(paquete)},
       LaQMasEnvio : \mbox{puntero(compu)
 	}}}

@@ -2,8 +2,8 @@
 
 \subsection{Interfaz}
 
-\sexc{Conj($\alpha$), IteradorBidireccional($\alpha$)}
-\generos{conjLog($\alpha$), itbd($\alpha$)}
+\sexc{Conj($\alpha$)}
+\generos{conjLog($\alpha$)}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -21,7 +21,7 @@
 {$siguiente(res) = e$}
 {Retorna el elemento que se esta buscando}
 {$O(log(\#(cl)))$}
-{$alias(siguiente(res), e)$}
+{}
 
 \operacion{insertar}{in/out cl:cl($\alpha$), in e:$\alpha$}{}
 {$cl_0 \igobs cl \land \neg(e \in cl)$}
@@ -33,8 +33,9 @@
 \operacion{borrar}{in/out cl:cl($\alpha$), in e:$\alpha$}{}
 {$cl_0 \igobs cl \land (e \in cl)$}
 {$cl \igobs (cl_0 - \{e\})$}
-{Elimina el elemento e del conjunto cl, TENER CUIDADO CON LOS ITERADORES QUE APUNTEN A ESTE ELEMENTO}
+{Elimina el elemento e del conjunto cl, los iteradores que apunten a este elemento se indefinen}
 {O($log(\#(cl))$)}
+{}
 
 \subsection{Representación}
 
@@ -70,10 +71,10 @@
 
 %\subsubsection*{Función de abstracción}
 
- %\abs{sistema}{sist}{dcnet}{s} \\
- %$(\fun{s.} = \NULL \land \fun{*r.der} = \NULL \ssi nil?(a)) \ \oluego$ \\
-% $\fun{*r.izq} = izq(a) \land \fun{*r.der} = der(a) \ \land$
-%$r.val = raiz(a) $
+ \abs{clog}{conj}{cl}{c} \\
+ $(\fun{s.} = \NULL \land \fun{*r.der} = \NULL \ssi nil?(a)) \ \oluego$ \\
+ $\fun{*r.izq} = izq(a) \land \fun{*r.der} = der(a) \ \land$
+ $r.val = raiz(a) $
 
 %\subsubsection*{Algoritmos}
 
