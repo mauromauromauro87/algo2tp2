@@ -1,97 +1,72 @@
-%!TEX root = tp2.tex
-
-% (\paratodo{String}{c}) \ esta?(c,secuSubY(s)) \Rightarrow verifica?(c,r)$}
-\section{DCNet}
-
-Una DCNet es
+\section{ConjLog}
 
 \subsection{Interfaz}
 
-\sexc{DCNet}
-\generos{dcnet}
+\sexc{Conj($\alpha$), IteradorBidireccional($\alpha$)}
+\generos{conjLog($\alpha$), itbd($\alpha$)}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsubsection*{Operaciones}
 
+\operacion{nuevo}{}{res:conjLog($\alpha$)}
+{true}
+{$res \igobs \empty$}
+{Crea un nuevo conjLog vacio}
+{O(1)}
+{}
 
-\operacion{crearSistema}{in r: red}{res : dcnet}
- {true}
- {$completar$}
- {Crea un sistema DCNet.}
- {O(?????)}
+\operacion{buscar}{in cl:conjLog($\alpha$),in e:$\alpha$}{res : $\alpha$}
+{$c \in cl$}
+{$siguiente(res) = e$}
+{Retorna el elemento que se esta buscando}
+{$O(log(\#(cl)))$}
+{$alias(siguiente(res), e)$}
 
-\operacion{dameRed}{in s: dcnet}{res : red}
- {$true$}
- {$\var{res} \igobs red(s)$}
- {Devuelve la red de DCNet.}
- {O($?????$)}
+\operacion{insertar}{in/out cl:cl($\alpha$), in e:$\alpha$}{}
+{$cl_0 \igobs cl \land \neg(e \in cl)$}
+{$cl_0 \igobs Agregar(cl_0, e) \land siguiente(res)=e$}
+{Inserta un nuevo elemento en el conjunto}
+{O($log(\#(cl))$)}
+{}
 
-\operacion{caminoRecorrido}{in s: dcnet, in p: paquete}{res : secu(compu)}
- {$paqueteEnTransito?(s,p)$}
- {$\var{res} \igobs caminoRecorrido(s,p)$}
- {Devuelve el camino recorrido hasta el momento por un paquete.}
- {O($n \times\  log(max(n,k))$)}
-
-\operacion{laQueMasEnvio}{in s: dcnet}{res : compu}
- {$true$}
- {$\var{res} \igobs laQueMasEnvio(s,p)$}
- {Devuelve la computadora que más paquetes envió.}
- {O(1)}
-
-\operacion{crearPaquete}{in/out s: dcnet, p: paquete}{}
- {$s \igobs s_0 \land FALTA CHOCLO$}
- {$enEspera(s,\pi_3(p)) \igobs enEspera(s_0,\pi_3(p) \cup \{p\}$}
- {$Crea un paquete y lo agrega a la computadora correspondiente.$}
- {O($L + log(k)$)}
-
-\operacion{enEspera}{in s: dcnet, c: compu}{res: ItColaLogP(paquete)}
- {$c \in computadoras(red(s))$}
- {$\var{res} \igobs enEspera(s,c) DUDOSO?????????????????$}
- {Devuelve un iterador a los paquetes de la computadora.}
- {O(L)}
-
-\operacion{avanzarSegundo}{in/out s: dcnet}{}
- {$s \igobs s_0$}
- {$completar$}
- {Avanza un segundo el sistema. Todas las computadoras envían su respectivo paquete y en consecuencia se actualizar los paquetes en espera de cada una de ellas.}
- {O($n \times\ (L + log(n) + log(k))$)}
-
-\operacion{cantidadEnviados}{in s: dcnet, in c: compu}{res : nat}
- {$c \in computadoras(red(s))$}
- {$\var{res} \igobs cantidadEnviados(s,c)$}
- {Devuelve la cantidad de paquetes enviados por una computadora.}
- {O(ESTO FALTA AGREGARLO A LA ESTRUCTURA NO ???)}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\operacion{borrar}{in/out cl:cl($\alpha$), in e:$\alpha$}{}
+{$cl_0 \igobs cl \land (e \in cl)$}
+{$cl \igobs (cl_0 - \{e\})$}
+{Elimina el elemento e del conjunto cl, TENER CUIDADO CON LOS ITERADORES QUE APUNTEN A ESTE ELEMENTO}
+{O($log(\#(cl))$)}
 
 \subsection{Representación}
 
-\serc{sistema}{
+\serc{clog}{
 	\\
-	\donde{sistema}{\tupla{
-			Compus : \mbox{arreglo(\tupla{IP: String , pP: itConjLogP, pN: itConjLog})}, %esto quedo feo
-			CompusPorPref : \mbox{diccPref(compu, \tupla{It: ItconjLogP(paquete), ItP: ItconjLog(paquete)}}},
-      CaminosMinimos: \mbox{arreglo(arreglo(arreglo(compu)))},
-      %PaquetePorPrioridad : \mbox{conjLogP(paquete)},
-      PaquetesPorPrioridad : \mbox{conjLog(paquete)},
-      LaQMasEnvio : \mbox{puntero(compu)
+	\donde{clog}{ raiz : \mbox{puntero(nodo)}
+	}	
+	\donde{nodo}{\tupla{
+		der : \mbox{puntero(nodo)},
+		izq : \mbox{puntero(nodo)},
+		valor : \mbox{$\alpha$},
+		padre : \mbox{puntero(nodo)
+		fdb : \mbox{nat}}
 	}}
 }
 
+\newpage
+\subsubsection*{Invariante de representación}
 
-%\subsubsection*{Invariante de representación}
+\begin{enumerate}
+	\item Para todas las raíces, la altura del subárbol derecho menos la altura del subárbol izquierdo de esa raíz es igual al fdb.
+	\item El fdb de todas las raíces es 0, 1 o -1.
+	\item No hay valores repetidos.
+	\item Si un nodo no es una hoja del árbol entonces los padres de los hijos derecho e izquierdo son iguales y es el nodo
+	\item Si un nodo es una hoja del arbol entonces los hijos derecho e izquierdo del árbol son NULL
+	\item El padre de la raíz es NULL
 
-%\begin{enumerate}
-%	\item si son hojas son tags
-%	\item sino, son operadores
-%	\item si el operador es unario, tiene solo hijo izquierdo
-
-%		\rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
-%		\textbf{if} ($r.der = \NULL$) \textbf{then} \\
-%		$*r.val = "NOT" \land rep(*r.izq)$ \\
-%		\textbf{else} $*r.val \in Ag("OR", Ag("AND",vacio)) \land rep(*r.izq) \land rep(*r.der)$
-%		\end{enumerate}
+		\rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
+		\textbf{if} ($r.der = \NULL$) \textbf{then} \\
+		$*r.val = "NOT" \land rep(*r.izq)$ \\
+		\textbf{else} $*r.val \in Ag("OR", Ag("AND",vacio)) \land rep(*r.izq) \land rep(*r.der)$
+		\end{enumerate}
 
 %\subsubsection*{Función de abstracción}
 
