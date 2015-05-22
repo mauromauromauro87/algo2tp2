@@ -1,6 +1,7 @@
 %\\\\\\\\\\\\!TEX root = tp2.tex
 
 % (\paratodo{String}{c}) \ esta?(c,secuSubY(s)) \Rightarrow verifica?(c,r)$}
+\section{DCNet}
 
 Una DCNet es
 
@@ -75,12 +76,13 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
 \serc{sistema}{
 	\\
 	\donde{sistema}{\tupla{
-			Compus : \mbox{arreglo(tupla(IP: String , pP: itConjLogP, pN: itConjLog)}, %esto quedo feo
-			CompusPorPref : \mbox{diccPref(compu, \tupla{It: conjLogP(paquete), ItP: conjLog(paquete)}},
-			CompusPor\#Envios : \mbox{conjLogP(compu)},
-     CaminosMinimos: \mbox{arreglo(arreglo(arreglo(compu)))}
-	}
-}
+			Compus : \mbox{arreglo(\tupla{IP: String , pP: itConjLogP, pN: itConjLog})}, %esto quedo feo
+			CompusPorPref : \mbox{diccPref(compu, ItP: ItconjLog(paquete))},
+      CaminosMinimos: \mbox{arreglo(arreglo(arreglo(compu)))},
+      %PaquetePorPrioridad : \mbox{conjLogP(paquete)},
+      PaquetesPorPrioridad : \mbox{conjLog(paquete)},
+      LaQMasEnvio : \mbox{puntero(compu)
+	}}}
 }
 
 %\subsubsection*{Invariante de representación}
