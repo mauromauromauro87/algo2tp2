@@ -69,6 +69,8 @@ $n$ : la cantidad total de computadoras que hay en el sistema, \\
 $L$ : el hostname más largo de todas las computadoras, \\
 $k$ : la cola de paquetes más larga de todas las computadoras. 
 
+$\neg \emptyset$
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Representación}
 
@@ -205,7 +207,15 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
     \State $b \larr \neg(\Fun{pertenece?}(p,\pi_3(s.compus[i])))$
           \complejidad{O($log(k)$)}
   \EndWhile
-  \State$res \larr s.CaminosMinimos[\pi_3(p)][\pi_4(s.compus[i])]$
+  \Var{j: nat}
+  \State $j \larr 0$
+        \complejidad{O(1)}
+  \While{$\pi_1(s.compus[j]) \neq \pi_3(p)$}
+        \complejidad{O(n)} 
+    \State$i \larr j + 1$
+          \complejidad{O(1)}
+  \EndWhile
+  \State$res \larr s.CaminosMinimos[j][\pi_4(s.compus[i])]$
         \complejidad{O(1 o n dependiendo de si hago copia o no)}
 }
 {O($n \times log(k)$)}
