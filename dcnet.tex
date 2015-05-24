@@ -107,6 +107,43 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
 
 \subsubsection*{Algoritmos}
 
+\algoritmo{icrearSistema}{in r:red}{res:dcnet}{
+%inicializacion Caminos Minimos
+	\State $n \larr \#(\Fun{compus}(red))$
+		\complejidad{O($\#$compus(red)=n)?}
+	\State $i\larr 0$
+	\State $j\larr 0$
+		\complejidad{O(1)}
+	\State $res.Compus \larr \Fun{CrearArreglo}(n)$
+		\complejidad{O(n)}
+	\State $res.CaminosMinimos\larr \Fun{CrearArreglo}(n)$
+		\complejidad{O(n)}
+	\Var{p: arreglo$\_$dimensionable de puntero(conjLog(paquete))}	
+	\While{i$<$n}
+		\complejidad{O(n)}
+		\State $res.CaminosMinimos[i] \larr \Fun{CrearArreglo}(n)$ 
+			\complejidad{O(n)}
+		\State $p[i] \larr NULL$
+			\complejidad{O(1)}
+		\State $res.Compus[i] \larr $ \textbf{tupla}$<compu(r,i),p[i],0,0>$ 
+		\State no se como se deben escribir las tuplas
+			\complejidad{O(1)}
+		\State \Fun{definir}(res.CompusPorPref,compu(r,i))
+			\complejidad{O(L)}
+		\While{j$<$n}
+			\complejidad{O(n)}
+			\State $res.CaminosMinimos[i][j] \larr caminoMinimo(compu(r,i),compu(r,j),r)$
+				\complejidad{O(complejidad cammin(red))}
+			\State $j++$
+		\EndWhile
+		\State $i++$	
+	\EndWhile
+	\State $res.LaQMasEnvio \larr 0$
+		\complejidad{O(1)}
+%holi
+}
+{O(max\{$n^2 \times O(complejidad cammin(red)),n \times L\}$)}
+
 \algoritmo{icrearPaquete}{in/out s:dcnet,in p: paquete}{}{ %hay que cambiar nombres segun heap y avl
   \State $t: \ < conjLog(paquete),\ conjLog(paquete) >$
   \State $t \larr \Fun{Obtener}(\pi_3(p),\ \var{s}.CompusPorPref)$
@@ -120,7 +157,7 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
 
 
 \algoritmo{ilaQueMasEnvio}{in s: dcnet}{res : compu}{
-  \State $res \larr s.LaQMasEnvio$ 
+  \State $res \larr \pi_1(s.compus[s.LaQMasEnvio])$ 
         \complejidad{O(1)}
 }
 {O(1)}
