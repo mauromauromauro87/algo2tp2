@@ -420,6 +420,7 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 }
 {$O(log(size(cl)))$}
 
+\newpage
 \algoritmo{iMayorNodo}{in cl:conjLog($\alpha$)}{res:$conjLog(\alpha)$}{
 	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
 	\State \While {$clactual.der != NULL$}
@@ -427,4 +428,13 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 	\EndWhile
 	\State $res \larr clactual$ \complejidad{O(1)}
 }
-{$O(log(\#(cl)))$}
+{$O(log(size(cl)))$}
+
+\algoritmo{size}{in cl:conjLog($\alpha$)}{res:$nat$}{
+	\State \If {$cl == NULL$}
+		\State $res \larr 0$
+	\Else 
+		\State $res \larr 1 + iSize(cl.der) + iSize(cl.izq)$
+	\EndIf
+}
+{}

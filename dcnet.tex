@@ -20,10 +20,10 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
  {true}
  {$\var{res} \igobs iniciarDCNet(r)$}
  {Crea un sistema DCNet.}
- {O(?????????????????????????????????????)}
+ {O(???)}
 
 \operacion{crearPaquete}{in/out s: dcnet,in p: paquete}{}
- {$s \igobs s_0 \land FALTA CHOCLO$}
+ {$s \igobs s_0 \land (\forall p_0:paquete,paqueteEnTransito?(p,s))$ ¬$(p_0 \igobs p) \land$ \\ $destino(p) \in compus(red) \land origen(p) \in compus(red) \yluego $ \\ $haycamino?(destino(p),origen(p),red(s))$}
  {$s \igobs crearPaquete(s_0, p)$}
  {Crea un paquete y lo agrega a la computadora correspondiente.}
  {O($L + log(k)$)}
@@ -34,11 +34,12 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
  {Avanza un segundo el sistema. Todas las computadoras envían su respectivo paquete y en consecuencia se actualizar los paquetes en espera de cada una de ellas.}
  {O($n \times\ (L + log(n) + log(k))$)}
 
-\operacion{dameRed}{in s: dcnet}{res : red}
+\operacion{dameRed}{in s: dcnet}{res :puntero(red)}
  {$true$}
  {$\var{res} \igobs red(s)$}
  {Devuelve la red de DCNet.}
- {O($????????????????????????????????????$)}
+ {O(1)}
+ {Devuelve un puntero a la misma red que la que se pas\'o como par\'ametro para crear el sistema}
 
 \operacion{caminoRecorrido}{in s: dcnet,in p: paquete}{res : secu(compu)}
  {$paqueteEnTransito?(s,p)$}
@@ -70,18 +71,25 @@ $L$ : el hostname más largo de todas las computadoras, \\
 $k$ : la cola de paquetes más larga de todas las computadoras. 
 
 
+$\neg \emptyset$
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Representación}
 
 \serc{sistema}{
 	\\
 	\donde{sistema}{\tupla{
-			Compus : \mbox{arreglo(\tupla{IP: String , pN: puntero(conjLog(paquete)), \#Paquetes: nat, Num: nat})}, %esto quedo feo
+			Compus : \mbox{arreglo(\tupla{IP: String , pN: puntero(conjLog(paquete)), \#Paquetes: nat})}, %esto quedo feo
 			CompusPorPref : \mbox{diccPref(compu,\tupla{PorNom: conjLog(paquete), PorPrior: conjLog(paquete)}},
       CaminosMinimos: \mbox{arreglo(arreglo(arreglo(compu)))},
       LaQMasEnvio : \mbox{nat
-	}}}
+	},
+	red: \mbox{red}	
+	}}
 }
+
+esto se puede borrar despues:
+aclaracion en compus en cada indice del arreglo esta la compu correspondiente a esa numeracion
 
 \subsubsection*{Invariante de representación}
 
@@ -96,14 +104,11 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
   \item La computadora que más paquetes envió es aquella cuyo índice es igual a \textit{LaQMasEnvio}
 
 \end{enumerate}
-		\rep{sistema}{s} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
-      $1.\ \paratodo{String}{s}\ \fun{$def?$}(s, s.CompusPorPref), (\exists c : compu), \fun{$esta?$}(c,s.Compus)\ \land\ \pi_1(c) = s\ \land\ \fun{longitud}(s.Compus) = \#\Fun{claves}(s.CompusPorPref)$\\ 
-      $2.\ \paratodo{compu}{c}\ \fun{esta?}(c, s.Compus), *\pi_2(c) = \fun{obtener}(\pi_1(c),s.CompusPorPref) $\\ 
-      $3.\ \paratodo{String}{s,t}\ \fun{def?}(s, s.CompusPorPref)\ \land\ \fun{def?}(t, s.CompusPorPref)\ \land\ s \neq t \impluego \\ \fun{obtener}(s, s.CompusPorPref)\ \bigcap\ \fun{obtener}(t, s.CompusPorPref) = \emptyset$\\
-      $4.\ \paratodo{String}{s}\ \fun{def?}(s, s.CompusPorPref)\ \impluego\ \pi_1(\fun{obtener}(s, s.CompusPorPref)) =\\ \pi_2(\fun{obtener}(s, s.CompusPorPref))$ \\
-      $5.\ (\paratodo{nat}{i,j}),\ 0 \leq i,j < \fun{longitud}(s.CaminosMinimos) \impluego \fun{longitud}(s.CaminosMinimos) = \fun{longitud}(s.CaminosMinimos[i])\ \land\ \fun{longitud}(s.CaminosMinimos[i][j]) < \fun{longitud}(s.CaminosMinimos)\ \land\ (\paratodo{nat}{e}), \fun{esta?}(e, s.CaminosMinimos[i][j]) \Rightarrow e < \fun{longitud}(s.CaminosMinimos) $\\
-      $8. \paratodo{compu}{c}\ \fun{esta?}(c, s.Compus)\ \impluego\ \pi_3(c) \leq \pi_3(s.Compus[s.LaQMasEnvio])$
-
+%		\rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
+%		\textbf{if} ($r.der = \NULL$) \textbf{then} \\
+%		$*r.val = "NOT" \land rep(*r.izq)$ \\
+%		\textbf{else} $*r.val \in Ag("OR", Ag("AND",vacio)) \land rep(*r.izq) \land rep(*r.der)$
+%		\end{enumerate}
 
 %\subsubsection*{Función de abstracción}
 
@@ -112,43 +117,13 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
 % $\fun{*r.izq} = izq(a) \land \fun{*r.der} = der(a) \ \land$
 %$r.val = raiz(a) $
 
-%\rep{city}{c} \\
-%	$1. \ \fun{claves}(c.\fun{robots}) \igobs \fun{claves}(c.\fun{estación}) \igobs \fun{claves}(c.\fun{tags}) \igobs \fun{claves}(c.\fun{infracciones}) \igobs \fun{claves}(c.\fun{restricciones}) \ \land $
-%
-%	$2. \ (\paratodo{rur}{r}) def?(r, c.robots) \yluego \\ (\exists b : tupla(nat,nat)) \ pertenece(b, obtener(obtener(r, c.estacion), c.robotsPorEstacion)) \\ \Rightarrow siguiente(obtener(r, c.robots)) = b $
-%
-%	$3. \ (\paratodo{estacion}{p,q}) def?(p, c.robotsPorEstacion) \land def?(q, c.robotsPorEstacion) \land p \neq q \impluego \\ Aconj(obtener(p, c.robotsPorEstacion)) \bigcap Aconj(obtener(q, c.robotsPorEstacion)) = \emptyset$
-%
-%	$4. \ (\paratodo{rur}{r}) \ (def?(r, c.estacion) \impluego \fun{obtener}(r,c.estacion) \in estaciones(c.mapa)) \land $
-%
-%$5. \ \fun{claves}(c.\fun{robotsPorEstación}) \igobs estaciones(c.mapa) \ \land $
-%
-%$6, 7. \ (\paratodo{estacion}{e}) \ def?(e, c.robotsPorEstacion)) \impluego  \\ (\paratodo{Tupla(infraccion,rur)}{b}) \ b \in obtener(e, c.robotsPorEstacion) \\ \impluego obtener(\pi_{2}(b), c.estacion) = e \ \land obtener(\pi_{2}(b), c.infracciones) = \pi_{1}(b) $
-%
-%
-%$8. \ (\paratodo{rur}{r}) \ (def?(r, c.restricciones) \impluego claves(obtener(r, c.restricciones)) \igobs estaciones(c.mapa) \  \land \\   (\paratodo{estacion}{e}) \ def?(e, obtener(r, c.restricciones)) \yluego \\ (\paratodo{estacion}{c}) def?(c, obtener(e, obtener(r, c.restricciones))) \impluego \\ conectadas?(e, q, c.mapa) \yluego \\ Verifica?(obtener(r, c.tags), restriccion(c, e, c.mapa)) = obtener(c, obtener(e, obtener(r, c.restricciones)))$
-%
-%
-%%%%%% ABS
-
-
-\subsubsection*{Función de abstracción}
-
-\abs{city}{ciudad}{e}{c}
-\begin{enumerate}
-\item $\fun{proximoRuR}(c) \igobs \#\fun{e.robots}\ \land$
-\item $\fun{mapa}(c) \igobs e.\fun{mapa}\ \land$
-\item $\fun{robots} (c)\ \igobs \fun{claves}(e.robots) \ \land$
-\item $(\paratodo{rur}{r}) \ r \in robots(c) \impluego (estacion(r,c) = significado(e.estacion, r) \ \land $
-\item $ tags(r,c) = significado(e.tags, r) \ \land $
-\item $\# infracciones (r,c) = significado(e.infracciones, r))$
-\end{enumerate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsubsection*{Algoritmos}
 
 \algoritmo{icrearSistema}{in r:red}{res:dcnet}{
 %inicializacion Caminos Minimos
+	\State $res.red \larr r$
 	\State $n \larr \#(\Fun{compus}(red))$
 		\complejidad{O($\#$compus(red)=n)?}
 	\State $i\larr 0$
@@ -165,10 +140,13 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
 			\complejidad{O(n)}
 		\State $p[i] \larr NULL$
 			\complejidad{O(1)}
-		\State $res.Compus[i] \larr $ \textbf{tupla}$<compu(r,i),p[i],0,0>$ 
-		\State no se como se deben escribir las tuplas
+		\State $res.Compus[i] \larr $ \textbf{tupla}$<compu(r,i),p[i],0>$ 
+		\State NO SE como deben escribirse las tuplas
 			\complejidad{O(1)}
-		\State \Fun{definir}(res.CompusPorPref,compu(r,i))
+		\State s:$ \ <conjLog(paquete,<_{id}),conjLog(paquete,<_{p}) >$
+		\State $\pi_1(s) \larr nuevo()$
+		\State $\pi_2(s) \larr nuevo()$
+		\State \Fun{definir}(res.CompusPorPref,compu(r,i),s)
 			\complejidad{O(L)}
 		\While{j$<$n}
 			\complejidad{O(n)}
@@ -185,7 +163,7 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
 {O(max\{$n^2 \times O(complejidad cammin(red)),n \times L\}$)}
 
 \algoritmo{icrearPaquete}{in/out s:dcnet,in p: paquete}{}{ %hay que cambiar nombres segun heap y avl
-  \State $t: \ < conjLog(paquete),\ conjLog(paquete) >$
+  \State $t: \ <conjLog(paquete,<_{id}),conjLog(paquete,<_{p}) >$
   \State $t \larr \Fun{Obtener}(\pi_3(p),\ \var{s}.CompusPorPref)$
         \complejidad{O($L$)}
   \Fun{insertar}($\pi_1(t),p$) %agrega segun nombre
@@ -202,8 +180,14 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
 }
 {O(1)}
 
+\algoritmo{idameRed}{in s: dcnet}{res: puntero(red)}{
+	\State $res\larr \&(s.red)$
+		\complejidad{O(1)}
+}
+{O(1)}
+
 \algoritmo{ienEspera}{in s:dcnet,in c: compu}{res: puntero(conjLogP(paquete))}{
-  \State $t: \ < conjLog(paquete),\ conjLog(paquete) >$
+  \State $t: \ <conjLog(paquete,<_{id}),conjLog(paquete,<_{p}) >$
   \State $t \larr \Fun{Obtener}(\pi_1(c),\ \var{s}.CompusPorPref)$
         \complejidad{O($L$)}
   \State $res \larr \&(\pi_2(t))$
@@ -217,31 +201,40 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
         \complejidad{O(1)}
   \Var{m: nat}
   \State $m \larr s.LaQMasEnvio$
-  \While{$i < \Fun{Longitud}(s.compus)$} %aca supongo que el modulo arreglo tiene la operacion longitud 
+  \While{$i < \Fun{Longitud}(s.Compus)$} %aca supongo que el modulo arreglo tiene la operacion longitud 
         \complejidad{O(n)} 
-  \If{$\neg\Fun{vacia?}$}
+ 
     \Var{IP: String}
-    \State $IP \larr \pi_1(s.compu[i])$
-    \State $t_1: \ < conjLog(paquete),\ conjLog(paquete) >$
-    \State $t_1 \larr \Fun{obtener(IP, s.CompusPorPref)}$
+    \State $IP \larr \pi_1(s.Compus[i])$
+    \State $t_1: \ <conjLog(paquete,<_{id}),conjLog(paquete,<_{p}) >$
+    \State $t_1 \larr \Fun{obtener}(IP, s.CompusPorPref)$
           \complejidad{O(L)}
     \Var{p: paquete}
+    \If{$\neg\Fun{vacia?}(\pi_1(t_1))$}
     \State $p \larr \Fun{sacarMax}(\pi_2(t_1))$ %tengo en p el paquete que voy a mover
           \complejidad{O($log(k)$)}
-    $\Fun{borrar}(\pi_2(t_1),\ p)$ %lo borro del avl por prioridad
+    \State \Fun{borrar}($\pi_2(t_1)$,\ p) %lo borro del avl por prioridad
           \complejidad{O($log(k)$)}
-    $\Fun{borrar}(\pi_1(t_1),\ p)$ %lo borro del avl por nombre
+    \State \Fun{borrar}($\pi_1(t_1)$,\ p) %lo borro del avl por nombre
           \complejidad{O($log(k)$)}
-    $\pi_3(s.compus[i]) \larr \pi_3(s.compus[i]) + 1$
+    \State$\pi_3(s.Compus[i]) \larr \pi_3(s.compus[i]) + 1$
            \complejidad{O(1)}
-    \State $t_2: \ < conjLog(paquete),\ conjLog(paquete) >$
-    \State $t_2 \larr \Fun{obtener}(\pi_4(P), s.CompusPorPref)$
+    \State $proxima \larr s.CaminosMinimos[origen(p)][destino(p)][indiceactual(p)+1]$
+    		\complejidad{O(1)}
+    ACLARACION: Aca Que sea coherente con paquete (pi o terminos) y coherente con caminoMinimo (sup que da un arreglo de IP)
+    \If{$\neg (destino(p)=proxima)$}
+     	\complejidad{O(1) o O(L) segun ip o nume}
+    \State $\Fun{actualizarIndice}(p)$
+    	\complejidad{O(1)}
+    \State $t_2: \ <conjLog(paquete,<_{id}),conjLog(paquete,<_{p}) >$
+    \State $t_2 \larr \Fun{obtener}(proxima, s.CompusPorPref)$
              \complejidad{O(L)}
-    $\Fun{insertar}(\pi_2(t_2),\ p)$ \\
+    \State $\Fun{insertar}(\pi_2(t_2),\ p)$ 
           \complejidad{O($log(k)$)}
-    $\Fun{insertar}(\pi_1(t_2),\ p)$
+    \State $\Fun{insertar}(\pi_1(t_2),\ p)$
           \complejidad{O($log(k)$)}
-    \If{$\pi_3(s.compus[i] > max)$}
+    \EndIf
+    \If{$\pi_3(s.Compus[i]) > max)$}
           \complejidad{O(1)}
       \State $ max \larr i$
            \complejidad{O(1)}
@@ -273,30 +266,42 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
   \State $i \larr 0$
         \complejidad{O(1)}
   \Var{b: bool}
-  \State $b \larr \neg(\Fun{pertenece?}(p,\pi_3(s.compus[i])))$
+  \State $b \larr \neg(\Fun{pertenece?}$(*$(p,s.compus[i].pN)))$
+  ESTA BIEN ESTE PERTENECE?
         \complejidad{O($log(k)$)}
   \While{$b$}
         \complejidad{O(n)} 
     \State$i \larr i + 1$
           \complejidad{O(1)}
-    \State $b \larr \neg(\Fun{pertenece?}(p,\pi_3(s.compus[i])))$
+    \State $b \larr \neg(\Fun{pertenece?}$(*$(p,s.compus[i].pN)))$
           \complejidad{O($log(k)$)}
   \EndWhile
   \Var{j: nat}
   \State $j \larr 0$
         \complejidad{O(1)}
-  \While{$\pi_1(s.compus[j]) \neq \pi_3(p)$}
+  \While{s.compus[j].IP $\neq \pi_3(p)$}
         \complejidad{O(n)} 
-    \State$i \larr j + 1$
+    \State$j \larr j + 1$
           \complejidad{O(1)}
   \EndWhile
-  \State$res \larr s.CaminosMinimos[j][i]$
-        \complejidad{O(1 o n dependiendo de si hago copia o no)}
+  \Var{k: nat}
+  \State $k \larr 0$
+  \While{s.compus[k].IP $\neq \pi_4(p)$}
+        \complejidad{O(n)} 
+    \State $k \larr k + 1$
+          \complejidad{O(1)}
+  \EndWhile
+  \Var{l: nat}
+  \State $l \larr 0$
+  \Var{res: arreglo\_dimensionable de IP}
+  \State $res \larr \Fun{crearArreglo}(l+1)$
+  \While{$l \leq indiceactual(p)$} 
+  \State $res[l] \larr s.CaminosMinimos[j][k][l]$
+  \State $l \larr l+1$
+  \EndWhile 
 }
 {O($n \times log(k)$)}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Servicios Usados}
-
-
