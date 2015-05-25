@@ -1,0 +1,130 @@
+\section{Diccionario por Prefijos}
+
+\subsection{Interfaz}
+
+  \textbf{par\'ametros formales}
+  
+  \textbf{g\'eneros} $\beta$\\
+ 
+
+
+\sexc{Diccionario(secu(char),$\beta$)}
+\generos{diccPref(secu(char),$\beta$)}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection*{Operaciones}
+
+\operacion{nuevo}{}{res:diccPref(secu(char),$\beta$)}
+{true}
+{($\forall$ p:secu(char)) ¬(def?(p,$res$))}
+{Crea un nuevo diccionario vac\'io}
+{O(1)}
+{}
+
+\operacion{vacio?}{in dp:diccPref(secu(char){,}$\beta$)}{res: bool}
+{true}
+{res=($\forall$ c: secu(char))¬def?(c,dp)}
+{Devuelve true o false si el diccionario es o no vac\'io}
+{O(1)}
+{}
+
+\section{Diccionario por Prefijos}
+
+\subsection{Interfaz}
+
+  \textbf{par\'ametros formales}
+  
+  \textbf{g\'eneros} $\beta$\\
+ 
+
+
+\sexc{Diccionario(secu(char),$\beta$)}
+\generos{diccPref(secu(char),$\beta$)}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection*{Operaciones}
+
+\operacion{nuevo}{}{res:diccPref(secu(char),$\beta$)}
+{true}
+{($\forall$ p:secu(char)) ¬(def?(p,$res$))}
+{Crea un nuevo diccionario vac\'io}
+{O(1)}
+{}
+
+
+\operacion{def?}{in dp:diccPref(secu(char){,}$\beta$), in p:secu(char)}{res: bool}
+{true}
+{res=p $\in$ claves(dp)}
+{Devuelve true o false seg\'un si la clave est\'a o no definida}
+{O(L)}
+{}
+
+\operacion{claves}{in dp:diccPref(secu(char){,}$\beta$)}{res: conj(secu(char))}
+{true}
+{($\forall$ c: secu(char))c $\in$ claves(dp) $\iff$ def?(c,dp)}
+{Devuelve un conjunto de las claves del diccionario}
+{O(L)?}
+{}
+
+\operacion{definir}{in/out dp:diccPref(secu(char){,}$\beta$), in p:secu(char), in s:$\beta$}{}
+{dp=$dp_0$ $\land$ ¬def?(p,dp)}
+{def?(p,dp) $\land$ obtener(p,dp)$\igobs$s $\land$ ($\forall$ c $\in$ claves($dp_0$)) def?(c,dp)}
+{Inserta una nueva clave con su significado en el diccionario}
+{O(L)}
+{}
+
+
+\operacion{obtener}{in dp:diccPref(secu(char){,}$\beta$),in p:secu(char)}{res:$\beta$}
+{def?(p,dp)}
+{$res = obtener(p,dp)$}
+{Retorna el significado de la clave pedida}
+{O(L)}
+{Devuelve res por referencia}
+
+
+\operacion{eliminar}{in/out dp:diccPref(secu(char){,}$\beta$),in p:secu(char)}{}
+{dp=$dp_0$ $\land$ def?(p,dp)}
+{¬def?(dp) $\land (\forall c \in claves(dp_0),c\neq$ p)def?(c,dp)}
+{Elimina del diccionario la clave deseada}
+{O(L)}
+{}
+\operacion{def?}{in dp:diccPref(secu(char){,}$\beta$), in p:secu(char)}{res: bool}
+{true}
+{res=p $\in$ claves(dp)}
+{Devuelve true o false seg\'un si la clave est\'a o no definida}
+{O(L)}
+{}
+
+\operacion{claves}{in dp:diccPref(secu(char){,}$\beta$)}{res: conj(secu(char))}
+{true}
+{($\forall$ c: secu(char))c $\in$ claves(dp) $\iff$ def?(c,dp)}
+{Devuelve un conjunto de las claves del diccionario}
+{O(L)?}
+{}
+
+\operacion{definir}{in/out dp:diccPref(secu(char){,}$\beta$), in p:secu(char), in s:$\beta$}{}
+{dp=$dp_0$ $\land$ ¬def?(p,dp)}
+{def?(p,dp) $\land$ obtener(p,dp)$\igobs$s $\land$ ($\forall$ c $\in$ claves($dp_0$)) def?(c,dp)}
+{Inserta una nueva clave con su significado en el diccionario}
+{O(L)}
+{}
+
+
+\operacion{obtener}{in dp:diccPref(secu(char){,}$\beta$),in p:secu(char)}{res:$\beta$}
+{def?(p,dp)}
+{$res = obtener(p,dp)$}
+{Retorna el significado de la clave pedida}
+{O(L)}
+{Devuelve res por referencia}
+
+
+\operacion{eliminar}{in/out dp:diccPref(secu(char){,}$\beta$),in p:secu(char)}{}
+{dp=$dp_0$ $\land$ def?(p,dp)}
+{¬def?(dp) $\land (\forall c \in claves(dp_0),c\neq$ p)def?(c,dp)}
+{Elimina del diccionario la clave deseada}
+{O(L)}
+{}

@@ -220,8 +220,9 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 		\State ${\Fun{iRotar}(cl)}$ \complejidad{O(1)}
 	\EndIf
 }
-{}
+{O($log(size(cl))$)}
 
+\newpage
 \algoritmo{iRotar}{in/out cl:conjLog($\alpha$)}{}{
 	\State \If {$cl.fdb == +2$} \complejidad{O(1)}
 		\State \If {$cl.der.fdb == +1$} \complejidad{O(1)}
