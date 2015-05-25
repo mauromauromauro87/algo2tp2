@@ -16,6 +16,20 @@
 {O(1)}
 {}
 
+\operacion{vacío?}{in cl:conjLog($\alpha$)}{res:bool}
+{true}
+{$res = (\emptyset?(cl))$}
+{Indica si el conjunto tiene tamaño cero}
+{$O(log(\#(cl)))$}
+{}
+
+\operacion{size}{in cl:conjLog($\alpha$)}{res:nat}
+{true}
+{$res = \#(cl)$}
+{Indica la cantidad de elementos del conjunto}
+{$O(\#(cl))$}
+{}
+
 \operacion{está}{in cl:conjLog($\alpha$),in e:$\alpha$}{res : bool}
 {true}
 {$res = (e \in cl)$}
@@ -73,6 +87,10 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 
 \newpage
 \subsection{Algoritmos}
+\algoritmo{iVacío?}{in cl:conjLog($\alpha$)}{res:bool}{
+	\State $res \larr size(cl) == 0$ \complejidad{O(1)}
+}
+{O(1)}
 
 \algoritmo{iBorrar}{in/out cl:conjLog($\alpha$), in e : $\alpha$}{}{
 	\State $clactual \larr cl$ \complejidad{O(1)}
