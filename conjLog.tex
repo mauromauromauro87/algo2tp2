@@ -23,17 +23,26 @@
 {$O(log(\#(cl)))$}
 {}
 
-\operacion{size}{in cl:conjLog($\alpha$)}{res:nat}
-{true}
-{$res = \#(cl)$}
-{Indica la cantidad de elementos del conjunto}
-{$O(\#(cl))$}
-{}
-
 \operacion{está}{in cl:conjLog($\alpha$),in e:$\alpha$}{res : bool}
 {true}
 {$res = (e \in cl)$}
 {Retorna un booleano que indica si el elemento pertenece al conjunto}
+{$O(log(\#(cl)))$}
+{}
+
+\operacion{buscar}{in cl:conjLog($\alpha$),in e:$\alpha$}{res : $\alpha$}
+{$e \in cl$}
+{$res == e$}
+{Devuelve el elemento que se está buscando}
+{$O(log(\#(cl)))$}
+{El elemento se devuelve por referencia, hay aliasing entre el elemento buscado y el del conjunto\\
+Alternativa, me parece que un poco mas limpia, es retornar el elemento por copia y exportar otra \\
+operacion que sea modificar,  si se modifica el elemento buscado, luego se lo modifica en el conjunto}
+
+\operacion{menor}{in cl:conjLog($\alpha$), in e:$\alpha$}{res : $\alpha$}
+{$e \in cl$}
+{$res == max(cl)$}
+{Devuelve el menor elemento del conjunto}
 {$O(log(\#(cl)))$}
 {}
 
@@ -88,66 +97,57 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 \newpage
 \subsection{Algoritmos}
 \algoritmo{iVacío?}{in cl:conjLog($\alpha$)}{res:bool}{
-	\State $res \larr size(cl) == 0$ \complejidad{O(1)}
+	\State $res \larr cl == NULL$ \complejidad{O(1)}
 }
 {O(1)}
 
 \algoritmo{iBorrar}{in/out cl:conjLog($\alpha$), in e : $\alpha$}{}{
+	\State $variandoHijoDerecho? \larr true$
 	\State $clactual \larr cl$ \complejidad{O(1)}
-	\State \If {$(\neg(cl.der==NULL) \land \neg(cl.izq=NULL))$} \complejidad{O(1)}
+	\State \If {$(\neg(cl.der==NULL) \land \neg(cl.izq==NULL))$} \complejidad{O(1)}
 		\State $clactual \larr {\Fun{iEncontrarPadre}(clactual, e)}$ \complejidad{O($log(size(cl))$)}
-		\State \If {$(clactual.der.valor == e)$} \complejidad{O(1)}
-			\State $ mm \larr {\Fun{iDameMayMenores}(clactual.der.izq)}$ \complejidad{O($log(size(cl))$)}
-			\State $ padremm \larr mm.padre$ \complejidad{O(1)}
-			\State 
-			\If {$padremm.valor == e$} 
-				\State $padremm.fdb++$ \complejidad{O(1)}
-				\State $mm.fdb \larr clactual.der.fdb$ \complejidad{O(1)}
-				\State $mm.der \larr clactual.der.der$ \complejidad{O(1)}
-				\State $mm.padre \larr clactual$ \complejidad{O(1)}
-				\State $mm.padre.der \larr mm$ \complejidad{O(1)}
-				\State $mm.der.padre \larr mm$ \complejidad{O(1), Si no son NULL}
-				\State $mm.izq.padre \larr mm$ \complejidad{O(1), Si no son NULL}
-				\State ${\Fun{iRebYRecalcFDB}(padremm,false,true)}$ \complejidad{O($log(size(cl))$)}
-			\Else
-				\State $padremm.fdb--$ \complejidad{O(1)}
-				\State $mm.fdb \larr clactual.der.fdb$ \complejidad{O(1)}
-				\State $mm.der \larr clactual.der.der$ \complejidad{O(1)}
-				\State $mm.izq \larr clactual.der.izq$ \complejidad{O(1)}
-				\State $mm.padre \larr clactual$ \complejidad{O(1)}
-				\State $mm.padre.der \larr mm$ \complejidad{O(1)}
-				\State $mm.der.padre \larr mm$ \complejidad{O(1), Si no son NULL}
-				\State $mm.izq.padre \larr mm$ \complejidad{O(1), Si no son NULL}
-				\State ${\Fun{iRebYRecalcFDB}(padremm,true,true)}$ \complejidad{O($log(size(cl))$)}
+		\If {$cactual.der != NULL \yluego cactual.der.valor==e$}
+			\State $aBorrar \larr cactual.der$ \complejidad{O(1)}
+		\Else
+			\State $aBorrar \larr cactual.izq$ \complejidad{O(1)}
+		\EndIf
+		\State $mm \larr {\Fun{iDameMayorMenores}(clactual)}$ \complejidad{O($log(size(cl))$)}
+		\State \If {$mm.valor == e$} \complejidad{O(1)}
+			\State \If{$mm.padre.der!=NULL \yluego mm.padre.der.valor == mm.valor$}
+				\State $variandoHijoDerecho? \larr true$ \complejidad{O(1)}
+				\State $mm.padre.der = NULL$
+				\State $mm.padre.fdb--$
+			\Else 
+				\State $variandoHijoDerecho? \larr false$ \complejidad{O(1)}
+				\State $mm.padre.izq = NULL$
+				\State $mm.padre.fdb++$
 			\EndIf
 		\Else
-			\State $ mm \larr {\Fun{iDameMayMenores}(clactual.izq.izq)}$ \complejidad{O($log(size(cl.izq.izq))$)}
-			\State $ padremm \larr mm.padre$ \complejidad{O(1)}
-			\State 
-			\If {$padremm.valor == e$} 
-				\State $padremm.fdb++$ \complejidad{O(1)}
-				\State $mm.fdb \larr clactual.izq.fdb$ \complejidad{O(1)}
-				\State $mm.der \larr clactual.izq.der$ \complejidad{O(1)}
-				\State $mm.padre \larr clactual$ \complejidad{O(1)}
-				\State $mm.padre.izq \larr mm$ \complejidad{O(1)}
-				\State $mm.der.padre \larr mm$ \complejidad{O(1), Si no son NULL}
-				\State $mm.izq.padre \larr mm$ \complejidad{O(1), Si no son NULL}
-				\State ${\Fun{rebYRecalcFDB}(padremm,false,true)}$ \complejidad{O($log(size(cl))$)}
+			\State $mmValor:\alpha \larr mm.valor$ \complejidad{O(1)}
+			\State $aBorrar.valor \larr mmValor$ \complejidad{O(1)}
+			\State \If {$mm.izq != NULL$} \complejidad{O(1)}
+				\State $mm.valor \larr mm.izq.valor$ \complejidad{O(1)}
+				\State $mm.izq \larr NULL$ \complejidad{O(1)}
+				\State $mm.fdb++$ \complejidad{O(1)}
+				\State \If{$mm.padre.valor == e$}
+					\State $variandoHijoDerecho? \larr false$
+				\Else
+					\State $variandoHijoDerecho? \larr true$
+				\EndIf
 			\Else
-				\State $padremm.fdb--$ \complejidad{O(1)}
-				\State $mm.fdb \larr clactual.der.fdb$ \complejidad{O(1)}
-				\State $mm.der \larr clactual.der.der$ \complejidad{O(1)}
-				\State $mm.izq \larr clactual.der.izq$ \complejidad{O(1)}
-				\State $mm.padre \larr clactual$ \complejidad{O(1)}
-				\State $mm.padre.der \larr mm$ \complejidad{O(1)}
-				\State $mm.der.padre \larr mm$ \complejidad{O(1), Si no son NULL}
-				\State $mm.izq.padre \larr mm$ \complejidad{O(1), Si no son NULL}
-				\State ${\Fun{iRebYRecalcFDB}(padremm,true,true)}$ \complejidad{O($log(size(cl))$)}
+				\State \If{$mm.padre.valor == e$}
+					\State $mm.padre.izq = NULL$
+					\State $variandoHijoDerecho? \larr false$
+				\Else
+					\State $mm.padre.der = NULL$
+					\State $variandoHijoDerecho? \larr true$
+				\EndIf
 			\EndIf
 		\EndIf
+		\State ${\Fun{iRebYRecalcFDB}(mm.padre, variandoHijoDerecho?, estoyBorrando?)}$ \complejidad{O($log(size(cl))$)}
 	\Else
 		\State \If {$cl.der==NULL \land cl.izq==NULL$} \complejidad{O(1)}
-			\State $res \larr NULL$ \complejidad{O(1)}
+			\State $cl \larr NULL$ \complejidad{O(1)}
 		\Else
 			\State \If {$cl.der==NULL$} \complejidad{O(1)}
 				\State \If {$cl.izq.valor==e$} \complejidad{O(1)}
@@ -170,13 +170,13 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 {O($log(size(cl))$)}
 
 \algoritmo{iInsertar}{in/out cl:conjLog($\alpha$), in e : $\alpha$}{}{
-	\State \If {$\neg(cl.der==NULL) \land \neg(cl.izq==NULL)$} \complejidad{O(1)}
+	\State \If {$\neg(cl.der==NULL) \land \neg(cl.izq==NULL)$} \complejidad{$O(1)$}
 		\State $clactual \larr {\Fun{iEncontrarPadre}(clactual, e)}$ \complejidad{O($log(size(cl))$)}
 		\State \If {$clactual.valor < e$}
-			\State $clactual.der \larr $\tupla{der:NULL, izq:NULL, valor:e, padre:clactual, fdb:0} \complejidad{O(1)}
+			\State $clactual.der \larr $\tupla{der:NULL, izq:NULL, valor:e, padre:clactual, fdb:0} \complejidad{$O(1)$}
 			\State ${\Fun{iRebYRecalcFDB}(clactual,true,false)}$
 		\Else
-			\State $clactual.izq \larr $\tupla{der:NULL, izq:NULL, valor:e, padre:clactual, fdb:0} \complejidad{O(1)}
+			\State $clactual.izq \larr $\tupla{der:NULL, izq:NULL, valor:e, padre:clactual, fdb:0} \complejidad{$O(1)$}
 			\State ${\Fun{iRebYRecalcFDB}(clactual,false,false)}$
 		\EndIf
 	\Else
@@ -210,145 +210,221 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 	\State $clactual \larr NULL$ \complejidad{O(1)}
 	\State $res \larr encontrado?$ \complejidad{O(1)}
 }
-{}
+{$O(log(size(cl)))$}
 
 \newpage
-\subsection{Auxiliares}
-\algoritmo{iRebYRecalcFDB}{in/out cl:conjLog($\alpha$), in borroInsertoHijoDerecho?:bool, in estoyBorrando?:bool}{}{
-	\State \While{$cl != NULL \yluego cl.fdb != 2 \land cl.fdb != -2$} \complejidad{O(1)}
-		\State \If{$estoyBorrando?$} \complejidad{O(1)}
-			\State \If{$borroInsertoHijoDerecho?$} \complejidad{O(1)}
-				\State $cl.fdb--$ \complejidad{O(1)}
-			\Else
-				\State $cl.fdb++$ \complejidad{O(1)}
-			\EndIf
-			\State $borroInsertoHijoDerecho? \larr (cl.padre.der != NULL \yluego cl.padre.der.valor==cl.valor)$ \complejidad{O(1)}
-			\State $cl \larr cl.padre$ \complejidad{O(1)}
-		\Else
-			\State \If{$borroInsertoHijoDerecho?$} \complejidad{O(1)}
-				\State $cl.fdb++$ \complejidad{O(1)}
-			\Else
-				\State $cl.fdb--$ \complejidad{O(1)}
-			\EndIf
-			\State $borroInsertoHijoDerecho? \larr (cl.padre.izq != NULL \yluego cl.padre.izq.valor==cl.valor)$ \complejidad{O(1)}
-			\State $cl \larr cl.padre$ \complejidad{O(1)}
-		\EndIf
-	\EndWhile
-	\State \If{$cl != NULL$} \complejidad{O(1)}
-		\State ${\Fun{iRotar}(cl)}$ \complejidad{O(1)}
+\algoritmo{iMenor}{in cl:conjLog($\alpha$)}{res:$\alpha$}{
+	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
+	\State $clactual \larr iMenorNodo(clactual)$ \complejidad{O($log(size(cl))$)}
+	\State $res \larr clactual.valor$ \complejidad{O(1)}
+}
+{$O(log(size(cl)))$}
+
+\algoritmo{iBuscar}{in cl:conjLog($\alpha$), e:$\alpha$}{res:$\alpha$}{
+	\State $padre:conjLog(\alpha) \larr iEncontrarPadre(cl,e)$ \complejidad{O($log(size(cl))$)}
+	\State \If {$padre.der != NULL \yluego padre.der.valor==e$} \complejidad{O($1$)}
+		\State $res \larr padre.der.valor$
+	\Else
+		\State $res \larr padre.izq.valor$
 	\EndIf
 }
 {O($log(size(cl))$)}
 
 \newpage
-\algoritmo{iRotar}{in/out cl:conjLog($\alpha$)}{}{
-	\State \If {$cl.fdb == +2$} \complejidad{O(1)}
-		\State \If {$cl.der.fdb == +1$} \complejidad{O(1)}
-			\State $\var{q} \larr cl.der$
-			\State $\var{izqp} \larr cl.izq$
-			\State $cl.der \larr q.der$
-			\State $q.der.padre \larr cl$
-			\State $cl.izq \larr $\tupla{der: NULL, izq:NULL, valor: cl.valor, padre: cl.izq, fdb:0}
-			\State $cl.izq.der \larr q.izq$
-			\State $cl.izq.izq \larr izqp$
-			\State $cl.izq.der.padre = cl.izq$
-			\State $cl.izq.izq.padre = cl.izq$
-			\State $cl.valor \larr q.valor$
-			\State $cl.fdb \larr 0$
-			\State $cl.der.fdb \larr 0$
-		\Else
-			\State \If {$cl.der.fdb == 0$} \complejidad{O(1)}
-				\State $\var{q} \larr cl.der$
-				\State $\var{izqp} \larr cl.izq$
-				\State $cl.der \larr q.der$
-				\State $q.der.padre \larr cl$
-				\State $cl.izq \larr $\tupla{der: NULL, izq:NULL, valor: cl.valor, padre: cl.izq, fdb:0}
-				\State $cl.izq.der \larr q.izq$
-				\State $cl.izq.izq \larr izqp$
-				\State $cl.izq.der.padre = cl.izq$
-				\State $cl.izq.izq.padre = cl.izq$
-				\State $cl.valor \larr q.valor$
-				\State $cl.fdb \larr -1$
-				\State $cl.izq.fdb \larr +1$
-			\Else
-				\State \If {$cl.der.fdb==-1$} \complejidad{O(1)}
-					\State $\var{r} \larr cl.der.izq$ \complejidad {O(1)}
-					\State $cl.der.izq \larr r.der$
-					\State $cl.der.izq.padre \larr cl.der$
-					\State $\var{clizq} \larr cl.izq$ \complejidad{O(1)}
-					\State $cl.izq \larr $\tupla{der:NULL,izq:NULL,valor:cl.valor,padre:cl,fdb:0} \complejidad{O(1)}
-					\State $cl.izq.der \larr r.izq$ \complejidad{O(1)}
-					\State $cl.izq.izq \larr clizq$ \complejidad{O(1)}
-					\State $cl.izq.izq.padre \larr cl.izq$ \complejidad{O(1)}
-					\State $cl.izq.der.padre \larr cl.izq$ \complejidad{O(1)}
-					\State $cl.valor \larr r.valor$ \complejidad{O(1)}
-					\State \If {$r.fdb == -1$} \complejidad {O(1)}
-						\State $cl.fdb \larr 0$ \complejidad{O(1)}
-						\State $cl.izq.fdb \larr 0$ \complejidad{O(1)}
-						\State $cl.der.fdb \larr +1$ \complejidad{O(1)}
-					\Else
-						\State $cl.fdb \larr 0$ \complejidad{O(1)}
-						\State $cl.der.fdb \larr 0$ \complejidad{O(1)}
-						\State $cl.izq.fdb \larr -1$ \complejidad{O(1)}
+\subsection{Auxiliares}
+\algoritmo{iRebYRecalcFDB}{in/out cl:conjLog($\alpha$), in variandoHijoDerecho?:bool, in estoyBorrando?:bool}{}{
+	\State $clactual = cl$ \complejidad{$O(1)$}
+	\State \If {$estoyBorrando?$}
+		\State \While {$clactual != NULL \land \neg(termino?)$} \complejidad {$O(1)$}
+			\State \If{$variandoHijoDerecho?$}
+				\State \If{$clactual.fdb == -1$} \complejidad{$O(1)$}
+					\State $fdbIzq:nat$ \complejidad{O(1)}
+					\State \If {$cl.izq != NULL$}
+						\State $fdbIzq \larr cl.izq$ \complejidad{O(1)}
 					\EndIf
-					\State $r \larr NULL$ \complejidad{O(1)}
+					\State \If {$cl.izq != NULL \yluego cl.izq.fdb == 1$} \complejidad{O(1)}
+						\State ${\Fun{iRotarLR}(cl.izq)}$ \complejidad{$O(1)$}
+					\EndIf
+					\State ${\Fun{iRotarLL}(cl)}$ \complejidad{$O(1)$}
+					\State \If {$cl.izq!=NULL \yluego fdbIzq==0$} \complejidad{O(1)}
+						\State $termino? \larr true$ \complejidad{O(1)}
+					\EndIf
+				\Else
+					\State \If {$cl.fdb == +1$} \complejidad{O(1)}
+						\State $cl.fdb \larr 0$ \complejidad{O(1)}
+						\State $termino? \larr true$ \complejidad{O(1)}
+					\Else
+						\State $cl.fdb \larr -1$ \complejidad{$O(1)$}
+					\EndIf
+				\EndIf
+			\Else
+				\State \If{$clactual.fdb == -1$} \complejidad{$O(1)$}
+					\State $fdbDer:nat$ \complejidad{O(1)}
+					\State \If{$cl.der != NULL$} \complejidad{O(1)}
+						\State $fdbDer \larr cl.der.fdb$ \complejidad{O(1)}
+					\EndIf
+					\State \If {$cl.der != NULL \yluego fdbDer == 1$} \complejidad{O(1)}
+						\State ${\Fun{iRotarRL}(cl.der)}$ \complejidad{$O(1)$}
+					\EndIf
+					\State ${\Fun{iRotarRR}(cl)}$ \complejidad{$O(1)$}
+					\State \If {$fdbDer==0$} \complejidad{O(1)}
+						\State $termino? \larr true$ \complejidad{O(1)}
+					\EndIf
+				\Else
+					\State \If {$cl.fdb == -1$} \complejidad{$O(1)$}
+						\State $cl.fdb \larr 0$ \complejidad{$O(1)$}
+						\State $termino? \larr true$ \complejidad{$O(1)$}
+					\Else
+						\State $cl.fdb \larr +1$ \complejidad{$O(1)$}
+					\EndIf
 				\EndIf
 			\EndIf
-		\EndIf
-		\Else
-		\State \If {$cl.izq.fdb == +1$} \complejidad{O(1)}
-			\State $\var{q} \larr cl.izq$
-			\State $\var{derp} \larr cl.der$
-			\State $cl.izq \larr q.der$
-			\State $q.der.padre \larr cl$
-			\State $cl.der \larr $\tupla{der: NULL, izq:NULL, valor: cl.valor, padre: derp, fdb:0}
-			\State $cl.der.der \larr derp.der$
-			\State $cl.der.izq \larr q.izq$
-			\State $cl.der.der.padre = cl.der$
-			\State $cl.der.izq.padre = cl.der$
-			\State $cl.valor \larr q.valor$
-			\State $cl.fdb \larr 0$
-			\State $cl.der.fdb \larr 0$
-			\State $derp \larr NULL$
-		\Else
-			\State $\var{q} \larr cl.izq$
-			\State \If {$\var{q}.fdb == 0$} \complejidad{O(1)}
-				\State $\var{derp} \larr cl.der$
-				\State $cl.izq \larr q.der$
-				\State $q.izq.padre \larr cl$
-				\State $cl.der \larr $\tupla{der: NULL, izq:NULL, valor: cl.valor, padre: derp, fdb:0}
-				\State $cl.der.der \larr derp$
-				\State $cl.der.izq \larr q.izq$
-				\State $cl.der.der.padre = cl.der$
-				\State $cl.der.izq.padre = cl.der$
-				\State $cl.valor \larr q.valor$
-				\State $cl.fdb \larr +1$
-				\State $cl.der.fdb \larr -1$
-			\Else
-				\State \If {$q.fdb==-1$} \complejidad{O(1)}
-					\State $\var{r} \larr q.izq$ \complejidad {O(1)}
-					\State $q.izq \larr r.der$
-					\State $q.izq.padre \larr q$
-					\State $\var{derp} \larr cl.der$ \complejidad{O(1)}
-					\State $cl.der \larr $\tupla{der:NULL,izq:NULL,valor:cl.valor,padre:cl,fdb:0} \complejidad{O(1)}
-					\State $cl.der.der \larr r.izq$ \complejidad{O(1)}
-					\State $cl.der.izq \larr derp$ \complejidad{O(1)}
-					\State $cl.der.izq.padre \larr cl.der$ \complejidad{O(1)}
-					\State $cl.der.der.padre \larr cl.der$ \complejidad{O(1)}
-					\State $cl.valor \larr r.valor$ \complejidad{O(1)}
-					\State \If {$r.fdb == -1$} \complejidad {O(1)}
-						\State $cl.fdb \larr 0$ \complejidad{O(1)}
-						\State $cl.der.fdb \larr 0$ \complejidad{O(1)}
-						\State $cl.izq.fdb \larr +1$ \complejidad{O(1)}
-					\Else
-						\State $cl.fdb \larr 0$ \complejidad{O(1)}
-						\State $cl.izq.fdb \larr 0$ \complejidad{O(1)}
-						\State $cl.der.fdb \larr -1$ \complejidad{O(1)}
+			\State $variandoHijoDerecho \larr (cl.padre != NULL \yluego cl.padre.der.valor == cl.valor)$ \complejidad{O(1)}
+			\State $clactual \larr clactual.padre$ \complejidad{$O(1)$}
+		\EndWhile
+	\Else  $\indent$ // No hubo borrado, entonces hubo una inserción
+		\State \While {$clactual != NULL \land \neg(termino?)$} \complejidad {$O(1)$}
+			\State \If{$variandoHijoDerecho?$}
+				\State \If{$clactual.fdb == +1$} \complejidad{$O(1)$}
+					\State $fdbDer:nat$ \complejidad{$O(1)$}
+					\State \If {$cl.der != NULL$}
+						\State $fdbDer \larr cl.der.fdb$ \complejidad{O(1)}
 					\EndIf
-					\State $r \larr NULL$ \complejidad{O(1)}
+					\State \If {$cl.der != NULL \yluego fdbDer == -1$} \complejidad{O(1)}
+						\State ${\Fun{iRotarRL}(cl.der)}$ \complejidad{$O(1)$}
+					\EndIf
+					\State ${\Fun{iRotarRR}(cl)}$ \complejidad{$O(1)$}
+					\State $termino? \larr true$ \
+				\Else
+					\State \If {$clactual.fdb == -1$} \complejidad{$O(1)$}
+						\State $clactual.fdb \larr 0$ \complejidad{$O(1)$}
+						\State $termino? \larr true$ \complejidad{$O(1)$}
+					\Else
+						\State $clactual.fdb \larr 1$ \complejidad{$O(1)$}
+					\EndIf
+				\EndIf
+			\Else
+				\State \If{$clactual.fdb == -1$} \complejidad{$O(1)$}
+					\State $fdbIzq:nat$ \complejidad{$O(1)$}
+					\State \If {$cl.izq != NULL$}
+						\State $fdbIzq \larr cl.izq.fdb$ \complejidad{$O(1)$}
+					\EndIf
+					\State \If {$cl.izq != NULL \yluego fdbIzq == +1$} \complejidad{$O(1)$}
+						\State ${\Fun{iRotarLR}(cl.izq)}$ \complejidad{$O(1)$}
+					\EndIf
+					\State ${\Fun{iRotarLL}(cl)}$ \complejidad{$O(1)$}
+					\State $termino? \larr true$ \complejidad{$O(1)$}
+				\Else
+					\State \If {$clactual.fdb == +1$} \complejidad{$O(1)$}
+						\State $clactual.fdb \larr 0$ \complejidad{$O(1)$}
+						\State $termino? \larr true$ \complejidad{$O(1)$}
+					\Else
+						\State $clactual.fdb \larr -1$ \complejidad{$O(1)$}
+					\EndIf
 				\EndIf
 			\EndIf
-		\EndIf
+			\State $variandoHijoDerecho \larr (cl.padre != NULL \yluego cl.padre.der.valor == cl.valor)$ \complejidad{O(1)}
+			\State $clactual \larr clactual.padre$ \complejidad{$O(1)$}
+		\EndWhile
 	\EndIf
 }
+{O($log(size(cl))$)}
+
+\newpage
+\algoritmo{iRotarRR}{in/out cl:conjLog($\alpha$)}{}{
+	\State $nietoRR \larr cl.der.der$ \complejidad{O(1)}
+	\State $hijoDer \larr cl.der$ \complejidad{O(1)}
+	\State $hijoIzq \larr cl.izq$ \complejidad{O(1)}
+	\State $cl.der \larr NULL$ \complejidad{O(1)} 
+	\State $cl.izq = $\tupla{der:hijoDer.der, izq:cl.izq, valor: cl.valor, padre:cl, fdb:0} \complejidad{O(1)}
+	\State $cl.izq.izq.padre \larr cl.izq$ \complejidad{O(1)}
+	\State $cl.izq.der.padre \larr cl.izq$ \complejidad{O(1)}
+	\State $cl.valor = hijoDer.valor$ \complejidad{O(1)}
+	\State $cl.der = nietoRR$ \complejidad{O(1)}
+	\State $cl.der.padre \larr cl$ \complejidad{O(1)}
+}
 {O(1)}
+
+\algoritmo{iRotarRL}{in/out cl:conjLog($\alpha$)}{}{
+	\State $nietoRR:conjLog(\alpha) \larr cl.der.der$ \complejidad{O(1)}
+	\State $nietoRL:conjLog(\alpha) \larr cl.der.izq$ \complejidad{O(1)}
+	\State $valorDer:\alpha \larr cl.der.valor$ \complejidad{O(1)}
+	\State $cl.der.valor \larr nietoRL.valor$ \complejidad{O(1)}
+	\State $nietoRR.izq \larr nietoRL.der$ \complejidad{O(1)}
+	\State $cl.der.der \larr nietoRR$ \complejidad{O(1)}
+	\State $cl.der.izq \larr nietoRL.izq$ \complejidad{O(1)}
+	\State $cl.der.der.padre \larr cl.der$ \complejidad{O(1)}
+	\State $cl.der.izq.padre \larr cl.der$ \complejidad{O(1)}
+	\State $cl.izq.fdb \larr +1$
+}
+{$O(1)$}
+
+\algoritmo{iRotarLL}{in/out cl:conjLog($\alpha$)}{}{
+	\State $nietoLL \larr cl.izq.izq$ \complejidad{O(1)}
+	\State $hijoIzq \larr cl.izq$ \complejidad{O(1)}
+	\State $hijoDer \larr cl.der$ \complejidad{O(1)}
+	\State $cl.izq \larr NULL$ \complejidad{O(1)} 
+	\State $cl.der = $\tupla{der:cl.der, izq:hijoIzq.der, valor: cl.valor, padre:cl, fdb:0} \complejidad{O(1)}
+	\State $cl.der.izq.padre \larr cl.der$ \complejidad{O(1)}
+	\State $cl.der.der.padre \larr cl.der$ \complejidad{O(1)}
+	\State $cl.valor = hijoIzq.valor$ \complejidad{O(1)}
+	\State $cl.izq = nietoLL$ \complejidad{O(1)}
+	\State $cl.izq.padre \larr cl$ \complejidad{O(1)}
+}
+{$O(1)$}
+
+\newpage
+\algoritmo{iRotarLR}{in/out cl:conjLog($\alpha$)}{}{
+	\State $nietoLL:conjLog(\alpha) \larr cl.izq.izq$ \complejidad{O(1)}
+	\State $nietoLR:conjLog(\alpha) \larr cl.izq.der$ \complejidad{O(1)}
+	\State $valorIzq:\alpha \larr cl.izq.valor$ \complejidad{O(1)}
+	\State $cl.izq.valor \larr nietoRL.valor$ \complejidad{O(1)}
+	\State $nietoLL.izq \larr nietoLR.izq$ \complejidad{O(1)}
+	\State $cl.izq.izq \larr nietoLL$ \complejidad{O(1)}
+	\State $cl.izq.der \larr nietoLR.der$ \complejidad{O(1)}
+	\State $cl.izq.izq.padre \larr cl.izq$ \complejidad{O(1)}
+	\State $cl.izq.der.padre \larr cl.izq$ \complejidad{O(1)}
+	\State $cl.izq.fdb \larr -1$ \complejidad{O(1)}
+}
+{$O(1)$}
+
+\algoritmo{iEncontrarPadre}{in cl:conjLog($\alpha$), e:$\alpha$}{res:conjLog($\alpha$)}{
+	\State $clactual:conjLog(\alpha)$ \complejidad{O(1)}
+	\State $encontrado?:bool \larr (clactual.der != NULL \yluego clactual.der.valor == e) \lor (clactual.izq !=NULL \yluego clactual.izq.valor == e)$
+	\State \While {$\neg encontrado?$} 
+		\State \If {$e > clactual.valor$}
+			\State $clactual \larr clactual.der$ \complejidad{$O(1)$}
+		\Else
+			\State $clactual \larr clactual.izq$ \complejidad{$O(1)$}
+		\EndIf
+		\State $encontrado? \larr (clactual.der != NULL \yluego clactual.der.valor == e) \lor (clactual.izq !=NULL \yluego clactual.izq.valor == e)$
+	\EndWhile
+	\State $res \larr clactual$ \complejidad{$O(1)$}
+}
+{$O(size(cl))$}
+
+\algoritmo{iDameMayorMenores}{in cl:conjLog($\alpha$), e:$\alpha$}{res:conjLog($\alpha$)}{
+	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
+	\State \If {$clactual.izq != NULL$} \complejidad{O(1)}
+		\State $clactual \larr iMayorNodo(clactual)$ \complejidad{$O(log(size(cl)))$}
+	\EndIf
+	\State $res \larr clactual$ \complejidad{O(1)}
+}
+
+\algoritmo{iMenorNodo}{in cl:conjLog($\alpha$)}{res:$conjLog(\alpha)$}{
+	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
+	\State \While {$clactual.izq != NULL$}
+		\State $clactual \larr clactual.izq$
+	\EndWhile
+	\State $res \larr clactual$ \complejidad{O(1)}
+}
+{$O(log(size(cl)))$}
+
+\algoritmo{iMayorNodo}{in cl:conjLog($\alpha$)}{res:$conjLog(\alpha)$}{
+	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
+	\State \While {$clactual.der != NULL$}
+		\State $clactual \larr clactual.der$
+	\EndWhile
+	\State $res \larr clactual$ \complejidad{O(1)}
+}
+{$O(log(\#(cl)))$}
