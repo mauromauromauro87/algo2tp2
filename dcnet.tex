@@ -69,7 +69,6 @@ $n$ : la cantidad total de computadoras que hay en el sistema, \\
 $L$ : el hostname más largo de todas las computadoras, \\
 $k$ : la cola de paquetes más larga de todas las computadoras. 
 
-$\neg \emptyset$
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Representación}
@@ -87,16 +86,24 @@ $\neg \emptyset$
 \subsubsection*{Invariante de representación}
 
 \begin{enumerate}
-	\item 
-%	\item sino, son operadores
-%	\item si el operador es unario, tiene solo hijo izquierdo
+	\item Todos los IP de \textit{compus} pertenecen al conjunto de claves de \textit{CompusPorPref} y la longitud de dicho arreglo es igual al cardinal de las claves del diccionario. 
+	\item Los pN de las tuplas que tiene el arreglo \textit{compus} apuntan al conjunto de paquetes(PorNom) de un significado en \textit{CompusPorPref} cuya clave es igual al IP de esa posición en el arreglo.
+	\item Todos los conjuntos de los significados de \textit{CompusPorPref} son disjuntos dos a dos.
+  \item Los conjuntos de los campos de la tupla PorNom, PorPrior son iguales.
+  \item La longitud de \textit{CaminosMinimos} es igual a la longitud del arreglo que tiene \textit{CaminosMinimos} en cada posición.
+  \item La longitud del arreglo, que tiene un arreglo de \textit{CaminosMinimos} es menor o igual a la longitud de \textit{CaminosMinimos}.
+  \item Los elementos del arreglo anteriormente mencionado son menores o iguales a la longitud de \textit{CaminosMinimos} y no tiene repetidos.
+  \item La computadora que más paquetes envió es aquella cuyo índice es igual a \textit{LaQMasEnvio}
 
 \end{enumerate}
-%		\rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
-%		\textbf{if} ($r.der = \NULL$) \textbf{then} \\
-%		$*r.val = "NOT" \land rep(*r.izq)$ \\
-%		\textbf{else} $*r.val \in Ag("OR", Ag("AND",vacio)) \land rep(*r.izq) \land rep(*r.der)$
-%		\end{enumerate}
+		\rep{sistema}{s} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
+      $1.\ \paratodo{String}{s}\ \fun{$def?$}(s, s.CompusPorPref), (\exists c : compu), \fun{$esta?$}(c,s.Compus)\ \land\ \pi_1(c) = s\ \land\ \fun{longitud}(s.Compus) = \#\Fun{claves}(s.CompusPorPref)$\\ 
+      $2.\ \paratodo{compu}{c}\ \fun{esta?}(c, s.Compus), *\pi_2(c) = \fun{obtener}(\pi_1(c),s.CompusPorPref) $\\ 
+      $3.\ \paratodo{String}{s,t}\ \fun{def?}(s, s.CompusPorPref)\ \land\ \fun{def?}(t, s.CompusPorPref)\ \land\ s \neq t \impluego \\ \fun{obtener}(s, s.CompusPorPref)\ \bigcap\ \fun{obtener}(t, s.CompusPorPref) = \emptyset$\\
+      $4.\ \paratodo{String}{s}\ \fun{def?}(s, s.CompusPorPref)\ \impluego\ \pi_1(\fun{obtener}(s, s.CompusPorPref)) =\\ \pi_2(\fun{obtener}(s, s.CompusPorPref))$ \\
+      $5.\ (\paratodo{nat}{i,j}),\ 0 \leq i,j < \fun{longitud}(s.CaminosMinimos) \impluego \fun{longitud}(s.CaminosMinimos) = \fun{longitud}(s.CaminosMinimos[i])\ \land\ \fun{longitud}(s.CaminosMinimos[i][j]) < \fun{longitud}(s.CaminosMinimos)\ \land\ (\paratodo{nat}{e}), \fun{esta?}(e, s.CaminosMinimos[i][j]) \Rightarrow e < \fun{longitud}(s.CaminosMinimos) $\\
+      $8. \paratodo{compu}{c}\ \fun{esta?}(c, s.Compus)\ \impluego\ \pi_3(c) \leq \pi_3(s.Compus[s.LaQMasEnvio])$
+
 
 %\subsubsection*{Función de abstracción}
 
@@ -105,6 +112,37 @@ $\neg \emptyset$
 % $\fun{*r.izq} = izq(a) \land \fun{*r.der} = der(a) \ \land$
 %$r.val = raiz(a) $
 
+%\rep{city}{c} \\
+%	$1. \ \fun{claves}(c.\fun{robots}) \igobs \fun{claves}(c.\fun{estación}) \igobs \fun{claves}(c.\fun{tags}) \igobs \fun{claves}(c.\fun{infracciones}) \igobs \fun{claves}(c.\fun{restricciones}) \ \land $
+%
+%	$2. \ (\paratodo{rur}{r}) def?(r, c.robots) \yluego \\ (\exists b : tupla(nat,nat)) \ pertenece(b, obtener(obtener(r, c.estacion), c.robotsPorEstacion)) \\ \Rightarrow siguiente(obtener(r, c.robots)) = b $
+%
+%	$3. \ (\paratodo{estacion}{p,q}) def?(p, c.robotsPorEstacion) \land def?(q, c.robotsPorEstacion) \land p \neq q \impluego \\ Aconj(obtener(p, c.robotsPorEstacion)) \bigcap Aconj(obtener(q, c.robotsPorEstacion)) = \emptyset$
+%
+%	$4. \ (\paratodo{rur}{r}) \ (def?(r, c.estacion) \impluego \fun{obtener}(r,c.estacion) \in estaciones(c.mapa)) \land $
+%
+%$5. \ \fun{claves}(c.\fun{robotsPorEstación}) \igobs estaciones(c.mapa) \ \land $
+%
+%$6, 7. \ (\paratodo{estacion}{e}) \ def?(e, c.robotsPorEstacion)) \impluego  \\ (\paratodo{Tupla(infraccion,rur)}{b}) \ b \in obtener(e, c.robotsPorEstacion) \\ \impluego obtener(\pi_{2}(b), c.estacion) = e \ \land obtener(\pi_{2}(b), c.infracciones) = \pi_{1}(b) $
+%
+%
+%$8. \ (\paratodo{rur}{r}) \ (def?(r, c.restricciones) \impluego claves(obtener(r, c.restricciones)) \igobs estaciones(c.mapa) \  \land \\   (\paratodo{estacion}{e}) \ def?(e, obtener(r, c.restricciones)) \yluego \\ (\paratodo{estacion}{c}) def?(c, obtener(e, obtener(r, c.restricciones))) \impluego \\ conectadas?(e, q, c.mapa) \yluego \\ Verifica?(obtener(r, c.tags), restriccion(c, e, c.mapa)) = obtener(c, obtener(e, obtener(r, c.restricciones)))$
+%
+%
+%%%%%% ABS
+
+
+\subsubsection*{Función de abstracción}
+
+\abs{city}{ciudad}{e}{c}
+\begin{enumerate}
+\item $\fun{proximoRuR}(c) \igobs \#\fun{e.robots}\ \land$
+\item $\fun{mapa}(c) \igobs e.\fun{mapa}\ \land$
+\item $\fun{robots} (c)\ \igobs \fun{claves}(e.robots) \ \land$
+\item $(\paratodo{rur}{r}) \ r \in robots(c) \impluego (estacion(r,c) = significado(e.estacion, r) \ \land $
+\item $ tags(r,c) = significado(e.tags, r) \ \land $
+\item $\# infracciones (r,c) = significado(e.infracciones, r))$
+\end{enumerate}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsubsection*{Algoritmos}
@@ -217,7 +255,7 @@ $\neg \emptyset$
 {O($ n \times(L + log(k)$))}
 
 \algoritmo{icantidadEnviados}{in/out s:dcnet,in c: compu}{res : nat}{ 
-  \Var{i: nat} % NO ME COMPILA ESTOOOOO
+  \Var{i: nat} 
   \State $i \larr 0$
         \complejidad{O(1)}
   \While{$\pi_1(s.compus[i]) \neq \pi_1(c)$} %este ciclo termina antes de superar la long del array por la pre
@@ -252,7 +290,7 @@ $\neg \emptyset$
     \State$i \larr j + 1$
           \complejidad{O(1)}
   \EndWhile
-  \State$res \larr s.CaminosMinimos[j][\pi_4(s.compus[i])]$
+  \State$res \larr s.CaminosMinimos[j][i]$
         \complejidad{O(1 o n dependiendo de si hago copia o no)}
 }
 {O($n \times log(k)$)}
