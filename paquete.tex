@@ -1,0 +1,38 @@
+\section{Paquete}
+
+Un Paquete es
+
+\subsection{Interfaz}
+
+\sexc{Paquete}
+\generos{paquete}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection*{Operaciones}
+
+\operacion{crearPaquete}{in id: nat,in o: compu,in d: compu,in pr: nat}{res: paquete}
+ {true o haycamino?(o,d)}
+ {id(res)=id $\land$ origen(res)=o $\land$ destino(res)=d $\land$ prioridad(res)=pr}
+ {Crea un paquete}
+ {O(1)}
+ {} 
+ 
+ \operacion{\argumento $<_{p}$ \argumento}{in p$_1$:paquete, in p$_2$: paquete}{res: bool}
+ {true}
+ {res=true $\iff$ prioridad(p$_1$)$<$prioridad(p$_2$)}
+ {Define un orden en paquete seg\'un la prioridad}
+ {O(1)}
+ {}
+ 
+ \operacion{\argumento $<_{id}$ \argumento}{in p$_1$:paquete, in p$_2$: paquete}{res: bool}
+ {true}
+ {res=true $\iff$ id(p$_1$)$<$id(p$_2$)}
+ {Define un orden en paquete seg\'un la id}
+ {O(1)}
+ {}
+ 
+\subsection{Representación}
+
+%%
+ 
