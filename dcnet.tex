@@ -69,6 +69,7 @@ $n$ : la cantidad total de computadoras que hay en el sistema, \\
 $L$ : el hostname más largo de todas las computadoras, \\
 $k$ : la cola de paquetes más larga de todas las computadoras. 
 
+
 $\neg \emptyset$
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,9 +88,14 @@ $\neg \emptyset$
 \subsubsection*{Invariante de representación}
 
 \begin{enumerate}
-	\item 
-%	\item sino, son operadores
-%	\item si el operador es unario, tiene solo hijo izquierdo
+	\item Todos los IP de \textit{compus} pertenecen al conjunto de claves de \textit{CompusPorPref} y la longitud de dicho arreglo es igual al cardinal de las claves del diccionario. 
+	\item Los pN de las tuplas que tiene el arreglo \textit{compus} apuntan al conjunto de paquetes(PorNom) de un significado en \textit{CompusPorPref} cuya clave es igual al IP de esa posición en el arreglo.
+	\item Todos los conjuntos de los significados de \textit{CompusPorPref} son disjuntos dos a dos.
+  \item Los conjuntos de los campos de la tupla PorNom, PorPrior son iguales.
+  \item La longitud de \textit{CaminosMinimos} es igual a la longitud del arreglo que tiene \textit{CaminosMinimos} en cada posición.
+  \item La longitud del arreglo, que tiene un arreglo de \textit{CaminosMinimos} es menor o igual a la longitud de \textit{CaminosMinimos}.
+  \item Los elementos del arreglo anteriormente mencionado son menores o iguales a la longitud de \textit{CaminosMinimos} y no tiene repetidos.
+  \item La computadora que más paquetes envió es aquella cuyo índice es igual a \textit{LaQMasEnvio}
 
 \end{enumerate}
 %		\rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
@@ -217,7 +223,7 @@ $\neg \emptyset$
 {O($ n \times(L + log(k)$))}
 
 \algoritmo{icantidadEnviados}{in/out s:dcnet,in c: compu}{res : nat}{ 
-  \Var{i: nat} % NO ME COMPILA ESTOOOOO
+  \Var{i: nat} 
   \State $i \larr 0$
         \complejidad{O(1)}
   \While{$\pi_1(s.compus[i]) \neq \pi_1(c)$} %este ciclo termina antes de superar la long del array por la pre
