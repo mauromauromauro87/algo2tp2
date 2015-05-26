@@ -39,13 +39,13 @@ El módulo red permite crear una red de computadoras, agregar nuevas, conectarla
  {$\var{c}$ $\in$ computadoras($\var{r}$)}
  {$\var{res}$ $\equiv$ indice($\var{r}$,$\var{c}$)}
  {Devuelve un nat distinto para cada IP}
- {O(?)}
+ {O(n)}
 
 \operacion{UsaInterfaz?}{in r : red,in c : compu,in i : interfaz}{res : bool}
  {$\var{c}$ $\in$ computadoras($\var{r}$) $\land$ $\var{i}$ $\in$ interfaces($\var{c}$)}
  {$\var{res} \equiv UsaInterfaz?(r,c,i)$}
  {Devuelve TRUE si y solo si la interfaz está siendo utilizada}
- {O(?)}
+ {O(n)}
 
 \operacion{HayCamino?}{in r : red,in c1 : compu,in c2 : compu}{res : bool}
  {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
