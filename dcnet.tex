@@ -28,13 +28,16 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
  {$s \igobs crearPaquete(s_0, p)$}
  {Crea un paquete y lo agrega a la computadora correspondiente.}
  {O($L + log(k)$)}
- {} 
+ {}
+ \\
+ \\ 
 \operacion{avanzarSegundo}{in/out s: dcnet}{}
  {$s \igobs s_0$}
  {$s \igobs avanzarSegundo(s_0)$}
  {Avanza un segundo el sistema. Todas las computadoras envían su respectivo paquete y en consecuencia se actualizar los paquetes en espera de cada una de ellas.}
  {O($n \times\ (L + log(n) + log(k))$)}
  {}
+ \\ \\
 \operacion{dameRed}{in s: dcnet}{res :puntero(red)}
  {$true$}
  {$\var{res} \igobs red(s)$}
@@ -55,12 +58,15 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
  {Devuelve la cantidad de paquetes enviados por una computadora.}
  {O($n$)} %es recorrer todas lascompus del vector e ir al heap que tiene guardado cuantos paquetes envio cada una no ?
  {}
+ \\ \\
 \operacion{enEspera}{in s: dcnet,in c: compu}{res: puntero(conjLogP(paquete)))}
  {$c \in computadoras(red(s))$}
  {$\var{res} \igobs enEspera(s,c)$}
  {Devuelve un iterador a los paquetes de la computadora.}
  {O(L)}
- {Hay aliasing entre res y el conjunto de paquetes de la computadora pasada por parámetro }
+ {Hay aliasing entre res y el conjunto de paquetes de la computadora pasada por parámetro}
+ \\
+ \\
 \operacion{laQueMasEnvio}{in s: dcnet}{res : compu}
  {$true$}
  {$\var{res} \igobs laQueMasEnvio(s,p)$}
@@ -144,7 +150,7 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
 		\State $res.Compus[i] \larr $ $<compu(r,i),p[i],0>$ 
 			\complejidad{O(1)}
 		\State s:$ \ <nat,conjLog(paquete,<_{id}),conjLog(paquete,<_{p}), $\\$ conjLog(<paquete, indiceActual, indiceOrigen, indiceDestino>,<_{id}),conjLog(<paquete, indiceActual, indiceOrigen, indiceDestino>,<_{p}) >$
-		HAY que ver bien donde definir la relacion!!
+		%HAY que ver bien donde definir la relacion!!
 		\State $\pi_1(s) \larr compu(r,i)$
 		\State $\pi_2(s) \larr \Fun{nuevo}()$
 		\State $\pi_3(s) \larr \Fun{nuevo}()$
