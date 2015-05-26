@@ -1,0 +1,86 @@
+\section{PaquetePos}
+
+Un PaquetePos es
+
+\subsection{Interfaz}
+
+\sexc{\tupla{:Paquete,:nat,:nat,:nat}}
+\generos{paquetePos}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection*{Operaciones}
+
+\operacion{crearPaquete}{in id: nat,in o: compu,in d: compu,in pr: nat}{res:$<paquete,nat,nat,nat>$}
+ {true}
+ {$pi_1(pi_1(res))=id \land pi_2(pi_1(res))=pr \land pi_3(pi_1(res))=o \land pi_4(pi_1(res))=d$}
+ {Crea un paquete}
+ {O(1)}
+ {}
+ 
+ \operacion{\argumento $<_{p}$ \argumento}{in $p_1$:${<paquete,nat,nat,nat>}$,in $p_2$:${<paquete,nat,nat,nat>}$}{res: bool}
+ {true}
+ {res=true $\iff$ $(\pi_2(\pi_1(p_1)) = \pi_2(\pi_1(p_2)) \land \pi_1(\pi_1((p_1)) < \pi_1(\pi_1((p_2)) \lor (\pi_1(\pi_1((p_1)) < \pi_1(\pi_1((p_2))))$}
+ {Define un orden en paquete seg\'un la prioridad}
+ {O(1)}
+ {}
+ 
+ \operacion{\argumento $<_{id}$ \argumento}{in p$_1$:${<paquete,nat,nat,nat>}$, in p$_2$:${<paquete,nat,nat,nat>}$}{res: bool}
+ {true}
+ {res=true $\iff$ ($pi_1(pi_1(p_1))<(pi_1(pi_1(p_2)))$)}
+ {Define un orden en paquete seg\'un el id}
+ {O(1)}
+ {}
+ 
+ \operacion{getPaquete}{in ppos:${<paquete,nat,nat,nat>}$}{res:paquete}
+ {true}
+ {$res \igobs \pi_1(paquete)$}
+ {Getter de paquete}
+ {O(1)}
+ {}
+ 
+ \operacion{indiceOrigen}{in p:${<paquete,nat,nat,nat>}$}{res:nat}
+ {true}
+ {$res = \pi_2(p)$}
+ {Getter de indiceOrigen}
+ {O(1)}
+ {}
+ 
+ \operacion{indiceDestino}{in p:${<paquete,nat,nat,nat>}$}{res:nat}
+ {true}
+ {$res = \pi_3(p)$}
+ {Getter de indiceDestino}
+ {O(1)}
+ {}  
+ 
+ \operacion{posActual}{in p:${<paquete,nat,nat,nat>}$}{res:nat}
+ {true}
+ {$res = \pi_4(p)$}
+ {Getter de posActual}
+ {O(1)}
+ {} 
+  
+ \operacion{actualizarPosActual}{in/out p:${<paquete,nat,nat,nat>}$}{} 
+ {$p_1 \igobs p$}
+ {$posActual(p) = posActual(p_1) + 1$}
+ {Aumentar la posicion actual}
+ {O(1)}
+ {}
+  
+\subsection{Representación}
+
+\serc{paqPos}{
+\\
+\donde{paqPos}{\tupla{
+	paquete: \mbox{paquete},
+	indiceOrigen: \mbox{nat},
+	indiceDestino: \mbox{nat},
+	posActual: \mbox{nat}
+}}}
+
+\subsubsection*{Justificación de estructura}{
+	Las restricciones de complejidad del tipo dcnet para caminoRecorrido y enEspera nos obligaron a tener representadas dos estructuras
+	distintas para almacenar los paquetes. En una de ellas tenemos los paquetes a retornar por la operación enEspera que devuelve los 
+	paquetes en la cola de cierta computadora y en la otra devolvemos una estructura similar a paquete (paquetePos) con información
+	adicional acerca de las posiciones en que se encuentra el paquete que nos permite encontrar el caminoRecorrido en el tiempo solicitado.
+}

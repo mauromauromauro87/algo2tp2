@@ -2,17 +2,25 @@
 \BOOKMARK [2][-]{subsection.1.1}{Interfaz}{section.1}% 2
 \BOOKMARK [2][-]{subsection.1.2}{Representaci\363n}{section.1}% 3
 \BOOKMARK [2][-]{subsection.1.3}{Servicios Usados}{section.1}% 4
-\BOOKMARK [1][-]{section.2}{ConjLog}{}% 5
+\BOOKMARK [1][-]{section.2}{M\363dulo Red}{}% 5
 \BOOKMARK [2][-]{subsection.2.1}{Interfaz}{section.2}% 6
-\BOOKMARK [2][-]{subsection.2.2}{Representaci\363n}{section.2}% 7
-\BOOKMARK [2][-]{subsection.2.3}{Invariante de representaci\363n}{section.2}% 8
-\BOOKMARK [2][-]{subsection.2.4}{Funci\363n de abstracci\363n}{section.2}% 9
-\BOOKMARK [2][-]{subsection.2.5}{Algoritmos}{section.2}% 10
-\BOOKMARK [2][-]{subsection.2.6}{Auxiliares}{section.2}% 11
-\BOOKMARK [1][-]{section.3}{Diccionario por Prefijos}{}% 12
-\BOOKMARK [2][-]{subsection.3.1}{Interfaz}{section.3}% 13
-\BOOKMARK [1][-]{section.4}{Diccionario por Prefijos}{}% 14
-\BOOKMARK [2][-]{subsection.4.1}{Interfaz}{section.4}% 15
-\BOOKMARK [1][-]{section.5}{Paquete}{}% 16
-\BOOKMARK [2][-]{subsection.5.1}{Interfaz}{section.5}% 17
-\BOOKMARK [2][-]{subsection.5.2}{Representaci\363n}{section.5}% 18
+\BOOKMARK [2][-]{subsection.2.2}{Extensi\363n del TAD Red}{section.2}% 7
+\BOOKMARK [2][-]{subsection.2.3}{Representaci\363n}{section.2}% 8
+\BOOKMARK [1][-]{section.3}{ConjLog}{}% 9
+\BOOKMARK [2][-]{subsection.3.1}{Interfaz\(, =, <\)}{section.3}% 10
+\BOOKMARK [3][-]{subsubsection.3.1.1}{par\341metros formales}{subsection.3.1}% 11
+\BOOKMARK [2][-]{subsection.3.2}{Representaci\363n}{section.3}% 12
+\BOOKMARK [2][-]{subsection.3.3}{Invariante de representaci\363n}{section.3}% 13
+\BOOKMARK [2][-]{subsection.3.4}{Funci\363n de abstracci\363n}{section.3}% 14
+\BOOKMARK [3][-]{subsubsection.3.4.1}{Aclaraci\363n de complejidades}{subsection.3.4}% 15
+\BOOKMARK [2][-]{subsection.3.5}{Algoritmos}{section.3}% 16
+\BOOKMARK [2][-]{subsection.3.6}{Auxiliares}{section.3}% 17
+\BOOKMARK [2][-]{subsection.3.7}{Operaciones auxiliares de conj\(\)}{section.3}% 18
+\BOOKMARK [1][-]{section.4}{Diccionario por Prefijos}{}% 19
+\BOOKMARK [2][-]{subsection.4.1}{Interfaz}{section.4}% 20
+\BOOKMARK [1][-]{section.5}{Paquete}{}% 21
+\BOOKMARK [2][-]{subsection.5.1}{Interfaz}{section.5}% 22
+\BOOKMARK [2][-]{subsection.5.2}{Representaci\363n}{section.5}% 23
+\BOOKMARK [1][-]{section.6}{PaquetePos}{}% 24
+\BOOKMARK [2][-]{subsection.6.1}{Interfaz}{section.6}% 25
+\BOOKMARK [2][-]{subsection.6.2}{Representaci\363n}{section.6}% 26

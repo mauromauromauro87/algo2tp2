@@ -11,16 +11,16 @@ Un Paquete representa a un paquete a partir de una tupla que contiene el id del 
 
 \subsubsection*{Operaciones}
 
-\operacion{crearPaquete}{in id: nat,in o: compu,in d: compu,in pr: nat}{res: paquete}
- {true o haycamino?(o,d)}
- {id(res)=id $\land$ origen(res)=o $\land$ destino(res)=d $\land$ prioridad(res)=pr}
+\operacion{crearPaquete}{in id: nat,in o: compu,in d: compu,in pr: nat}{res:paquete}
+ {true}
+ {$pi_1(res)=id \land pi_2(res)=pr \land pi_3(res)=o \land pi_4(res)=d$}
  {Crea un paquete}
  {O(1)}
- {} 
+ {}
  
  \operacion{\argumento $<_{p}$ \argumento}{in p$_1$:paquete, in p$_2$: paquete}{res: bool}
  {true}
- {res=true $\iff$ prioridad(p$_1$)$<$prioridad(p$_2$)}
+ {res=true $\iff$ $(\pi_2(p_1)=\pi_2(p_2) \land pi_1(p_1)<pi_1(p_2) \lor (\pi_1(p_1)<\pi_1(p_2)))$}
  {Define un orden en paquete seg\'un la prioridad}
  {O(1)}
  {}
@@ -28,11 +28,44 @@ Un Paquete representa a un paquete a partir de una tupla que contiene el id del 
  \operacion{\argumento $<_{id}$ \argumento}{in p$_1$:paquete, in p$_2$: paquete}{res: bool}
  {true}
  {res=true $\iff$ id(p$_1$)$<$id(p$_2$)}
- {Define un orden en paquete seg\'un la id}
+ {Define un orden en paquete seg\'un el id}
  {O(1)}
  {}
  
+ \operacion{Id}{in p:paquete}{res:nat}
+ {true}
+ {$res = \pi_1(paquete)$}
+ {$Getter de id$}
+ {O(1)}
+ {}
+ 
+ \operacion{Prioridad}{in p:paquete}{res:nat}
+ {true}
+ {$res = \pi_2(paquete)$}
+ {$Getter de prioridad$}
+ {O(1)}
+ {}
+ 
+ \operacion{Origen}{in p:paquete}{res:Ip}
+ {true}
+ {$res = \pi_3(paquete)$}
+ {$Getter de origen$}
+ {O(1)}
+ {}
+ 
+ \operacion{Destino}{in p:paquete}{res:Ip}
+ {true}
+ {$res = \pi_4(paquete)$}
+ {$Getter de destino$}
+ {O(1)}
+ {}
 \subsection{Representación}
 
-%%
- 
+\serc{paquete}{
+\\
+\donde{paquete}{\tupla{
+	id: \mbox{nat}, 
+	origen: \mbox{Ip}, 
+	destino: \mbox{Ip}, 
+	prioridad: \mbox{nat}
+}}}
