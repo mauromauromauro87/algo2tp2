@@ -21,19 +21,20 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
  {$\var{res} \igobs iniciarDCNet(r)$}
  {Crea un sistema DCNet.}
  {O(???)}
+ {}
 
 \operacion{crearPaquete}{in/out s: dcnet,in p: paquete}{}
  {$s \igobs s_0 \land (\forall p_0:paquete,paqueteEnTransito?(p,s))$ ¬$(p_0 \igobs p) \land$ \\ $destino(p) \in compus(red) \land origen(p) \in compus(red) \yluego $ \\ $haycamino?(destino(p),origen(p),red(s))$}
  {$s \igobs crearPaquete(s_0, p)$}
  {Crea un paquete y lo agrega a la computadora correspondiente.}
  {O($L + log(k)$)}
-
+ {} 
 \operacion{avanzarSegundo}{in/out s: dcnet}{}
  {$s \igobs s_0$}
  {$s \igobs avanzarSegundo(s_0)$}
  {Avanza un segundo el sistema. Todas las computadoras envían su respectivo paquete y en consecuencia se actualizar los paquetes en espera de cada una de ellas.}
  {O($n \times\ (L + log(n) + log(k))$)}
-
+ {}
 \operacion{dameRed}{in s: dcnet}{res :puntero(red)}
  {$true$}
  {$\var{res} \igobs red(s)$}
@@ -46,32 +47,30 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
  {$\var{res} \igobs caminoRecorrido(s,p)$}
  {Devuelve el camino recorrido hasta el momento por un paquete.}
  {O($n \times\  log(max(n,k))$)}
+ {Devuelve puntero al camino recorrido que se encuentra en CaminosMinimos}
 
 \operacion{cantidadEnviados}{in s: dcnet,in c: compu}{res : nat}
  {$c \in computadoras(red(s))$}
  {$\var{res} \igobs cantidadEnviados(s,c)$}
  {Devuelve la cantidad de paquetes enviados por una computadora.}
  {O($n$)} %es recorrer todas lascompus del vector e ir al heap que tiene guardado cuantos paquetes envio cada una no ?
-
+ {}
 \operacion{enEspera}{in s: dcnet,in c: compu}{res: puntero(conjLogP(paquete)))}
  {$c \in computadoras(red(s))$}
  {$\var{res} \igobs enEspera(s,c)$}
  {Devuelve un iterador a los paquetes de la computadora.}
  {O(L)}
-
+ {Hay aliasing entre res y el conjunto de paquetes de la computadora pasada por parámetro }
 \operacion{laQueMasEnvio}{in s: dcnet}{res : compu}
  {$true$}
  {$\var{res} \igobs laQueMasEnvio(s,p)$}
  {Devuelve la computadora que más paquetes envió.}
  {O(1)}
-
+ {}
 Las complejidades están en función de las siguientes variables:\\
 $n$ : la cantidad total de computadoras que hay en el sistema, \\
 $L$ : el hostname más largo de todas las computadoras, \\
 $k$ : la cola de paquetes más larga de todas las computadoras. 
-
-
-$\neg \emptyset$
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Representación}
@@ -84,7 +83,7 @@ $\neg \emptyset$
       CaminosMinimos: \mbox{arreglo(arreglo(arreglo(compu)))},
       LaQMasEnvio : \mbox{nat
 	},
-	red: \mbox{red}	
+	Red: \mbox{red}	
 	}}
 }
 
@@ -104,16 +103,18 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
   \item La computadora que más paquetes envió es aquella cuyo índice es igual a \textit{LaQMasEnvio}
 
 \end{enumerate}
-%		\rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
-%		\textbf{if} ($r.der = \NULL$) \textbf{then} \\
-%		$*r.val = "NOT" \land rep(*r.izq)$ \\
-%		\textbf{else} $*r.val \in Ag("OR", Ag("AND",vacio)) \land rep(*r.izq) \land rep(*r.der)$
-%		\end{enumerate}
 
+\rep{sistema}{s}  \\
+ $1.\ \paratodo{String}{s}\ \fun{$def?$}(s, s.CompusPorPref), (\exists c : compu), \fun{$esta?$}(c,s.Compus)\ \land\ \pi_1(c) = s\ \land\ \fun{longitud}(s.Compus) = \#\Fun{claves}(s.CompusPorPref)$\\
+ $2.\ \paratodo{compu}{c}\ \fun{esta?}(c, s.Compus), *\pi_2(c) = \fun{obtener}(\pi_1(c),s.CompusPorPref) $\\
+ $3.\ \paratodo{String}{s,t}\ \fun{def?}(s, s.CompusPorPref)\ \land\ \fun{def?}(t, s.CompusPorPref)\ \land\ s \neq t \impluego \\ \fun{obtener}(s, s.CompusPorPref)\ \bigcap\ \fun{obtener}(t, s.CompusPorPref) = \emptyset$\\
+ $4.\ \paratodo{String}{s}\ \fun{def?}(s, s.CompusPorPref)\ \impluego\ \pi_1(\fun{obtener}(s, s.CompusPorPref)) =\\ \pi_2(\fun{obtener}(s, s.CompusPorPref))$ \\
+ $5.\ (\paratodo{nat}{i,j}),\ 0 \leq i,j < \fun{longitud}(s.CaminosMinimos) \impluego \fun{longitud}(s.CaminosMinimos) = \fun{longitud}(s.CaminosMinimos[i])\ \land\ \fun{longitud}(s.CaminosMinimos[i][j]) < \fun{longitud}(s.CaminosMinimos)\ \land\ (\paratodo{nat}{e}), \fun{esta?}(e, s.CaminosMinimos[i][j]) \Rightarrow e < \fun{longitud}(s.CaminosMinimos) $\\
+ $8. \paratodo{compu}{c}\ \fun{esta?}(c, s.Compus)\ \impluego\ \pi_3(c) \leq \pi_3(s.Compus[s.LaQMasEnvio])$
 %\subsubsection*{Función de abstracción}
-
  %\abs{sistema}{sist}{dcnet}{s} \\
- %$(\fun{s.} = \NULL \land \fun{*r.der} = \NULL \ssi nil?(a)) \ \oluego$ \\
+%$(\fun{s.} = \NULL \land \fun{*r.der} = \NULL \ssi nil?(a)) \ \oluego$ \\
+
 % $\fun{*r.izq} = izq(a) \land \fun{*r.der} = der(a) \ \land$
 %$r.val = raiz(a) $
 
@@ -304,18 +305,43 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
     \State $b \larr \neg(\Fun{pertenece?}(p,$*$(s.compus[i].pN)))$
           \complejidad{O($log(k)$)}
   \EndWhile
-%  \Var{j: nat}
-%  \State $j \larr 0$
-%        \complejidad{O(1)}
-%  \While{ $\neq \pi_3(p)$}
-%        \complejidad{O(n)} 
-%    \State$j \larr j + 1$
-%          \complejidad{O(1)}
-%  \EndWhile
-  \State $res \larr s.CaminosMinimos[\Fun{indiceOrigen}(p')][i]$
+  \Var{j: nat}
+  \State $j \larr 0$
+        \complejidad{O(1)}
+  \While{s.compus[j].IP $\neq \pi_3(p)$}
+        \complejidad{O(n)} 
+    \State$j \larr j + 1$
+          \complejidad{O(1)}
+  \EndWhile
+  \Var{k: nat}
+  \State $k \larr 0$
+  \While{s.compus[k].IP $\neq \pi_4(p)$}
+        \complejidad{O(n)} 
+    \State $k \larr k + 1$
+          \complejidad{O(1)}
+  \EndWhile
+  \Var{l: nat}
+  \State $l \larr 0$
+  \Var{res: arreglo\_dimensionable de IP}
+  \State $res \larr \Fun{crearArreglo}(l+1)$
+  \While{$l \leq indiceactual(p)$} 
+  	\complejidad{O(n)}
+  \State $res[l] \larr s.CaminosMinimos[j][k][l]$
+  	\complejidad{O(1)}
+  \State $l \larr l+1$
+  	\complejidad{O(1)}
+  \EndWhile 
 }
 {O($n \times log(k)$)}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Servicios Usados}
+Del modulo ConjLog requerimos \fun{pertenece}, \fun{buscar}, \fun{sacarMax}, \fun{insertar} y \fun{borrar} en O($log(k)$) .
+
+Del modulo Diccionario Por Prefijos requerimos \fun{Def?}, \fun{obtener} en O($L$).
+
+
+
+
+
