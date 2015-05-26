@@ -45,16 +45,14 @@
 {$res == e$}
 {Devuelve el elemento que se está buscando}
 {$O(log(\#(cl)))$}
-{El elemento se devuelve por referencia, hay aliasing entre el elemento buscado y el del conjunto\\
-Alternativa, me parece que un poco mas limpia, es retornar el elemento por copia y exportar otra \\
-operacion que sea modificar,  si se modifica el elemento buscado, luego se lo modifica en el conjunto}
+{El elemento se devuelve por referencia y es modificable}
 
 \operacion{menor}{in cl:conjLog($\alpha$), in e:$\alpha$}{res : $\alpha$}
 {$e \in cl$}
 {$res == max(cl)$}
 {Devuelve el menor elemento del conjunto}
 {$O(log(\#(cl)))$}
-{}
+{El elemento se devuelve por referencia y es modificable}
 
 \operacion{insertar}{in/out cl:cl($\alpha$), in e:$\alpha$}{}
 {$cl_0 \igobs cl \land \neg(e \in cl)$}
@@ -103,6 +101,14 @@ operacion que sea modificar,  si se modifica el elemento buscado, luego se lo mo
 
 \abs{clog($\alpha$)}{conj($\alpha$)}{cl}{c} \\
 $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
+
+\subsubsection{Aclaración de complejidades}{
+	Este módulo es un AVL y fue diseñado para poder cumplir con las especificaciones de complejidad de dcnet.
+	Si bien es paramétrico, está pensado para trabajar con tipo 'paquete' en el que la 
+	copia se puede realizar en tiempo constante.
+	En resumen, todas las operaciones de comparación, asignacion y copia del tipo paramétrico $\alpha$
+	deben poder ser realizadas en O(1).
+}
 
 \newpage
 \subsection{Algoritmos}
@@ -180,6 +186,10 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 }
 {O($log(size(cl))$)}
 
+\subsubsection*{Justificación de complejidad}{
+	Por álgebra de órdenes
+}
+
 \algoritmo{iInsertar}{in/out cl:conjLog($\alpha$), in e : $\alpha$}{}{
 	\State \Var{clactual:$conjLog(\alpha)$} $\larr cl$ \complejidad{O(1)}
 	\State \If {$\neg(cl.der==NULL) \land \neg(cl.izq==NULL)$} \complejidad{$O(1)$}
@@ -205,6 +215,10 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 }
 {O($log(size(cl))$)}
 
+\subsubsection*{Justificación de complejidad}{
+	Por álgebra de órdenes
+}
+
 \algoritmo{iPertenece}{in/out cl:conjLog($\alpha$), in e:$\alpha$}{res:bool}{
 	\State \Var{encontrado?:bool} $\larr false$ \complejidad{O(1)}
 	\State \Var{clactual:conjLog($\alpha$)} $\larr cl$ \complejidad{O(1)}
@@ -224,13 +238,21 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 }
 {$O(log(size(cl)))$}
 
-\newpage
+\subsubsection*{Justificación de complejidad}{
+	El ciclo recorre a lo sumo una rama del árbol (el árbol está ordenado), teniendo ésta como máximo 
+	la longitud del árbol (sus alturas no difieren en más de una hoja) que es log(n), con n = size(cl)
+}
+
 \algoritmo{iMenor}{in cl:conjLog($\alpha$)}{res:$\alpha$}{
 	\State \Var{clactual:conjLog(\alpha)} $\larr cl$ \complejidad{O(1)}
 	\State $clactual \larr iMenorNodo(clactual)$ \complejidad{O($log(size(cl))$)}
 	\State $res \larr clactual.valor$ \complejidad{O(1)}
 }
 {$O(log(size(cl)))$}
+
+\subsubsection*{Justificación de complejidad}{
+	Por álgebra de órdenes
+}
 
 \algoritmo{iBuscar}{in cl:conjLog($\alpha$), e:$\alpha$}{res:$\alpha$}{
 	\State \Var {padre:conjLog($\alpha$)} $\larr iEncontrarPadre(cl,e)$ \complejidad{O($log(size(cl))$)}
@@ -241,6 +263,10 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 	\EndIf
 }
 {O($log(size(cl))$)}
+
+\subsubsection*{Justificación de complejidad}{
+	Por álgebra de órdenes
+}
 
 \newpage
 \subsection{Auxiliares}
@@ -343,7 +369,11 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 }
 {O($log(size(cl))$)}
 
-\newpage
+\subsubsection*{Justificación de complejidad}{
+	En éste ciclo, tanto para el borrado y para la inserción se tiene un nodo interno que fue modificado y a partir de éste se 
+	comienza a subir hasta llegar como máximo al nodo raíz del árbol,recorriendo como mucho la altura del árbol
+}
+
 \algoritmo{iRotarRR}{in/out cl:conjLog($\alpha$)}{}{
 	\State \Var{nietoRR:conjLog($\alpha$)} $\larr cl.der.der$ \complejidad{O(1)}
 	\State \Var{hijoDer:conjLog($\alpha$)} $\larr cl.der$ \complejidad{O(1)}
@@ -357,6 +387,10 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 	\State $cl.der.padre \larr cl$ \complejidad{O(1)}
 }
 {O(1)}
+
+\subsubsection*{Justificación de complejidad}{
+	Son operaciones sobre $\alpha$ y punteros
+}
 
 \algoritmo{iRotarRL}{in/out cl:conjLog($\alpha$)}{}{
 	\State \Var{nietoRR:conjLog($\alpha$)} $\larr cl.der.der$ \complejidad{O(1)}
@@ -372,6 +406,10 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 }
 {$O(1)$}
 
+\subsubsection*{Justificación de complejidad}{
+	Son operaciones sobre $\alpha$ y punteros
+}
+
 \algoritmo{iRotarLL}{in/out cl:conjLog($\alpha$)}{}{
 	\State \Var{nietoLL:conjLog($\alpha$)} $\larr cl.izq.izq$ \complejidad{O(1)}
 	\State \Var{hijoIzq:conjLog($\alpha$)} $\larr cl.izq$ \complejidad{O(1)}
@@ -386,6 +424,10 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 }
 {$O(1)$}
 
+\subsubsection*{Justificación de complejidad}{
+	Son operaciones sobre $\alpha$ y punteros
+}
+
 \algoritmo{iRotarLR}{in/out cl:conjLog($\alpha$)}{}{
 	\State \Var{nietoLL:conjLog($\alpha$)} $\larr cl.izq.izq$ \complejidad{O(1)}
 	\State \Var{nietoLR:conjLog($\alpha$)} $\larr cl.izq.der$ \complejidad{O(1)}
@@ -399,6 +441,10 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 	\State $cl.izq.fdb \larr -1$ \complejidad{O(1)}
 }
 {$O(1)$}
+
+\subsubsection*{Justificación de complejidad}{
+	Son operaciones sobre $\alpha$ y punteros
+}
 
 \algoritmo{iEncontrarPadre}{in cl:conjLog($\alpha$), e:$\alpha$}{res:conjLog($\alpha$)}{
 	\State \Var{clactual:conjLog($\alpha$)} \complejidad{O(1)}
@@ -415,6 +461,11 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 }
 {$O(size(cl))$}
 
+\subsubsection*{Justificación de complejidad}{
+	El ciclo recorre a lo sumo una rama del árbol (el árbol está ordenado), teniendo ésta como máximo 
+	la altura del árbol (sus alturas no difieren en más de una hoja) que es log(n), con n = size(cl)
+}
+
 \algoritmo{iDameMayorMenores}{in cl:conjLog($\alpha$), e:$\alpha$}{res:conjLog($\alpha$)}{
 	\State \Var{clactual:conjLog($\alpha$)} $\larr cl$ \complejidad{O(1)}
 	\State \If {$clactual.izq != NULL$} \complejidad{O(1)}
@@ -423,7 +474,10 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 	\State $res \larr clactual$ \complejidad{O(1)}
 }
 
-\newpage
+\subsubsection*{Justificación de complejidad}{
+	Por álgebra de órdenes
+}
+
 \algoritmo{iMenorNodo}{in cl:conjLog($\alpha$)}{res:$conjLog(\alpha)$}{
 	\State \Var{clactual:conjLog($\alpha$)} $\larr cl$ \complejidad{O(1)}
 	\State \While {$clactual.izq != NULL$}
@@ -433,6 +487,11 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 }
 {$O(log(size(cl)))$}
 
+\subsubsection*{Justificación de complejidad}{
+	Para encontrar el menor nodo se recorre el árbol siempre a la izquierda, se alcanza a recorrer una única rama, 
+	es decir la altura del árbol
+}
+
 \algoritmo{iMayorNodo}{in cl:conjLog($\alpha$)}{res:$conjLog(\alpha)$}{
 	\State \Var{clactual:conjLog($\alpha$)} $\larr cl$ \complejidad{O(1)}
 	\State \While {$clactual.der != NULL$}
@@ -441,6 +500,11 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 	\State $res \larr clactual$ \complejidad{O(1)}
 }
 {$O(log(size(cl)))$}
+
+\subsubsection*{Justificación de complejidad}{
+	Para encontrar el menor nodo se recorre el árbol siempre a la izquierda, se alcanza a recorrer una única rama, 
+	es decir la altura del árbol
+}
 
 \algoritmo{size}{in cl:conjLog($\alpha$)}{res:$nat$}{
 	\State \If {$cl == NULL$}
