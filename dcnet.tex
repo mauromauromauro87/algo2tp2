@@ -140,12 +140,15 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
 			\complejidad{O(n)}
 		\State $p[i] \larr NULL$
 			\complejidad{O(1)}
-		\State $res.Compus[i] \larr $ \textbf{tupla}$<compu(r,i),p[i],0>$ 
-		\State NO SE como deben escribirse las tuplas
+		\State $res.Compus[i] \larr $ $<compu(r,i),p[i],0>$ 
 			\complejidad{O(1)}
-		\State s:$ \ <conjLog(paquete,<_{id}),conjLog(paquete,<_{p}) >$
-		\State $\pi_1(s) \larr nuevo()$
-		\State $\pi_2(s) \larr nuevo()$
+		\State s:$ \ <nat,conjLog(paquete,<_{id}),conjLog(paquete,<_{p}), $\\$ conjLog(<paquete, indiceActual, indiceOrigen, indiceDestino>,<_{id}),conjLog(<paquete, indiceActual, indiceOrigen, indiceDestino>,<_{p}) >$
+		HAY que ver bien donde definir la relacion!!
+		\State $\pi_1(s) \larr compu(r,i)$
+		\State $\pi_2(s) \larr \Fun{nuevo}()$
+		\State $\pi_3(s) \larr \Fun{nuevo}()$
+		\State $\pi_4(s) \larr \Fun{nuevo}()$
+		\State $\pi_5(s) \larr \Fun{nuevo}()$
 		\State \Fun{definir}(res.CompusPorPref,compu(r,i),s)
 			\complejidad{O(L)}
 		\While{j$<$n}
@@ -162,35 +165,49 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
 }
 {O(max\{$n^2 \times O(complejidad cammin(red)),n \times L\}$)}
 
-\algoritmo{icrearPaquete}{in/out s:dcnet,in p: paquete}{}{ %hay que cambiar nombres segun heap y avl
-  \State $t: \ <conjLog(paquete,<_{id}),conjLog(paquete,<_{p}) >$
-  \State $t \larr \Fun{Obtener}(\pi_3(p),\ \var{s}.CompusPorPref)$
+\algoritmo{icrearPaquete}{in/out s:dcnet,in/out p: paquete}{}{ %hay que cambiar nombres segun heap y avl
+  \State $t_1:\ <nat,conjLog(paquete,<_{id}),conjLog(paquete,<_{p}), $\\$ conjLog(paquetePos,<_{id}),conjLog(paquetePos,<_{p}) >$
+  \State $t_1 \larr \Fun{Obtener}(origen(p),\ \var{s}.CompusPorPref)$
         \complejidad{O($L$)}
-  \Fun{insertar}($\pi_1(t),p$) %agrega segun nombre
+  \State $t_2:\ <nat,conjLog(paquete,<_{id}),conjLog(paquete,<_{p}), $\\$ conjLog(paquetePos,<_{id}),conjLog(paquetePos,<_{p}) >$
+  \State $t_2 \larr \Fun{Obtener}(destino(p),\ \var{s}.CompusPorPref)$
+  	\complejidad{O($L$)}
+  \State $p$'$:paquetePos$ 
+  \State $indiceOrigen(p$'$) \larr \pi_1(t_1)$
+  	\complejidad{O(1)}
+  \State $indiceDestino(p$'$) \larr \pi_1(t_2)$
+  	\complejidad{O(1)}
+  \State $indiceActual(p$'$) \larr 0$
+  \State \Fun{insertar}($\pi_2(t),p$) %agrega segun nombre
         \complejidad{O($log(k)$)}
-  \Fun{insertar}($\pi_2(t),p$) %agrega segun prioridad
+  \State \Fun{insertar}($\pi_3(t),p$) %agrega segun prioridad
+        \complejidad{O($log(k)$)}
+  \State \Fun{insertar}($\pi_4(t),p$') %agrega segun nombre
+        \complejidad{O($log(k)$)}
+  \State \Fun{insertar}($\pi_5(t),p$') %agrega segun prioridad
         \complejidad{O($log(k)$)}
 }
 {O($L + log(k)$)}
 
 
 \algoritmo{ilaQueMasEnvio}{in s: dcnet}{res : compu}{
-  \State $res \larr \pi_1(s.compus[s.LaQMasEnvio])$ 
+  \State $res \larr s.compus[s.LaQMasEnvio].IP$ 
         \complejidad{O(1)}
+  \textbf{ACLARACION: ACA deberia devolver una compu pero es alto bardo y no puedo hacerlo en O(1) me faltan las interfaces}
 }
 {O(1)}
 
 \algoritmo{idameRed}{in s: dcnet}{res: puntero(red)}{
-	\State $res\larr \&(s.red)$
+	\State $res \larr \&(s.red)$
 		\complejidad{O(1)}
 }
 {O(1)}
 
 \algoritmo{ienEspera}{in s:dcnet,in c: compu}{res: puntero(conjLogP(paquete))}{
-  \State $t: \ <conjLog(paquete,<_{id}),conjLog(paquete,<_{p}) >$
+  \State $t: \ <nat,conjLog(paquete,<_{id}),conjLog(paquete,<_{p}), $\\$ conjLog(paquetePos,<_{id}),conjLog(paquetePos,<_{p}) >$
   \State $t \larr \Fun{Obtener}(\pi_1(c),\ \var{s}.CompusPorPref)$
         \complejidad{O($L$)}
-  \State $res \larr \&(\pi_2(t))$
+  \State $res \larr \&(\pi_3(t))$
         \complejidad{O(1)}
 }
 {O($L$)}
@@ -200,47 +217,57 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
   \State $i \larr 0$
         \complejidad{O(1)}
   \Var{m: nat}
-  \State $m \larr s.LaQMasEnvio$
+  \State $m \larr s.Compus[LaQMasEnvio].\#PaqE$
   \While{$i < \Fun{Longitud}(s.Compus)$} %aca supongo que el modulo arreglo tiene la operacion longitud 
         \complejidad{O(n)} 
  
     \Var{IP: String}
-    \State $IP \larr \pi_1(s.Compus[i])$
-    \State $t_1: \ <conjLog(paquete,<_{id}),conjLog(paquete,<_{p}) >$
+    \State $IP \larr s.Compus[i].IP$
+    \State $t_1: \ <nat,conjLog(paquete,<_{id}),conjLog(paquete,<_{p}), $\\$ conjLog(paquetePos,<_{id}),conjLog(paquetePos,<_{p}) >$
     \State $t_1 \larr \Fun{obtener}(IP, s.CompusPorPref)$
           \complejidad{O(L)}
     \Var{p: paquete}
-    \If{$\neg\Fun{vacia?}(\pi_1(t_1))$}
-    \State $p \larr \Fun{sacarMax}(\pi_2(t_1))$ %tengo en p el paquete que voy a mover
+    \If{$\neg\Fun{vacia?}(\pi_5(t_1))$}%hay paquete para mandar
+    \State $p' \larr \Fun{sacarMax}(\pi_5(t_1))$ %tengo en p el paquete que voy a mover
           \complejidad{O($log(k)$)}
-    \State \Fun{borrar}($\pi_2(t_1)$,\ p) %lo borro del avl por prioridad
+    \State \Fun{borrar}($\pi_2(t_1),\ \Fun{paquete}(p')$) %lo borro del avl por prioridad
           \complejidad{O($log(k)$)}
-    \State \Fun{borrar}($\pi_1(t_1)$,\ p) %lo borro del avl por nombre
+    \State \Fun{borrar}($\pi_3(t_1),\ \Fun{paquete}(p')$) %lo borro del avl por nombre
           \complejidad{O($log(k)$)}
-    \State$\pi_3(s.Compus[i]) \larr \pi_3(s.compus[i]) + 1$
+    \State \Fun{borrar}($\pi_4(t_1),\ p' $) %lo borro del avl por prioridad
+          \complejidad{O($log(k)$)}
+    \State \Fun{borrar}($\pi_5(t_1),\ p'$) %lo borro del avl por nombre
+          \complejidad{O($log(k)$)}
+    \State $s.Compus[i].\#PaqE \larr s.compus[i].\#PaqE + 1$ 
            \complejidad{O(1)}
-    \State $proxima \larr s.CaminosMinimos[origen(p)][destino(p)][indiceactual(p)+1]$
+    \State $proxima \larr s.CaminosMinimos[\Fun{indiceOrigen}(p')][\Fun{indicedestino}(p')][\Fun{indiceActual}(p')+1]$
+    		\complejidad{O(1) o O(L) si se copia}
+    \textbf{ACLARACION:} coherente con caminoMinimo (sup que da un arreglo de IP)
+    \If{$\neg (\Fun{destino}(\Fun{paquete}(p'))=proxima)$}
+    		\complejidad{O(L)}
+    \textbf{ACLARACION:} Si no es porque ya no esta en transito entonces hay que aclarar en alg\'un lugar si eliminamos el paquete
+    \State $\Fun{actualizarIndice}(p')$ %suma 1
     		\complejidad{O(1)}
-    ACLARACION: Aca Que sea coherente con paquete (pi o terminos) y coherente con caminoMinimo (sup que da un arreglo de IP)
-    \If{$\neg (destino(p)=proxima)$}
-     	\complejidad{O(1) o O(L) segun ip o nume}
-    \State $\Fun{actualizarIndice}(p)$
-    	\complejidad{O(1)}
-    \State $t_2: \ <conjLog(paquete,<_{id}),conjLog(paquete,<_{p}) >$
+    \State $t_2: <nat,conjLog(paquete,<_{id}),conjLog(paquete,<_{p}), $\\$ conjLog(paquetePos,<_{id}),conjLog(paquetePos,<_{p}) >$
     \State $t_2 \larr \Fun{obtener}(proxima, s.CompusPorPref)$
              \complejidad{O(L)}
-    \State $\Fun{insertar}(\pi_2(t_2),\ p)$ 
+    \State $\Fun{insertar}(\pi_2(t_2),\ \Fun{paquete}(p'))$ 
           \complejidad{O($log(k)$)}
-    \State $\Fun{insertar}(\pi_1(t_2),\ p)$
+    \State $\Fun{insertar}(\pi_3(t_2),\ \Fun{paquete}(p'))$
           \complejidad{O($log(k)$)}
+    \State $\Fun{insertar}(\pi_4(t_2),\ p')$ 
+          \complejidad{O($log(k)$)}
+    \State $\Fun{insertar}(\pi_5(t_2),\ p')$
+          \complejidad{O($log(k)$)}          
     \EndIf
-    \If{$\pi_3(s.Compus[i]) > max)$}
+    \If{$s.Compus[i].\#PaqE > max)$}
           \complejidad{O(1)}
       \State $ max \larr i$
            \complejidad{O(1)}
     \EndIf
   \EndIf
   \State$i \larr i + 1$
+  	\complejidad{O(1)}
   \EndWhile
   \State$ s.LaQMasEnvio \larr max$ 
       \complejidad{O(1)}
@@ -251,12 +278,12 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
   \Var{i: nat} 
   \State $i \larr 0$
         \complejidad{O(1)}
-  \While{$\pi_1(s.compus[i]) \neq \pi_1(c)$} %este ciclo termina antes de superar la long del array por la pre
+  \While{$s.compus[i].IP \neq \pi_1(c)$} %este ciclo termina antes de superar la long del array por la pre
         \complejidad{O(n)} 
-    \State$i \larr i + 1$
+    \State $i \larr i + 1$
           \complejidad{O(1)}
   \EndWhile
-  \State$res \larr \pi_3(s.compus[i])$
+  \State $res \larr s.compus[i].\#PaqE$
         \complejidad{O(1)}
 }
 {O(n)}
@@ -266,39 +293,26 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
   \State $i \larr 0$
         \complejidad{O(1)}
   \Var{b: bool}
-  \State $b \larr \neg(\Fun{pertenece?}$(*$(p,s.compus[i].pN)))$
+  \State $b \larr \neg(\Fun{pertenece?}(p,$*$(s.compus[i].pN)))$
   ESTA BIEN ESTE PERTENECE?
+  Y CREO que la estructura deberria apuntar a colalog con paquetespos tambien
         \complejidad{O($log(k)$)}
   \While{$b$}
         \complejidad{O(n)} 
     \State$i \larr i + 1$
           \complejidad{O(1)}
-    \State $b \larr \neg(\Fun{pertenece?}$(*$(p,s.compus[i].pN)))$
+    \State $b \larr \neg(\Fun{pertenece?}(p,$*$(s.compus[i].pN)))$
           \complejidad{O($log(k)$)}
   \EndWhile
-  \Var{j: nat}
-  \State $j \larr 0$
-        \complejidad{O(1)}
-  \While{s.compus[j].IP $\neq \pi_3(p)$}
-        \complejidad{O(n)} 
-    \State$j \larr j + 1$
-          \complejidad{O(1)}
-  \EndWhile
-  \Var{k: nat}
-  \State $k \larr 0$
-  \While{s.compus[k].IP $\neq \pi_4(p)$}
-        \complejidad{O(n)} 
-    \State $k \larr k + 1$
-          \complejidad{O(1)}
-  \EndWhile
-  \Var{l: nat}
-  \State $l \larr 0$
-  \Var{res: arreglo\_dimensionable de IP}
-  \State $res \larr \Fun{crearArreglo}(l+1)$
-  \While{$l \leq indiceactual(p)$} 
-  \State $res[l] \larr s.CaminosMinimos[j][k][l]$
-  \State $l \larr l+1$
-  \EndWhile 
+%  \Var{j: nat}
+%  \State $j \larr 0$
+%        \complejidad{O(1)}
+%  \While{ $\neq \pi_3(p)$}
+%        \complejidad{O(n)} 
+%    \State$j \larr j + 1$
+%          \complejidad{O(1)}
+%  \EndWhile
+  \State $res \larr s.CaminosMinimos[\Fun{indiceOrigen}(p')][i]$
 }
 {O($n \times log(k)$)}
 

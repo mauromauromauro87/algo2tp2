@@ -1,7 +1,17 @@
 \section{ConjLog}
 
-\subsection{Interfaz}
+\subsection{Interfaz($\alpha, \igsub{\alpha}, <_\alpha$)}
 
+	\subsubsection{parámetros formales}
+	\begin{description}[labelindent=1cm]
+	\item[] \textbf{g\'eneros} $\alpha$
+	\item[] \textbf{operaciones} 
+			\begin{description}[labelindent=1cm] 
+			\item[] $\bullet$ $\igsub{\alpha}$ $\bullet$ $:$ $\alpha$ $\times$ $\alpha$ $\rarr$ $bool$ \indent Relación de equivalencia
+			\item[] $\bullet$ $<_\alpha$ $\bullet$ $:$ $\alpha$ $\times$ $\alpha$ $\rarr$ $bool$	\indent Relación de orden
+			\end{description}
+	\end{description}
+	
 \sexc{Conj($\alpha$)}
 \generos{conjLog($\alpha$)}
 
@@ -19,11 +29,11 @@
 \operacion{vacío?}{in cl:conjLog($\alpha$)}{res:bool}
 {true}
 {$res = (\emptyset?(cl))$}
-{Indica si el conjunto tiene tamaño cero}
+{Indica si el conjunto es vacío}
 {$O(log(\#(cl)))$}
 {}
 
-\operacion{está}{in cl:conjLog($\alpha$),in e:$\alpha$}{res : bool}
+\operacion{pertenece}{in cl:conjLog($\alpha$),in e:$\alpha$}{res : bool}
 {true}
 {$res = (e \in cl)$}
 {Retorna un booleano que indica si el elemento pertenece al conjunto}
@@ -102,8 +112,9 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 {O(1)}
 
 \algoritmo{iBorrar}{in/out cl:conjLog($\alpha$), in e : $\alpha$}{}{
-	\State $variandoHijoDerecho? \larr true$
-	\State $clactual \larr cl$ \complejidad{O(1)}
+	\State \Var{variandoHijoDerecho?:$bool$} $\larr true$
+	\State \Var{clactual:$conjLog(\alpha)$} $\larr cl$ \complejidad{O(1)}
+	\State \Var{aBorrar:$conjLog(\alpha)$}
 	\State \If {$(\neg(cl.der==NULL) \land \neg(cl.izq==NULL))$} \complejidad{O(1)}
 		\State $clactual \larr {\Fun{iEncontrarPadre}(clactual, e)}$ \complejidad{O($log(size(cl))$)}
 		\If {$cactual.der != NULL \yluego cactual.der.valor==e$}
@@ -111,7 +122,7 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 		\Else
 			\State $aBorrar \larr cactual.izq$ \complejidad{O(1)}
 		\EndIf
-		\State $mm \larr {\Fun{iDameMayorMenores}(clactual)}$ \complejidad{O($log(size(cl))$)}
+		\State \Var{mm:$conjLog(\alpha)$} $\larr {\Fun{iDameMayorMenores}(clactual)}$ \complejidad{O($log(size(cl))$)}
 		\State \If {$mm.valor == e$} \complejidad{O(1)}
 			\State \If{$mm.padre.der!=NULL \yluego mm.padre.der.valor == mm.valor$}
 				\State $variandoHijoDerecho? \larr true$ \complejidad{O(1)}
@@ -123,7 +134,7 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 				\State $mm.padre.fdb++$
 			\EndIf
 		\Else
-			\State $mmValor:\alpha \larr mm.valor$ \complejidad{O(1)}
+			\State \Var{mmValor:$\alpha$} $\larr mm.valor$ \complejidad{O(1)}
 			\State $aBorrar.valor \larr mmValor$ \complejidad{O(1)}
 			\State \If {$mm.izq != NULL$} \complejidad{O(1)}
 				\State $mm.valor \larr mm.izq.valor$ \complejidad{O(1)}
@@ -170,6 +181,7 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 {O($log(size(cl))$)}
 
 \algoritmo{iInsertar}{in/out cl:conjLog($\alpha$), in e : $\alpha$}{}{
+	\State \Var{clactual:$conjLog(\alpha)$} $\larr cl$ \complejidad{O(1)}
 	\State \If {$\neg(cl.der==NULL) \land \neg(cl.izq==NULL)$} \complejidad{$O(1)$}
 		\State $clactual \larr {\Fun{iEncontrarPadre}(clactual, e)}$ \complejidad{O($log(size(cl))$)}
 		\State \If {$clactual.valor < e$}
@@ -193,9 +205,9 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 }
 {O($log(size(cl))$)}
 
-\algoritmo{iEstá}{in/out cl:conjLog($\alpha$), in e:$\alpha$}{res:bool}{
-	\State $encontrado? \larr false$ \complejidad{O(1)}
-	\State $clactual \larr cl$ \complejidad{O(1)}
+\algoritmo{iPertenece}{in/out cl:conjLog($\alpha$), in e:$\alpha$}{res:bool}{
+	\State \Var{encontrado?:bool} $\larr false$ \complejidad{O(1)}
+	\State \Var{clactual:conjLog($\alpha$)} $\larr cl$ \complejidad{O(1)}
 	\State \While{$(clactual != NULL) \land \neg(encontrado?)$} \complejidad{O(1)}
 		\State \If {$e > clactual.valor$} \complejidad{O(1)}
 			\State $clactual \larr clactual.der$ \complejidad{O(1)}
@@ -214,14 +226,14 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 
 \newpage
 \algoritmo{iMenor}{in cl:conjLog($\alpha$)}{res:$\alpha$}{
-	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
+	\State \Var{clactual:conjLog(\alpha)} $\larr cl$ \complejidad{O(1)}
 	\State $clactual \larr iMenorNodo(clactual)$ \complejidad{O($log(size(cl))$)}
 	\State $res \larr clactual.valor$ \complejidad{O(1)}
 }
 {$O(log(size(cl)))$}
 
 \algoritmo{iBuscar}{in cl:conjLog($\alpha$), e:$\alpha$}{res:$\alpha$}{
-	\State $padre:conjLog(\alpha) \larr iEncontrarPadre(cl,e)$ \complejidad{O($log(size(cl))$)}
+	\State \Var {padre:conjLog($\alpha$)} $\larr iEncontrarPadre(cl,e)$ \complejidad{O($log(size(cl))$)}
 	\State \If {$padre.der != NULL \yluego padre.der.valor==e$} \complejidad{O($1$)}
 		\State $res \larr padre.der.valor$
 	\Else
@@ -233,12 +245,13 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 \newpage
 \subsection{Auxiliares}
 \algoritmo{iRebYRecalcFDB}{in/out cl:conjLog($\alpha$), in variandoHijoDerecho?:bool, in estoyBorrando?:bool}{}{
-	\State $clactual = cl$ \complejidad{$O(1)$}
+	\State \Var{clactual:conjLog($\alpha$)} $\larr cl$ \complejidad{$O(1)$}
+	\State \Var{termino?:bool} $\larr false$ \complejidad{O(1)}
 	\State \If {$estoyBorrando?$}
 		\State \While {$clactual != NULL \land \neg(termino?)$} \complejidad {$O(1)$}
 			\State \If{$variandoHijoDerecho?$}
 				\State \If{$clactual.fdb == -1$} \complejidad{$O(1)$}
-					\State $fdbIzq:nat$ \complejidad{O(1)}
+					\State \Var{fdbIzq:nat} \complejidad{O(1)}
 					\State \If {$cl.izq != NULL$}
 						\State $fdbIzq \larr cl.izq$ \complejidad{O(1)}
 					\EndIf
@@ -259,7 +272,7 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 				\EndIf
 			\Else
 				\State \If{$clactual.fdb == -1$} \complejidad{$O(1)$}
-					\State $fdbDer:nat$ \complejidad{O(1)}
+					\State \Var{fdbDer:nat} \complejidad{O(1)}
 					\State \If{$cl.der != NULL$} \complejidad{O(1)}
 						\State $fdbDer \larr cl.der.fdb$ \complejidad{O(1)}
 					\EndIf
@@ -286,7 +299,7 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 		\State \While {$clactual != NULL \land \neg(termino?)$} \complejidad {$O(1)$}
 			\State \If{$variandoHijoDerecho?$}
 				\State \If{$clactual.fdb == +1$} \complejidad{$O(1)$}
-					\State $fdbDer:nat$ \complejidad{$O(1)$}
+					\State \Var{fdbDer:nat} \complejidad{O(1)}
 					\State \If {$cl.der != NULL$}
 						\State $fdbDer \larr cl.der.fdb$ \complejidad{O(1)}
 					\EndIf
@@ -332,9 +345,9 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 
 \newpage
 \algoritmo{iRotarRR}{in/out cl:conjLog($\alpha$)}{}{
-	\State $nietoRR \larr cl.der.der$ \complejidad{O(1)}
-	\State $hijoDer \larr cl.der$ \complejidad{O(1)}
-	\State $hijoIzq \larr cl.izq$ \complejidad{O(1)}
+	\State \Var{nietoRR:conjLog($\alpha$)} $\larr cl.der.der$ \complejidad{O(1)}
+	\State \Var{hijoDer:conjLog($\alpha$)} $\larr cl.der$ \complejidad{O(1)}
+	\State \Var{hijoIzq:conjLog($\alpha$)} $\larr cl.izq$ \complejidad{O(1)}
 	\State $cl.der \larr NULL$ \complejidad{O(1)} 
 	\State $cl.izq = $\tupla{der:hijoDer.der, izq:cl.izq, valor: cl.valor, padre:cl, fdb:0} \complejidad{O(1)}
 	\State $cl.izq.izq.padre \larr cl.izq$ \complejidad{O(1)}
@@ -346,9 +359,9 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 {O(1)}
 
 \algoritmo{iRotarRL}{in/out cl:conjLog($\alpha$)}{}{
-	\State $nietoRR:conjLog(\alpha) \larr cl.der.der$ \complejidad{O(1)}
-	\State $nietoRL:conjLog(\alpha) \larr cl.der.izq$ \complejidad{O(1)}
-	\State $valorDer:\alpha \larr cl.der.valor$ \complejidad{O(1)}
+	\State \Var{nietoRR:conjLog($\alpha$)} $\larr cl.der.der$ \complejidad{O(1)}
+	\State \Var{nietoRL:conjLog($\alpha$)} $\larr cl.der.izq$ \complejidad{O(1)}
+	\State \Var{valorDer:$\alpha$} $\larr cl.der.valor$ \complejidad{O(1)}
 	\State $cl.der.valor \larr nietoRL.valor$ \complejidad{O(1)}
 	\State $nietoRR.izq \larr nietoRL.der$ \complejidad{O(1)}
 	\State $cl.der.der \larr nietoRR$ \complejidad{O(1)}
@@ -360,9 +373,9 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 {$O(1)$}
 
 \algoritmo{iRotarLL}{in/out cl:conjLog($\alpha$)}{}{
-	\State $nietoLL \larr cl.izq.izq$ \complejidad{O(1)}
-	\State $hijoIzq \larr cl.izq$ \complejidad{O(1)}
-	\State $hijoDer \larr cl.der$ \complejidad{O(1)}
+	\State \Var{nietoLL:conjLog($\alpha$)} $\larr cl.izq.izq$ \complejidad{O(1)}
+	\State \Var{hijoIzq:conjLog($\alpha$)} $\larr cl.izq$ \complejidad{O(1)}
+	\State \Var{hijoDer:conjLog($\alpha$)} $\larr cl.der$ \complejidad{O(1)}
 	\State $cl.izq \larr NULL$ \complejidad{O(1)} 
 	\State $cl.der = $\tupla{der:cl.der, izq:hijoIzq.der, valor: cl.valor, padre:cl, fdb:0} \complejidad{O(1)}
 	\State $cl.der.izq.padre \larr cl.der$ \complejidad{O(1)}
@@ -373,11 +386,10 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 }
 {$O(1)$}
 
-\newpage
 \algoritmo{iRotarLR}{in/out cl:conjLog($\alpha$)}{}{
-	\State $nietoLL:conjLog(\alpha) \larr cl.izq.izq$ \complejidad{O(1)}
-	\State $nietoLR:conjLog(\alpha) \larr cl.izq.der$ \complejidad{O(1)}
-	\State $valorIzq:\alpha \larr cl.izq.valor$ \complejidad{O(1)}
+	\State \Var{nietoLL:conjLog($\alpha$)} $\larr cl.izq.izq$ \complejidad{O(1)}
+	\State \Var{nietoLR:conjLog($\alpha$)} $\larr cl.izq.der$ \complejidad{O(1)}
+	\State \Var{valorIzq:$\alpha$} $\larr cl.izq.valor$ \complejidad{O(1)}
 	\State $cl.izq.valor \larr nietoRL.valor$ \complejidad{O(1)}
 	\State $nietoLL.izq \larr nietoLR.izq$ \complejidad{O(1)}
 	\State $cl.izq.izq \larr nietoLL$ \complejidad{O(1)}
@@ -389,8 +401,8 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 {$O(1)$}
 
 \algoritmo{iEncontrarPadre}{in cl:conjLog($\alpha$), e:$\alpha$}{res:conjLog($\alpha$)}{
-	\State $clactual:conjLog(\alpha)$ \complejidad{O(1)}
-	\State $encontrado?:bool \larr (clactual.der != NULL \yluego clactual.der.valor == e) \lor (clactual.izq !=NULL \yluego clactual.izq.valor == e)$
+	\State \Var{clactual:conjLog($\alpha$)} \complejidad{O(1)}
+	\State \Var{encontrado?:bool} $\larr (clactual.der != NULL \yluego clactual.der.valor == e) \lor (clactual.izq !=NULL \yluego clactual.izq.valor == e)$
 	\State \While {$\neg encontrado?$} 
 		\State \If {$e > clactual.valor$}
 			\State $clactual \larr clactual.der$ \complejidad{$O(1)$}
@@ -404,15 +416,16 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 {$O(size(cl))$}
 
 \algoritmo{iDameMayorMenores}{in cl:conjLog($\alpha$), e:$\alpha$}{res:conjLog($\alpha$)}{
-	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
+	\State \Var{clactual:conjLog($\alpha$)} $\larr cl$ \complejidad{O(1)}
 	\State \If {$clactual.izq != NULL$} \complejidad{O(1)}
 		\State $clactual \larr iMayorNodo(clactual)$ \complejidad{$O(log(size(cl)))$}
 	\EndIf
 	\State $res \larr clactual$ \complejidad{O(1)}
 }
 
+\newpage
 \algoritmo{iMenorNodo}{in cl:conjLog($\alpha$)}{res:$conjLog(\alpha)$}{
-	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
+	\State \Var{clactual:conjLog($\alpha$)} $\larr cl$ \complejidad{O(1)}
 	\State \While {$clactual.izq != NULL$}
 		\State $clactual \larr clactual.izq$
 	\EndWhile
@@ -420,9 +433,8 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 }
 {$O(log(size(cl)))$}
 
-\newpage
 \algoritmo{iMayorNodo}{in cl:conjLog($\alpha$)}{res:$conjLog(\alpha)$}{
-	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
+	\State \Var{clactual:conjLog($\alpha$)} $\larr cl$ \complejidad{O(1)}
 	\State \While {$clactual.der != NULL$}
 		\State $clactual \larr clactual.der$
 	\EndWhile
@@ -438,3 +450,21 @@ $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 	\EndIf
 }
 {}
+
+\subsection{Operaciones auxiliares de conj($\alpha$)}
+
+
+\begin{description} 
+\item[] $menor:$ $conj(\alpha)$ $c$ $\rarr$ $\alpha$ \setlength{\parindent}{1cm} \indent $\{ \#(c)>0 \}$
+
+\item[] $menor(c)$ $=$ 
+	\setlength{\parindent}{1cm}\\ \textbf{if} $(\#(c) = 1)$ \textbf{then} 
+		\\ \indent$dameUno(c)$
+	\\ \textbf{else} 
+		\\\indent  \textbf{if}  $(dameUno(c) < menor(sinUno(c))$ \textbf{then} 
+			\\\indent \indent $dameUno(c)$
+		\\\indent  \textbf{else} 
+			\\\indent \indent$menor(sinUno(c))$
+		\\\indent  \textbf{fi} 
+	\\  \textbf{fi} 
+\end{description}
