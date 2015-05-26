@@ -11,21 +11,44 @@
 
 \operacion{nuevo}{}{res:conjLog($\alpha$)}
 {true}
-{$res \igobs \empty$}
+{$res \igobs \emptyset$}
 {Crea un nuevo conjLog vacio}
 {O(1)}
 {}
 
+\operacion{vacío?}{in cl:conjLog($\alpha$)}{res:bool}
+{true}
+{$res = (\emptyset?(cl))$}
+{Indica si el conjunto tiene tamaño cero}
+{$O(log(\#(cl)))$}
+{}
+
+\operacion{está}{in cl:conjLog($\alpha$),in e:$\alpha$}{res : bool}
+{true}
+{$res = (e \in cl)$}
+{Retorna un booleano que indica si el elemento pertenece al conjunto}
+{$O(log(\#(cl)))$}
+{}
+
 \operacion{buscar}{in cl:conjLog($\alpha$),in e:$\alpha$}{res : $\alpha$}
-{$c \in cl$}
-{$siguiente(res) = e$}
-{Retorna el elemento que se esta buscando}
+{$e \in cl$}
+{$res == e$}
+{Devuelve el elemento que se está buscando}
+{$O(log(\#(cl)))$}
+{El elemento se devuelve por referencia, hay aliasing entre el elemento buscado y el del conjunto\\
+Alternativa, me parece que un poco mas limpia, es retornar el elemento por copia y exportar otra \\
+operacion que sea modificar,  si se modifica el elemento buscado, luego se lo modifica en el conjunto}
+
+\operacion{menor}{in cl:conjLog($\alpha$), in e:$\alpha$}{res : $\alpha$}
+{$e \in cl$}
+{$res == max(cl)$}
+{Devuelve el menor elemento del conjunto}
 {$O(log(\#(cl)))$}
 {}
 
 \operacion{insertar}{in/out cl:cl($\alpha$), in e:$\alpha$}{}
 {$cl_0 \igobs cl \land \neg(e \in cl)$}
-{$cl_0 \igobs Agregar(cl_0, e) \land siguiente(res)=e$}
+{$cl_0 \igobs Agregar(cl_0, e)$}
 {Inserta un nuevo elemento en el conjunto}
 {O($log(\#(cl))$)}
 {}
@@ -47,165 +70,371 @@
 		der : \mbox{puntero(nodo)},
 		izq : \mbox{puntero(nodo)},
 		valor : \mbox{$\alpha$},
-		padre : \mbox{puntero(nodo)
-		fdb : \mbox{nat}}
+		padre : \mbox{puntero(nodo)},
+		fdb : \mbox{nat}
 	}}
 }
 
 \newpage
-\subsubsection*{Invariante de representación}
+\subsection{Invariante de representación}
 
 \begin{enumerate}
 	\item Para todas las raíces, la altura del subárbol derecho menos la altura del subárbol izquierdo de esa raíz es igual al fdb.
 	\item El fdb de todas las raíces es 0, 1 o -1.
-	\item No hay valores repetidos.
 	\item Si un nodo no es una hoja del árbol entonces los padres de los hijos derecho e izquierdo son iguales y es el nodo
 	\item Si un nodo es una hoja del arbol entonces los hijos derecho e izquierdo del árbol son NULL
+	\item Para todos los nodos n, todos los nodos del subárbol derecho son mayores que n
+	\item Para todos los nodos n, todos los nodos del subárbol izquierdo son menores que n
+	\item No hay nodos repetidos
 	\item El padre de la raíz es NULL
+\end{enumerate}
 
-		\rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
-		\textbf{if} ($r.der = \NULL$) \textbf{then} \\
-		$*r.val = "NOT" \land rep(*r.izq)$ \\
-		\textbf{else} $*r.val \in Ag("OR", Ag("AND",vacio)) \land rep(*r.izq) \land rep(*r.der)$
-		\end{enumerate}
+\subsection{Función de abstracción}
 
-%\subsubsection*{Función de abstracción}
+\abs{clog($\alpha$)}{conj($\alpha$)}{cl}{c} \\
+$((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 
- \abs{clog}{conj}{cl}{c} \\
- $(\fun{s.} = \NULL \land \fun{*r.der} = \NULL \ssi nil?(a)) \ \oluego$ \\
- $\fun{*r.izq} = izq(a) \land \fun{*r.der} = der(a) \ \land$
- $r.val = raiz(a) $
+\newpage
+\subsection{Algoritmos}
+\algoritmo{iVacío?}{in cl:conjLog($\alpha$)}{res:bool}{
+	\State $res \larr cl == NULL$ \complejidad{O(1)}
+}
+{O(1)}
 
-%\subsubsection*{Algoritmos}
+\algoritmo{iBorrar}{in/out cl:conjLog($\alpha$), in e : $\alpha$}{}{
+	\State $variandoHijoDerecho? \larr true$
+	\State $clactual \larr cl$ \complejidad{O(1)}
+	\State \If {$(\neg(cl.der==NULL) \land \neg(cl.izq==NULL))$} \complejidad{O(1)}
+		\State $clactual \larr {\Fun{iEncontrarPadre}(clactual, e)}$ \complejidad{O($log(size(cl))$)}
+		\If {$cactual.der != NULL \yluego cactual.der.valor==e$}
+			\State $aBorrar \larr cactual.der$ \complejidad{O(1)}
+		\Else
+			\State $aBorrar \larr cactual.izq$ \complejidad{O(1)}
+		\EndIf
+		\State $mm \larr {\Fun{iDameMayorMenores}(clactual)}$ \complejidad{O($log(size(cl))$)}
+		\State \If {$mm.valor == e$} \complejidad{O(1)}
+			\State \If{$mm.padre.der!=NULL \yluego mm.padre.der.valor == mm.valor$}
+				\State $variandoHijoDerecho? \larr true$ \complejidad{O(1)}
+				\State $mm.padre.der = NULL$
+				\State $mm.padre.fdb--$
+			\Else 
+				\State $variandoHijoDerecho? \larr false$ \complejidad{O(1)}
+				\State $mm.padre.izq = NULL$
+				\State $mm.padre.fdb++$
+			\EndIf
+		\Else
+			\State $mmValor:\alpha \larr mm.valor$ \complejidad{O(1)}
+			\State $aBorrar.valor \larr mmValor$ \complejidad{O(1)}
+			\State \If {$mm.izq != NULL$} \complejidad{O(1)}
+				\State $mm.valor \larr mm.izq.valor$ \complejidad{O(1)}
+				\State $mm.izq \larr NULL$ \complejidad{O(1)}
+				\State $mm.fdb++$ \complejidad{O(1)}
+				\State \If{$mm.padre.valor == e$}
+					\State $variandoHijoDerecho? \larr false$
+				\Else
+					\State $variandoHijoDerecho? \larr true$
+				\EndIf
+			\Else
+				\State \If{$mm.padre.valor == e$}
+					\State $mm.padre.izq = NULL$
+					\State $variandoHijoDerecho? \larr false$
+				\Else
+					\State $mm.padre.der = NULL$
+					\State $variandoHijoDerecho? \larr true$
+				\EndIf
+			\EndIf
+		\EndIf
+		\State ${\Fun{iRebYRecalcFDB}(mm.padre, variandoHijoDerecho?, estoyBorrando?)}$ \complejidad{O($log(size(cl))$)}
+	\Else
+		\State \If {$cl.der==NULL \land cl.izq==NULL$} \complejidad{O(1)}
+			\State $cl \larr NULL$ \complejidad{O(1)}
+		\Else
+			\State \If {$cl.der==NULL$} \complejidad{O(1)}
+				\State \If {$cl.izq.valor==e$} \complejidad{O(1)}
+					\State $cl.izq \larr NULL$ \complejidad{O(1)}
+				\Else
+					\State $cl.valor \larr cl.izq.valor$ \complejidad{O(1)}
+					\State $cl.izq \larr NULL$ \complejidad{O(1)}
+				\EndIf
+			\Else
+				\State \If {$cl.der.valor==e$} \complejidad{O(1)}
+					\State $cl.der \larr NULL$ \complejidad{O(1)}
+				\Else
+					\State $cl.valor \larr cl.der.valor$ \complejidad{O(1)}
+					\State $cl.der \larr NULL$ \complejidad{O(1)}
+				\EndIf
+			\EndIf
+		\EndIf
+	\EndIf
+}
+{O($log(size(cl))$)}
 
+\algoritmo{iInsertar}{in/out cl:conjLog($\alpha$), in e : $\alpha$}{}{
+	\State \If {$\neg(cl.der==NULL) \land \neg(cl.izq==NULL)$} \complejidad{$O(1)$}
+		\State $clactual \larr {\Fun{iEncontrarPadre}(clactual, e)}$ \complejidad{O($log(size(cl))$)}
+		\State \If {$clactual.valor < e$}
+			\State $clactual.der \larr $\tupla{der:NULL, izq:NULL, valor:e, padre:clactual, fdb:0} \complejidad{$O(1)$}
+			\State ${\Fun{iRebYRecalcFDB}(clactual,true,false)}$
+		\Else
+			\State $clactual.izq \larr $\tupla{der:NULL, izq:NULL, valor:e, padre:clactual, fdb:0} \complejidad{$O(1)$}
+			\State ${\Fun{iRebYRecalcFDB}(clactual,false,false)}$
+		\EndIf
+	\Else
+		\State \If {$cl.der==NULL \land cl.izq==NULL$} \complejidad{O(1)}
+			\State $cl \larr $\tupla{der:NULL, izq:NULL, valor:e, padre:clactual, fdb:0} \complejidad{O(1)}
+		\Else
+			\State \If {$cl.der!=NULL$}
+				\State $cl.izq \larr $\tupla{der:NULL,izq:NULL,valor:e,padre:cl,fdb:0} \complejidad{O(1)}
+			\Else
+				\State $cl.der \larr $\tupla{der:NULL,izq:NULL,valor:e,padre:cl,fdb:0} \complejidad{O(1)}
+			\EndIf
+		\EndIf
+	\EndIf
+}
+{O($log(size(cl))$)}
 
+\algoritmo{iEstá}{in/out cl:conjLog($\alpha$), in e:$\alpha$}{res:bool}{
+	\State $encontrado? \larr false$ \complejidad{O(1)}
+	\State $clactual \larr cl$ \complejidad{O(1)}
+	\State \While{$(clactual != NULL) \land \neg(encontrado?)$} \complejidad{O(1)}
+		\State \If {$e > clactual.valor$} \complejidad{O(1)}
+			\State $clactual \larr clactual.der$ \complejidad{O(1)}
+		\Else
+			\State \If {$ce < clactual.valor$} \complejidad{O(1)}
+				\State $clactual \larr clactual.izq$ \complejidad{O(1)}
+			\Else
+				\State $encontrado? \larr true$ \complejidad{O(1)}
+			\EndIf
+		\EndIf
+	\EndWhile
+	\State $clactual \larr NULL$ \complejidad{O(1)}
+	\State $res \larr encontrado?$ \complejidad{O(1)}
+}
+{$O(log(size(cl)))$}
 
-\operacion{crearPaquete}{in/out s: dcnet, p: paquete}{}
- {$s \igobs s_0 \land FALTA CHOCLO$}
- {$enEspera(s,\pi_3(p)) \igobs enEspera(s_0,\pi_3(p) \cup \{p\}$}
- {$Crea un paquete y lo agrega a la computadora correspondiente.$}
- {O($L + log(k)$)}
+\newpage
+\algoritmo{iMenor}{in cl:conjLog($\alpha$)}{res:$\alpha$}{
+	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
+	\State $clactual \larr iMenorNodo(clactual)$ \complejidad{O($log(size(cl))$)}
+	\State $res \larr clactual.valor$ \complejidad{O(1)}
+}
+{$O(log(size(cl)))$}
 
-%\algoritmo{icrearPaquete}{in/out s:dcnet, p: paquete}{}{
-%  \Var{t: tupla(iterador, iterador)}
-%  \State $t\larr \Fun{Obtener}(\pi_3(p), \var{s}.CompusPorPref
-%          \complejidad{O(L)}
-%  \Var{q : conjLogP(paquete)}
-%  \State $q \larr \Fun{Obtener}(\pi_3(p), \var{s}.PaquetesPorID)$
-%           \complejidad{O(1)}
-%                  \State $\var{res}.\fun{raíz} \larr n$
-%                      \complejidad{O(1)}
-%                        \State $\var{res}.\fun{claves} \larr \Fun{Vacío}()$
-%                            \complejidad{O(1)}
-%}
+\algoritmo{iBuscar}{in cl:conjLog($\alpha$), e:$\alpha$}{res:$\alpha$}{
+	\State $padre:conjLog(\alpha) \larr iEncontrarPadre(cl,e)$ \complejidad{O($log(size(cl))$)}
+	\State \If {$padre.der != NULL \yluego padre.der.valor==e$} \complejidad{O($1$)}
+		\State $res \larr padre.der.valor$
+	\Else
+		\State $res \larr padre.izq.valor$
+	\EndIf
+}
+{O($log(size(cl))$)}
 
-%{O(1)}
+\newpage
+\subsection{Auxiliares}
+\algoritmo{iRebYRecalcFDB}{in/out cl:conjLog($\alpha$), in variandoHijoDerecho?:bool, in estoyBorrando?:bool}{}{
+	\State $clactual = cl$ \complejidad{$O(1)$}
+	\State \If {$estoyBorrando?$}
+		\State \While {$clactual != NULL \land \neg(termino?)$} \complejidad {$O(1)$}
+			\State \If{$variandoHijoDerecho?$}
+				\State \If{$clactual.fdb == -1$} \complejidad{$O(1)$}
+					\State $fdbIzq:nat$ \complejidad{O(1)}
+					\State \If {$cl.izq != NULL$}
+						\State $fdbIzq \larr cl.izq$ \complejidad{O(1)}
+					\EndIf
+					\State \If {$cl.izq != NULL \yluego cl.izq.fdb == 1$} \complejidad{O(1)}
+						\State ${\Fun{iRotarLR}(cl.izq)}$ \complejidad{$O(1)$}
+					\EndIf
+					\State ${\Fun{iRotarLL}(cl)}$ \complejidad{$O(1)$}
+					\State \If {$cl.izq!=NULL \yluego fdbIzq==0$} \complejidad{O(1)}
+						\State $termino? \larr true$ \complejidad{O(1)}
+					\EndIf
+				\Else
+					\State \If {$cl.fdb == +1$} \complejidad{O(1)}
+						\State $cl.fdb \larr 0$ \complejidad{O(1)}
+						\State $termino? \larr true$ \complejidad{O(1)}
+					\Else
+						\State $cl.fdb \larr -1$ \complejidad{$O(1)$}
+					\EndIf
+				\EndIf
+			\Else
+				\State \If{$clactual.fdb == -1$} \complejidad{$O(1)$}
+					\State $fdbDer:nat$ \complejidad{O(1)}
+					\State \If{$cl.der != NULL$} \complejidad{O(1)}
+						\State $fdbDer \larr cl.der.fdb$ \complejidad{O(1)}
+					\EndIf
+					\State \If {$cl.der != NULL \yluego fdbDer == 1$} \complejidad{O(1)}
+						\State ${\Fun{iRotarRL}(cl.der)}$ \complejidad{$O(1)$}
+					\EndIf
+					\State ${\Fun{iRotarRR}(cl)}$ \complejidad{$O(1)$}
+					\State \If {$fdbDer==0$} \complejidad{O(1)}
+						\State $termino? \larr true$ \complejidad{O(1)}
+					\EndIf
+				\Else
+					\State \If {$cl.fdb == -1$} \complejidad{$O(1)$}
+						\State $cl.fdb \larr 0$ \complejidad{$O(1)$}
+						\State $termino? \larr true$ \complejidad{$O(1)$}
+					\Else
+						\State $cl.fdb \larr +1$ \complejidad{$O(1)$}
+					\EndIf
+				\EndIf
+			\EndIf
+			\State $variandoHijoDerecho \larr (cl.padre != NULL \yluego cl.padre.der.valor == cl.valor)$ \complejidad{O(1)}
+			\State $clactual \larr clactual.padre$ \complejidad{$O(1)$}
+		\EndWhile
+	\Else  $\indent$ // No hubo borrado, entonces hubo una inserción
+		\State \While {$clactual != NULL \land \neg(termino?)$} \complejidad {$O(1)$}
+			\State \If{$variandoHijoDerecho?$}
+				\State \If{$clactual.fdb == +1$} \complejidad{$O(1)$}
+					\State $fdbDer:nat$ \complejidad{$O(1)$}
+					\State \If {$cl.der != NULL$}
+						\State $fdbDer \larr cl.der.fdb$ \complejidad{O(1)}
+					\EndIf
+					\State \If {$cl.der != NULL \yluego fdbDer == -1$} \complejidad{O(1)}
+						\State ${\Fun{iRotarRL}(cl.der)}$ \complejidad{$O(1)$}
+					\EndIf
+					\State ${\Fun{iRotarRR}(cl)}$ \complejidad{$O(1)$}
+					\State $termino? \larr true$ \
+				\Else
+					\State \If {$clactual.fdb == -1$} \complejidad{$O(1)$}
+						\State $clactual.fdb \larr 0$ \complejidad{$O(1)$}
+						\State $termino? \larr true$ \complejidad{$O(1)$}
+					\Else
+						\State $clactual.fdb \larr 1$ \complejidad{$O(1)$}
+					\EndIf
+				\EndIf
+			\Else
+				\State \If{$clactual.fdb == -1$} \complejidad{$O(1)$}
+					\State $fdbIzq:nat$ \complejidad{$O(1)$}
+					\State \If {$cl.izq != NULL$}
+						\State $fdbIzq \larr cl.izq.fdb$ \complejidad{$O(1)$}
+					\EndIf
+					\State \If {$cl.izq != NULL \yluego fdbIzq == +1$} \complejidad{$O(1)$}
+						\State ${\Fun{iRotarLR}(cl.izq)}$ \complejidad{$O(1)$}
+					\EndIf
+					\State ${\Fun{iRotarLL}(cl)}$ \complejidad{$O(1)$}
+					\State $termino? \larr true$ \complejidad{$O(1)$}
+				\Else
+					\State \If {$clactual.fdb == +1$} \complejidad{$O(1)$}
+						\State $clactual.fdb \larr 0$ \complejidad{$O(1)$}
+						\State $termino? \larr true$ \complejidad{$O(1)$}
+					\Else
+						\State $clactual.fdb \larr -1$ \complejidad{$O(1)$}
+					\EndIf
+				\EndIf
+			\EndIf
+			\State $variandoHijoDerecho \larr (cl.padre != NULL \yluego cl.padre.der.valor == cl.valor)$ \complejidad{O(1)}
+			\State $clactual \larr clactual.padre$ \complejidad{$O(1)$}
+		\EndWhile
+	\EndIf
+}
+{O($log(size(cl))$)}
 
-\algoritmo{iDefinir}{in/out t : trie($\alpha$),in s : string,in a : $\alpha$}{}{
-    \If{$\Fun{iDefinido?}(t,s)$}  \complejidad{O($|s|$)}
-        \State $n \larr \Fun{dameNodo}(t, s)$
-              \complejidad{O($|s|$)}
-                \Else
-                    \State $n \larr \Fun{CrearNodo}(t,s)$
-                          \complejidad{O($|s|$)}
-                              \State $\var{iter} \larr \Fun{AgregarRápido}(t.\fun{claves}, s)$
-                                    \complejidad{O($|s|$)}
-                                        \Var{e : definición(\alpha)}
-                                            \State $e.\fun{clave} \larr \var{iter}$
-                                                  \complejidad{O(1)}
-                                                      \State $n.\fun{definición} \larr \&e$
-                                                            \complejidad{O(1)}
-                                                              \EndIf
-                                                                \State $a' \larr \Fun{Copiar}(a)$
-                                                                    \complejidad{O($\var{copy}(a)$)}
-                                                                      \State $(*n.\fun{definición}).\fun{significado} \larr \&a'$
-                                                                          \complejidad{O(1)}
-}{O($|s| + \var{copy}(a)$)}
+\newpage
+\algoritmo{iRotarRR}{in/out cl:conjLog($\alpha$)}{}{
+	\State $nietoRR \larr cl.der.der$ \complejidad{O(1)}
+	\State $hijoDer \larr cl.der$ \complejidad{O(1)}
+	\State $hijoIzq \larr cl.izq$ \complejidad{O(1)}
+	\State $cl.der \larr NULL$ \complejidad{O(1)} 
+	\State $cl.izq = $\tupla{der:hijoDer.der, izq:cl.izq, valor: cl.valor, padre:cl, fdb:0} \complejidad{O(1)}
+	\State $cl.izq.izq.padre \larr cl.izq$ \complejidad{O(1)}
+	\State $cl.izq.der.padre \larr cl.izq$ \complejidad{O(1)}
+	\State $cl.valor = hijoDer.valor$ \complejidad{O(1)}
+	\State $cl.der = nietoRR$ \complejidad{O(1)}
+	\State $cl.der.padre \larr cl$ \complejidad{O(1)}
+}
+{O(1)}
 
-\algoritmo{iDefinido?}{in/out t : trie($\alpha$),in s : string}{res : bool}{
-    \State $n \larr \Fun{dameNodo}(t, s)$
-        \complejidad{O($|s|$)}
-          \State $\var{res} \larr n \neq \NULL$
-              \complejidad{O(1)}
-}{O($|s|$)}
+\algoritmo{iRotarRL}{in/out cl:conjLog($\alpha$)}{}{
+	\State $nietoRR:conjLog(\alpha) \larr cl.der.der$ \complejidad{O(1)}
+	\State $nietoRL:conjLog(\alpha) \larr cl.der.izq$ \complejidad{O(1)}
+	\State $valorDer:\alpha \larr cl.der.valor$ \complejidad{O(1)}
+	\State $cl.der.valor \larr nietoRL.valor$ \complejidad{O(1)}
+	\State $nietoRR.izq \larr nietoRL.der$ \complejidad{O(1)}
+	\State $cl.der.der \larr nietoRR$ \complejidad{O(1)}
+	\State $cl.der.izq \larr nietoRL.izq$ \complejidad{O(1)}
+	\State $cl.der.der.padre \larr cl.der$ \complejidad{O(1)}
+	\State $cl.der.izq.padre \larr cl.der$ \complejidad{O(1)}
+	\State $cl.izq.fdb \larr +1$
+}
+{$O(1)$}
 
-\algoritmo{iSignificado}{in/out t : trie($\alpha$),in s : string}{res : \alpha}{
-    \State $n \larr \Fun{dameNodo}(t,s)$
-        \complejidad{O($|s|$)}
-          \State $\var{res} \larr (*n.\fun{definición}).\fun{significado}$
-              \complejidad{O(1)}
-}{O($|s|$)}
+\algoritmo{iRotarLL}{in/out cl:conjLog($\alpha$)}{}{
+	\State $nietoLL \larr cl.izq.izq$ \complejidad{O(1)}
+	\State $hijoIzq \larr cl.izq$ \complejidad{O(1)}
+	\State $hijoDer \larr cl.der$ \complejidad{O(1)}
+	\State $cl.izq \larr NULL$ \complejidad{O(1)} 
+	\State $cl.der = $\tupla{der:cl.der, izq:hijoIzq.der, valor: cl.valor, padre:cl, fdb:0} \complejidad{O(1)}
+	\State $cl.der.izq.padre \larr cl.der$ \complejidad{O(1)}
+	\State $cl.der.der.padre \larr cl.der$ \complejidad{O(1)}
+	\State $cl.valor = hijoIzq.valor$ \complejidad{O(1)}
+	\State $cl.izq = nietoLL$ \complejidad{O(1)}
+	\State $cl.izq.padre \larr cl$ \complejidad{O(1)}
+}
+{$O(1)$}
 
-\pagebreak
-\algoritmo{iBorrar}{in/out t : trie($\alpha$),in s : string}{}{
-    \State $n \larr \Fun{dameNodo}(t, s)$
-        \complejidad{O($|s|$)}
-          \State $\Fun{EliminarSiguiente}((*n.\fun{definición}).\fun{clave})$
-              \complejidad{O(1)}
-                \State $n.\fun{definición} \larr \NULL$
-                    \complejidad{O(1)}
-}{O($|s|$)}
+\newpage
+\algoritmo{iRotarLR}{in/out cl:conjLog($\alpha$)}{}{
+	\State $nietoLL:conjLog(\alpha) \larr cl.izq.izq$ \complejidad{O(1)}
+	\State $nietoLR:conjLog(\alpha) \larr cl.izq.der$ \complejidad{O(1)}
+	\State $valorIzq:\alpha \larr cl.izq.valor$ \complejidad{O(1)}
+	\State $cl.izq.valor \larr nietoRL.valor$ \complejidad{O(1)}
+	\State $nietoLL.izq \larr nietoLR.izq$ \complejidad{O(1)}
+	\State $cl.izq.izq \larr nietoLL$ \complejidad{O(1)}
+	\State $cl.izq.der \larr nietoLR.der$ \complejidad{O(1)}
+	\State $cl.izq.izq.padre \larr cl.izq$ \complejidad{O(1)}
+	\State $cl.izq.der.padre \larr cl.izq$ \complejidad{O(1)}
+	\State $cl.izq.fdb \larr -1$ \complejidad{O(1)}
+}
+{$O(1)$}
 
-\algoritmo{iClaves}{in t : trie($\alpha$)}{res : conj(string)}{
-    \State $\var{res} \larr t.\fun{claves}$
-        \complejidad{O(1)}
-}{O(1)}
+\algoritmo{iEncontrarPadre}{in cl:conjLog($\alpha$), e:$\alpha$}{res:conjLog($\alpha$)}{
+	\State $clactual:conjLog(\alpha)$ \complejidad{O(1)}
+	\State $encontrado?:bool \larr (clactual.der != NULL \yluego clactual.der.valor == e) \lor (clactual.izq !=NULL \yluego clactual.izq.valor == e)$
+	\State \While {$\neg encontrado?$} 
+		\State \If {$e > clactual.valor$}
+			\State $clactual \larr clactual.der$ \complejidad{$O(1)$}
+		\Else
+			\State $clactual \larr clactual.izq$ \complejidad{$O(1)$}
+		\EndIf
+		\State $encontrado? \larr (clactual.der != NULL \yluego clactual.der.valor == e) \lor (clactual.izq !=NULL \yluego clactual.izq.valor == e)$
+	\EndWhile
+	\State $res \larr clactual$ \complejidad{$O(1)$}
+}
+{$O(size(cl))$}
 
+\algoritmo{iDameMayorMenores}{in cl:conjLog($\alpha$), e:$\alpha$}{res:conjLog($\alpha$)}{
+	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
+	\State \If {$clactual.izq != NULL$} \complejidad{O(1)}
+		\State $clactual \larr iMayorNodo(clactual)$ \complejidad{$O(log(size(cl)))$}
+	\EndIf
+	\State $res \larr clactual$ \complejidad{O(1)}
+}
 
+\algoritmo{iMenorNodo}{in cl:conjLog($\alpha$)}{res:$conjLog(\alpha)$}{
+	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
+	\State \While {$clactual.izq != NULL$}
+		\State $clactual \larr clactual.izq$
+	\EndWhile
+	\State $res \larr clactual$ \complejidad{O(1)}
+}
+{$O(log(size(cl)))$}
 
-%%%%% AUXILIARES
+\newpage
+\algoritmo{iMayorNodo}{in cl:conjLog($\alpha$)}{res:$conjLog(\alpha)$}{
+	\State $clactual:conjLog(\alpha) \larr cl$ \complejidad{O(1)}
+	\State \While {$clactual.der != NULL$}
+		\State $clactual \larr clactual.der$
+	\EndWhile
+	\State $res \larr clactual$ \complejidad{O(1)}
+}
+{$O(log(size(cl)))$}
 
-\subsubsection*{Auxiliares}
-
-\auxiliar{dameNodo}{in t : trie($\alpha$),in s : string}{res : puntero(definicion(\alpha))}
-{$\fun{Rep}(t) \yluego d_0 \igobs \fun{Abs}(t)$}{
-    $(\var{res} \igobs \NULL \iff \lnot\fun{def?}(s, d_0))\ \land$ \\
-      $(\var{res} \nigobs \NULL \impluego \fun{Siguiente}((*res.definicion).\fun{clave}) \igobs s\ \yluego$ \\
-          \hphantom{$(\var{res} \nigobs \NULL \impluego $ }$(*\var{res.definicion}).\fun{signficado} \igobs \fun{obtener}(s, d_0))$}
-          {
-              \Var{i:nat, n:nodo(\alpha)}
-                \State $i \larr 0$
-                    \complejidad{O(1)}
-                      \State $n \larr t.\fun{raíz}$
-                          \complejidad{O(1)}
-                            \While{$i < |s| \land \Fun{Definido?}(n.\fun{hijos}, s[i])$} \complejidad{O$(|s|)\times$}
-                                \State $n \larr \Fun{Significado}(n.\fun{hijos}, s[i])$
-                                      \complejidad{\quad O(1)}
-                                          \State $i \larr i + 1$
-                                                \complejidad{\quad O(1)}
-                                                  \EndWhile
-                                                    \If{$i = |s|$} \complejidad{O(1)}
-                                                        \State $\var{res} \larr n$
-                                                               \complejidad{O(1)}
-                                                                \Else
-                                                                    \State $\var{res} \larr \NULL$
-                                                                           \complejidad{O(1)}
-                                                                            \EndIf
-          }{O($|s|$)}
-
-          \auxiliar{CrearNodo}{in/out t : trie($\alpha$), in s : string}{res : nodo(\alpha)}
-          {$\fun{Rep}(t)$}
-          {$\fun{existeNodo}(t, s) \yluego \var{res} \igobs \fun{obtenerNodo}(t, s)$}
-          {
-              \Var{i:nat, n:nodo(\alpha), iter : \mbox{itDicc(char, nodo(\alpha))}}
-                \State $i \larr 0$
-                    \complejidad{O(1)}
-                      \State $\var{res} \larr t.\fun{raíz}$
-                          \complejidad{O(1)}
-                            \While{$i < |s| \land \Fun{Definido?}(\var{res}.\fun{hijos}, s[i])$} \complejidad{O$(|s|)\times$}
-                                \State $\var{res} \larr \Fun{Significado}(\var{res}.\fun{hijos}, s[i])$
-                                      \complejidad{\quad O(1)}
-                                          \State $i \larr i + 1$
-                                                \complejidad{\quad O(1)}
-                                                  \EndWhile
-                                                    \State $n.\fun{hijos} \larr \Fun{Vacío}()$
-                                                        \complejidad{O(1)}
-                                                          \State $n.\fun{definición} \larr \NULL$
-                                                              \complejidad{O(1)}
-                                                                \While{$i < |s|$} \complejidad{O$(|s|)\times$}
-                                                                    \State $\var{iter} \larr \Fun{DefinirRápido}(\var{res}.\fun{hijos}, s[i], n)$
-                                                                          \complejidad{\quad O(1)}
-                                                                              \State $\var{res} \larr \Fun{SiguienteSignificado}(iter)$
-                                                                                    \complejidad{\quad O(1)}
-                                                                                      \EndWhile
-          }{O($|s|$)}
+\algoritmo{size}{in cl:conjLog($\alpha$)}{res:$nat$}{
+	\State \If {$cl == NULL$}
+		\State $res \larr 0$
+	\Else 
+		\State $res \larr 1 + iSize(cl.der) + iSize(cl.izq)$
+	\EndIf
+}
+{}
