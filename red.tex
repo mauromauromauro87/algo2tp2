@@ -7,69 +7,137 @@ El módulo red permite crear una red de computadoras, agregar nuevas, conectarla
 \subsection{Interfaz}
 
 \sexc{Red}
-\generos{Red}
+\generos{red}
 
 \subsubsection*{Operaciones}
 
-\operacion{Nueva}{in c:compu}{res : red}
+\operacion{Nueva}{}{res : red}
  {true}
- {$\var{res} \igobs iniciarRed$}
+ {$\var{res} \equiv$ iniciarRed}
  {Crea una red vacía}
- {O(1)}
+ {O(?)}
+
+\operacion{AgregarCompu}{in/out r : red,in c : compu}{}
+ {$r \equiv r_0$ $\land$ ($\forall$ $\var{$c_{1}$}$:compu)($\var{$c_{1}$}$ $\in$ computadoras($\var{r}$))$\implies$ IP($\var{c}$) $\neq$ IP($\var{$c_{1}$}$)}
+ {$\var{r} \equiv$ agregarComputadora($\var{r},\var{c}$)}
+ {Agrega a la red $\var r$ la computadora $\var c$}
+ {O(?)}
+
+\operacion{Conectar}{in/out r : red,in c1 : compu,in i1 : interfaz,in c2 : compu,in i2 : interfaz}{}
+ {$r \equiv r_0$ $\land$ $\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$) $\land$ IP(c1) $\neq$ IP(c2) \\ $\land$ $\neg$conectadas(r,c1,c2) $\land$ $\neg$UsaInterfaz?(r,c1,i1) $\land$ $\neg$UsaInterfaz?(r,c2,i2)}
+ {$\var{r} \equiv$ conectar($\var{r},\var{c1},\var{i1},\var{c2},\var{i2}$)}
+ {Conecta las computadoras $\var{$c_{1}$}$ y $\var{$c_{2}$}$}
+ {O(?)}
+
+\operacion{CaminosMinimos}{in r : red,in c1 : compu,in c2 : compu}{res : conj(secu(nat))}
+ {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
+ {$\var{r} \equiv$ caminosMinimos($\var{r}$,$\var{$c_{1}$}$,$\var{$c_{2}$}$)}
+ {Devuelve los caminos mínimos entre dos computadoras}
+ {O(?)}
+
+\operacion{StringAIndice}{in r : red,in c : compu}{res : nat}
+ {$\var{c}$ $\in$ computadoras($\var{r}$)}
+ {$\var{res}$ $\equiv$ indice($\var{r}$,$\var{c}$)}
+ {Devuelve un nat distinto para cada IP}
+ {O(?)}
+
+\operacion{UsaInterfaz?}{in r : red,in c : compu,in i : interfaz}{res : bool}
+ {$\var{c}$ $\in$ computadoras($\var{r}$) $\land$ $\var{i}$ $\in$ interfaces($\var{c}$)}
+ {$\var{res} \equiv UsaInterfaz?(r,c,i)$}
+ {Devuelve TRUE si y solo si la interfaz está siendo utilizada}
+ {O(?)}
+
+\operacion{HayCamino?}{in r : red,in c1 : compu,in c2 : compu}{res : bool}
+ {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
+ {$\var{res} \equiv HayCamino?(r,c1,c2)$}
+ {Devuelve TRUE sí y solo sí hay un camino válido entre las dos computadoras}
+ {O(?)}
+
+\subsection{Extensión del TAD Red}
+\fannot{indice}{\tipo{red} \x \tipo{copmu}}{\tipo{nat}}{}
+$\fun{indice}(iniciarRed, c) \equiv 0$ \\
+$\fun{indice}(conectar(r,c_{1},i_{1},c_{2},i_{2}), c_{3}) \equiv 0$ \\
+$\fun{indice}(agregarComputadora(r,c_{1}), c_{2}) \equiv$ 
+	\\ if $c_{1}$ = $c_{2}$ then \\ 1 + indice($r,c_{2}$) \\ else \\ indice($r,c_{2}$)
 
 
 \subsection{Representación}
+Red está representada por un conjunto de computadoras y un puntero al primer Nodo, que coincide con la primer computadora que se agrega. El Nodo está representado por el IP de la computadora, un puntero a la próxima computadora, que forma una lista circular que conecta todas las computadoras agregadas y un arreglo de punteros que simboliza las interfaces y a dónde se conectan.
+Para el modulo red, se podría haber agregado un modulo intermedio de abstracción (por ejemplo con un diccionario), pero no aportaba mucho al diseño modular. Tampoco facilitaba mucho la escritura del Invariante. Por eso, y para conciliar tiempo disponible con calidad de diseño, decidimos representarlo como se muestra a continuación.
 
-\serc{restr}{
-	\donde{restr}{arreglo\_dimesionable de puntero(restr)}
+\serc{redstr}{
+	\donde{redstr}{\tupla{
+						Compus : conj(compu),
+						Web : puntero(Nodo)
+						}
+				  }
+% 
+\\
+	\donde{Nodo}{\tupla{
+						IP : String,
+						Proxima : puntero(Nodo),
+						Conexiones : arreglo\_dimensionable de puntero(Nodo)
+						}
+				}
+%
+\\
+	\donde{compu}{\tupla{
+						IP : String,
+						Interfaces : conj(nat)
+						}
+				 }
 }
+
 
 \subsubsection*{Invariante de representación}
 
 \begin{enumerate}
-	\item si son hojas son tags
-	\item sino, son operadores
-	\item si el operador es unario, tiene solo hijo izquierdo
+	\item El conjunto Compus es vacío sí y solo sí Web apunta a NULL.
+	\item Partiendo del Nodo apuntado por Web, y avanzando por Proxima, se vuelve al Nodo apuntado por Web.
+	\item Partiendo del Nodo apuntado por Web, y avanzando por Proxima, cada nodo corresponde a una computadora: \\El proyector IP de Nodo de todos los nodos conectados avanzando por Proxima, partiendo desde el Nodo apuntado por Web pertenece al conjunto formado por la unión de todos los proyectores IP de compu, para todas las compu en Compus.
+	\item El tamaño del arreglo corresponde a la cantidad de interfaces: \\El proyector Conexiones de Nodo de todos los nodos conectados avanzando por Proxima, partiendo desde el Nodo apuntado por Web es un arreglo cuya longitud es igual al cardinal del conjunto Interfaces de la compu cuyo proyector IP es igual al proyector IP del Nodo formado por dicho proyector Conexiones, para todas las compu en Compus.
+	\item Si la compu $\var a$ está conectada con $\var b$, entonces $\var b$ está conectada con $\var a$: \\Para todos los punteros del proyector Conexiones de Nodo de todos los nodos conectados avanzando por Proxima, partiendo desde el Nodo apuntado por Web, el Nodo al que apunta dicho puntero tiene en alguna posición de su proyector Conexiones un puntero al Nodo en el cual esta el arreglo del cual el primer puntero forma parte.
+	
 
-		\rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
-		\textbf{if} ($r.der = \NULL$) \textbf{then} \\
-		$*r.val = "NOT" \land rep(*r.izq)$ \\
-		\textbf{else} $*r.val \in Ag("OR", Ag("AND",vacio)) \land rep(*r.izq) \land rep(*r.der)$
+		% \rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
+		% \textbf{if} ($r.der = \NULL$) \textbf{then} \\
+		% $*r.val = "NOT" \land rep(*r.izq)$ \\
+		% \textbf{else} $*r.val \in Ag("OR", Ag("AND",vacio)) \land rep(*r.izq) \land rep(*r.der)$
 		\end{enumerate}
 
 \subsubsection*{Función de abstracción}
 
- \abs{restricción}{ab}{r}{a} \\
- $(\fun{*r.izq} = \NULL \land \fun{*r.der} = \NULL \ssi nil?(a)) \ \oluego$ \\
- $\fun{*r.izq} = izq(a) \land \fun{*r.der} = der(a) \ \land$
-$r.val = raiz(a) $
+%  \abs{restricción}{ab}{r}{a} \\
+%  $(\fun{*r.izq} = \NULL \land \fun{*r.der} = \NULL \ssi nil?(a)) \ \oluego$ \\
+%  $\fun{*r.izq} = izq(a) \land \fun{*r.der} = der(a) \ \land$
+% $r.val = raiz(a) $
 
 
 \subsubsection*{Algoritmos}
 
 
 
-\algoritmo{iVerifica}{in r : restricción, in s : trie($\alpha$)}{res : bool}{
-	 \If{$(*r.izq) = \NULL $ }	\complejidad{O($1$)}
-		\State $res \larr definido(r.val, s)$
-			\complejidad{O(1)}
-	\Else
-	\If {$(*r.der) = \NULL$} \complejidad{O(1)}
-	\State $res \larr \neg Verifica(*(r.izq),s)$
-			\complejidad{O($R$)}
-			\Else
-			\If {$(*(r.val)) = "AND"$}
-			\complejidad{O(1)}
-			\State $res \larr Verifica(*(r.izq,s) \land Verifica(*(r.der),s)$
-			\complejidad{O($R + R$)}
-			\Else
-			\State $res \larr Verifica(*(r.izq),s) \lor Verifica(*(r.der),s)$
-			\complejidad{O($R + R$)}
-			\EndIf
+% \algoritmo{iVerifica}{in r : restricción, in s : trie($\alpha$)}{res : bool}{
+% 	 \If{$(*r.izq) = \NULL $ }	\complejidad{O($1$)}
+% 		\State $res \larr definido(r.val, s)$
+% 			\complejidad{O(1)}
+% 	\Else
+% 	\If {$(*r.der) = \NULL$} \complejidad{O(1)}
+% 	\State $res \larr \neg Verifica(*(r.izq),s)$
+% 			\complejidad{O($R$)}
+% 			\Else
+% 			\If {$(*(r.val)) = "AND"$}
+% 			\complejidad{O(1)}
+% 			\State $res \larr Verifica(*(r.izq,s) \land Verifica(*(r.der),s)$
+% 			\complejidad{O($R + R$)}
+% 			\Else
+% 			\State $res \larr Verifica(*(r.izq),s) \lor Verifica(*(r.der),s)$
+% 			\complejidad{O($R + R$)}
+% 			\EndIf
 
-	\EndIf
+% 	\EndIf
 
-	\EndIf
-}{O(R)}
+% 	\EndIf
+% }{O(R)}
 
 
