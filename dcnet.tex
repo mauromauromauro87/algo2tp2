@@ -21,19 +21,20 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
  {$\var{res} \igobs iniciarDCNet(r)$}
  {Crea un sistema DCNet.}
  {O(???)}
+ {}
 
 \operacion{crearPaquete}{in/out s: dcnet,in p: paquete}{}
  {$s \igobs s_0 \land (\forall p_0:paquete,paqueteEnTransito?(p,s))$ ¬$(p_0 \igobs p) \land$ \\ $destino(p) \in compus(red) \land origen(p) \in compus(red) \yluego $ \\ $haycamino?(destino(p),origen(p),red(s))$}
  {$s \igobs crearPaquete(s_0, p)$}
  {Crea un paquete y lo agrega a la computadora correspondiente.}
  {O($L + log(k)$)}
-
+ {} 
 \operacion{avanzarSegundo}{in/out s: dcnet}{}
  {$s \igobs s_0$}
  {$s \igobs avanzarSegundo(s_0)$}
  {Avanza un segundo el sistema. Todas las computadoras envían su respectivo paquete y en consecuencia se actualizar los paquetes en espera de cada una de ellas.}
  {O($n \times\ (L + log(n) + log(k))$)}
-
+ {}
 \operacion{dameRed}{in s: dcnet}{res :puntero(red)}
  {$true$}
  {$\var{res} \igobs red(s)$}
@@ -46,25 +47,26 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
  {$\var{res} \igobs caminoRecorrido(s,p)$}
  {Devuelve el camino recorrido hasta el momento por un paquete.}
  {O($n \times\  log(max(n,k))$)}
+ {Devuelve puntero al camino recorrido que se encuentra en CaminosMinimos}
 
 \operacion{cantidadEnviados}{in s: dcnet,in c: compu}{res : nat}
  {$c \in computadoras(red(s))$}
  {$\var{res} \igobs cantidadEnviados(s,c)$}
  {Devuelve la cantidad de paquetes enviados por una computadora.}
  {O($n$)} %es recorrer todas lascompus del vector e ir al heap que tiene guardado cuantos paquetes envio cada una no ?
-
+ {}
 \operacion{enEspera}{in s: dcnet,in c: compu}{res: puntero(conjLogP(paquete)))}
  {$c \in computadoras(red(s))$}
  {$\var{res} \igobs enEspera(s,c)$}
  {Devuelve un iterador a los paquetes de la computadora.}
  {O(L)}
-
+ {Hay aliasing entre res y el conjunto de paquetes de la computadora pasada por parámetro }
 \operacion{laQueMasEnvio}{in s: dcnet}{res : compu}
  {$true$}
  {$\var{res} \igobs laQueMasEnvio(s,p)$}
  {Devuelve la computadora que más paquetes envió.}
  {O(1)}
-
+ {}
 Las complejidades están en función de las siguientes variables:\\
 $n$ : la cantidad total de computadoras que hay en el sistema, \\
 $L$ : el hostname más largo de todas las computadoras, \\
@@ -307,3 +309,11 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Servicios Usados}
+Del modulo ConjLog requerimos \fun{pertenece}, \fun{buscar}, \fun{sacarMax}, \fun{insertar} y \fun{borrar} en O($log(k)$) .
+
+Del modulo Diccionario Por Prefijos requerimos \fun{Def?}, \fun{obtener} en O($L$).
+
+
+
+
+
