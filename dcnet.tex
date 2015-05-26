@@ -70,9 +70,6 @@ $n$ : la cantidad total de computadoras que hay en el sistema, \\
 $L$ : el hostname más largo de todas las computadoras, \\
 $k$ : la cola de paquetes más larga de todas las computadoras. 
 
-
-$\neg \emptyset$
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Representación}
 
@@ -84,7 +81,7 @@ $\neg \emptyset$
       CaminosMinimos: \mbox{arreglo(arreglo(arreglo(compu)))},
       LaQMasEnvio : \mbox{nat
 	},
-	red: \mbox{red}	
+	Red: \mbox{red}	
 	}}
 }
 
@@ -105,7 +102,7 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
 
 \end{enumerate}
 
-\rep{sistema}{s} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
+\rep{sistema}{s}  \\
  $1.\ \paratodo{String}{s}\ \fun{$def?$}(s, s.CompusPorPref), (\exists c : compu), \fun{$esta?$}(c,s.Compus)\ \land\ \pi_1(c) = s\ \land\ \fun{longitud}(s.Compus) = \#\Fun{claves}(s.CompusPorPref)$\\
  $2.\ \paratodo{compu}{c}\ \fun{esta?}(c, s.Compus), *\pi_2(c) = \fun{obtener}(\pi_1(c),s.CompusPorPref) $\\
  $3.\ \paratodo{String}{s,t}\ \fun{def?}(s, s.CompusPorPref)\ \land\ \fun{def?}(t, s.CompusPorPref)\ \land\ s \neq t \impluego \\ \fun{obtener}(s, s.CompusPorPref)\ \bigcap\ \fun{obtener}(t, s.CompusPorPref) = \emptyset$\\
