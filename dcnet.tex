@@ -2,7 +2,7 @@
 
 \section{DCNet}
 
-Una DCNet es
+Una DCNet es un sistema que tiene computadoras en red que reciben paquetes que envían a la computadora destino a cada segundo.
 
 \subsection{Interfaz}
 
@@ -99,7 +99,7 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
   \item Los conjuntos de los campos de la tupla PorNom, PorPrior son iguales.
   \item La longitud de \textit{CaminosMinimos} es igual a la longitud del arreglo que tiene \textit{CaminosMinimos} en cada posición.
   \item La longitud del arreglo, que tiene un arreglo de \textit{CaminosMinimos} es menor o igual a la longitud de \textit{CaminosMinimos}.
-  \item Los elementos del arreglo anteriormente mencionado son menores o iguales a la longitud de \textit{CaminosMinimos} y no tiene repetidos.
+  \item Los elementos del arreglo anteriormente mencionado son IPs del diccionario \textit{CompusPorPref} y no tiene repetidos.
   \item La computadora que más paquetes envió es aquella cuyo índice es igual a \textit{LaQMasEnvio}
 
 \end{enumerate}
@@ -109,7 +109,7 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
  $2.\ \paratodo{compu}{c}\ \fun{esta?}(c, s.Compus), *\pi_2(c) = \fun{obtener}(\pi_1(c),s.CompusPorPref) $\\
  $3.\ \paratodo{String}{s,t}\ \fun{def?}(s, s.CompusPorPref)\ \land\ \fun{def?}(t, s.CompusPorPref)\ \land\ s \neq t \impluego \\ \fun{obtener}(s, s.CompusPorPref)\ \bigcap\ \fun{obtener}(t, s.CompusPorPref) = \emptyset$\\
  $4.\ \paratodo{String}{s}\ \fun{def?}(s, s.CompusPorPref)\ \impluego\ \pi_1(\fun{obtener}(s, s.CompusPorPref)) =\\ \pi_2(\fun{obtener}(s, s.CompusPorPref))$ \\
- $5.\ (\paratodo{nat}{i,j}),\ 0 \leq i,j < \fun{longitud}(s.CaminosMinimos) \impluego \fun{longitud}(s.CaminosMinimos) = \fun{longitud}(s.CaminosMinimos[i])\ \land\ \fun{longitud}(s.CaminosMinimos[i][j]) < \fun{longitud}(s.CaminosMinimos)\ \land\ (\paratodo{nat}{e}), \fun{esta?}(e, s.CaminosMinimos[i][j]) \Rightarrow e < \fun{longitud}(s.CaminosMinimos) $\\
+ $5,6,7.\ (\paratodo{nat}{i,j}),\ 0 \leq i,j < \fun{longitud}(s.CaminosMinimos) \impluego \fun{longitud}(s.CaminosMinimos) = \fun{longitud}(s.CaminosMinimos[i])\ \land\ \fun{longitud}(s.CaminosMinimos[i][j]) < \fun{longitud}(s.CaminosMinimos)\ \land\ (\paratodo{nat}{e}), \fun{esta?}(e, s.CaminosMinimos[i][j]) \Rightarrow \fun{pertenece}(e,s.CompusPorPref)  $\\
  $8. \paratodo{compu}{c}\ \fun{esta?}(c, s.Compus)\ \impluego\ \pi_3(c) \leq \pi_3(s.Compus[s.LaQMasEnvio])$
 %\subsubsection*{Función de abstracción}
  %\abs{sistema}{sist}{dcnet}{s} \\
@@ -305,32 +305,15 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
     \State $b \larr \neg(\Fun{pertenece?}(p,$*$(s.compus[i].pN)))$
           \complejidad{O($log(k)$)}
   \EndWhile
-  \Var{j: nat}
-  \State $j \larr 0$
-        \complejidad{O(1)}
-  \While{s.compus[j].IP $\neq \pi_3(p)$}
-        \complejidad{O(n)} 
-    \State$j \larr j + 1$
-          \complejidad{O(1)}
-  \EndWhile
-  \Var{k: nat}
-  \State $k \larr 0$
-  \While{s.compus[k].IP $\neq \pi_4(p)$}
-        \complejidad{O(n)} 
-    \State $k \larr k + 1$
-          \complejidad{O(1)}
-  \EndWhile
-  \Var{l: nat}
-  \State $l \larr 0$
-  \Var{res: arreglo\_dimensionable de IP}
-  \State $res \larr \Fun{crearArreglo}(l+1)$
-  \While{$l \leq indiceactual(p)$} 
-  	\complejidad{O(n)}
-  \State $res[l] \larr s.CaminosMinimos[j][k][l]$
-  	\complejidad{O(1)}
-  \State $l \larr l+1$
-  	\complejidad{O(1)}
-  \EndWhile 
+%  \Var{j: nat}
+%  \State $j \larr 0$
+%        \complejidad{O(1)}
+%  \While{ $\neq \pi_3(p)$}
+%        \complejidad{O(n)} 
+%    \State$j \larr j + 1$
+%          \complejidad{O(1)}
+%  \EndWhile
+  \State $res \larr s.CaminosMinimos[\Fun{indiceOrigen}(p')][i]$
 }
 {O($n \times log(k)$)}
 
