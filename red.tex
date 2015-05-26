@@ -15,19 +15,19 @@ El módulo red permite crear una red de computadoras, agregar nuevas, conectarla
  {true}
  {$\var{res} \equiv$ iniciarRed}
  {Crea una red vacía}
- {O(?)}
+ {O(1)}
 
 \operacion{AgregarCompu}{in/out r : red,in c : compu}{}
  {$r \equiv r_0$ $\land$ ($\forall$ $\var{$c_{1}$}$:compu)($\var{$c_{1}$}$ $\in$ computadoras($\var{r}$))$\implies$ IP($\var{c}$) $\neq$ IP($\var{$c_{1}$}$)}
  {$\var{r} \equiv$ agregarComputadora($\var{r},\var{c}$)}
  {Agrega a la red $\var r$ la computadora $\var c$}
- {O(?)}
+ {O(n + copy(c))}
 
 \operacion{Conectar}{in/out r : red,in c1 : compu,in i1 : interfaz,in c2 : compu,in i2 : interfaz}{}
  {$r \equiv r_0$ $\land$ $\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$) $\land$ IP(c1) $\neq$ IP(c2) \\ $\land$ $\neg$conectadas(r,c1,c2) $\land$ $\neg$UsaInterfaz?(r,c1,i1) $\land$ $\neg$UsaInterfaz?(r,c2,i2)}
  {$\var{r} \equiv$ conectar($\var{r},\var{c1},\var{i1},\var{c2},\var{i2}$)}
  {Conecta las computadoras $\var{$c_{1}$}$ y $\var{$c_{2}$}$}
- {O(?)}
+ {O(n)}
 
 \operacion{CaminosMinimos}{in r : red,in c1 : compu,in c2 : compu}{res : conj(secu(nat))}
  {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
@@ -63,7 +63,7 @@ $\fun{indice}(agregarComputadora(r,c_{1}), c_{2}) \equiv$
 
 \subsection{Representación}
 Red está representada por un conjunto de computadoras y un puntero al primer Nodo, que coincide con la primer computadora que se agrega. El Nodo está representado por el IP de la computadora, un puntero a la próxima computadora, que forma una lista circular que conecta todas las computadoras agregadas y un arreglo de punteros que simboliza las interfaces y a dónde se conectan.
-Para el modulo red, se podría haber agregado un modulo intermedio de abstracción (por ejemplo con un diccionario), pero no aportaba mucho al diseño modular. Tampoco facilitaba mucho la escritura del Invariante. Por eso, y para conciliar tiempo disponible con calidad de diseño, decidimos representarlo como se muestra a continuación.
+Para el modulo red, se podría haber agregado un modulo intermedio de abstracción (por ejemplo con un diccionario), pero no aportaba mucho al diseño modular. Tampoco facilitaba mucho la escritura del Invariante. Por eso, y para conciliar tiempo disponible con calidad de diseño, decidimos representarlo como se muestra a continuación. Por simplicidad, se asume que el conjunto de interfaces está formado por nats consecutivos, empezando desde cero(si no fuera así, se podrían mapear las interfaces a nats consecutivos sin afectar la complejidad).
 
 \serc{redstr}{
 	\donde{redstr}{\tupla{
@@ -119,27 +119,69 @@ Para el modulo red, se podría haber agregado un modulo intermedio de abstracci�
 
 
 
-% \algoritmo{iVerifica}{in r : restricción, in s : trie($\alpha$)}{res : bool}{
-% 	 \If{$(*r.izq) = \NULL $ }	\complejidad{O($1$)}
-% 		\State $res \larr definido(r.val, s)$
-% 			\complejidad{O(1)}
-% 	\Else
-% 	\If {$(*r.der) = \NULL$} \complejidad{O(1)}
-% 	\State $res \larr \neg Verifica(*(r.izq),s)$
-% 			\complejidad{O($R$)}
-% 			\Else
-% 			\If {$(*(r.val)) = "AND"$}
-% 			\complejidad{O(1)}
-% 			\State $res \larr Verifica(*(r.izq,s) \land Verifica(*(r.der),s)$
-% 			\complejidad{O($R + R$)}
-% 			\Else
-% 			\State $res \larr Verifica(*(r.izq),s) \lor Verifica(*(r.der),s)$
-% 			\complejidad{O($R + R$)}
-% 			\EndIf
+\algoritmo{iNueva}{}{res : redstr}{
 
-% 	\EndIf
+	\State $res.Compus \larr Vacio()$			\complejidad{O($1$)}
+	\State $res.Web \larr NULL$					\complejidad{O($1$)}
 
-% 	\EndIf
-% }{O(R)}
+}{O(1)}
 
 
+\algoritmo{iAgregarCompu}{in/out r : redstr,in c : compu}{}{
+
+	\State $AgregarRapido(r.Compus,c)$				\complejidad{O(copy(c))}
+	\If {r.Web == NULL} 						\complejidad{O(1)}
+			\State $r.Web \larr \&c$			\complejidad{O($1$)}
+	\Else
+		\State $var aux \larr r.Web$
+		\While{(aux.Proxima != Web)}			\complejidad{O($n$)}
+			\State $aux \larr aux.Proxima$
+		\EndWhile
+		\State Nodo n = crearNodo(c)			\complejidad{O(copy(c))}
+		\State $n.Proxima \larr Web$			\complejidad{O(1)}
+		\State $aux.Proxima \larr n$			\complejidad{O(1)}
+
+	\EndIf
+
+
+}{O(n + copy(c))}
+
+
+\algoritmo{iConectar}{in/out r : redstr,in c1 : compu,in i1 : interfaz,in c2 : compu,in i2 : interfaz}{}{
+		
+		\State $var aux \larr r.Web$					\complejidad{O($1$)}
+		\While{(aux.IP != c1)}							\complejidad{O($n$)}
+			\State $aux \larr aux.Proxima$				\complejidad{O($1$)}
+		\EndWhile
+		\State $var aux2 \larr r.Web$					\complejidad{O($1$)}
+		\While{(aux2.IP != c2)}							\complejidad{O($n$)}
+			\State $aux2 \larr aux.Proxima$				\complejidad{O($1$)}
+		\EndWhile
+		\State aux.Conexiones[i1] $\larr$ aux2			\complejidad{O($1$)}
+		\State aux2.Conexiones[i2] $\larr$ aux1			\complejidad{O($1$)}
+
+}{O(n)}
+
+
+\algoritmo{iStringAIndice}{in r : redstr,in c : compu}{res : nat}{
+
+	\State $var$ aux $\larr r.Web$					\complejidad{O($1$)}
+	\State $var$ i $\larr 0$						\complejidad{O($1$)}
+	\While{(aux.IP != c1)}							\complejidad{O($n$)}
+		\State $aux \larr aux.Proxima$				\complejidad{O($1$)}
+		\State $var$ i++							\complejidad{O($1$)}
+	\EndWhile
+	\State $res \larr i$
+
+}{O(n)}
+
+
+\algoritmo{iUsaInterfaz?}{in r : red,in c : compu,in i : interfaz}{res : bool}{
+
+	\State $var$ i $\larr 0$						\complejidad{O($1$)}
+	\While{(aux.IP != c1)}							\complejidad{O($n$)}
+		\State $aux \larr aux.Proxima$				\complejidad{O($1$)}
+	\EndWhile
+	\State $res \larr$ aux.Conexiones[i] != NULL	\complejidad{O($1$)}
+
+}{O(n)}
