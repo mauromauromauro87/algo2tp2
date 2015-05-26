@@ -305,32 +305,15 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
     \State $b \larr \neg(\Fun{pertenece?}(p,$*$(s.compus[i].pN)))$
           \complejidad{O($log(k)$)}
   \EndWhile
-  \Var{j: nat}
-  \State $j \larr 0$
-        \complejidad{O(1)}
-  \While{s.compus[j].IP $\neq \pi_3(p)$}
-        \complejidad{O(n)} 
-    \State$j \larr j + 1$
-          \complejidad{O(1)}
-  \EndWhile
-  \Var{k: nat}
-  \State $k \larr 0$
-  \While{s.compus[k].IP $\neq \pi_4(p)$}
-        \complejidad{O(n)} 
-    \State $k \larr k + 1$
-          \complejidad{O(1)}
-  \EndWhile
-  \Var{l: nat}
-  \State $l \larr 0$
-  \Var{res: arreglo\_dimensionable de IP}
-  \State $res \larr \Fun{crearArreglo}(l+1)$
-  \While{$l \leq indiceactual(p)$} 
-  	\complejidad{O(n)}
-  \State $res[l] \larr s.CaminosMinimos[j][k][l]$
-  	\complejidad{O(1)}
-  \State $l \larr l+1$
-  	\complejidad{O(1)}
-  \EndWhile 
+%  \Var{j: nat}
+%  \State $j \larr 0$
+%        \complejidad{O(1)}
+%  \While{ $\neq \pi_3(p)$}
+%        \complejidad{O(n)} 
+%    \State$j \larr j + 1$
+%          \complejidad{O(1)}
+%  \EndWhile
+  \State $res \larr s.CaminosMinimos[\Fun{indiceOrigen}(p')][i]$
 }
 {O($n \times log(k)$)}
 
