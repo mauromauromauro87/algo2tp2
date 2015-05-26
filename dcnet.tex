@@ -296,8 +296,11 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
   \Var{res: arreglo\_dimensionable de IP}
   \State $res \larr \Fun{crearArreglo}(l+1)$
   \While{$l \leq indiceactual(p)$} 
+  	\complejidad{O(n)}
   \State $res[l] \larr s.CaminosMinimos[j][k][l]$
+  	\complejidad{O(1)}
   \State $l \larr l+1$
+  	\complejidad{O(1)}
   \EndWhile 
 }
 {O($n \times log(k)$)}
