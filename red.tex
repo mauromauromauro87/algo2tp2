@@ -185,3 +185,68 @@ Para el modulo red, se podr√≠a haber agregado un modulo intermedio de abstracci√
 	\State $res \larr$ aux.Conexiones[i] != NULL	\complejidad{O($1$)}
 
 }{O(n)}
+
+\newpage
+\algoritmo{iCaminoMinimo}{in r:red, in f:compu, in d:compu}{res : bool}{
+	\State \Var{auxCaminos:$Lista(Lista(compu))$} $\larr Vacia()$ \complejidad{O(1)}
+	\State \Var{visitados:$Lista(compu)$} $\larr Vacia()$ \complejidad{O(1)}
+	\State AgregarAdelante(auxCaminos, Lista(f)) \complejidad{O(1)}
+	\State AgregarAdelante(visitados, f) \complejidad{O(1)}
+	\State \While {$Longitud(auxCaminos) != 0$} \complejidad{O(1)}
+		\State \Var{camino:$Lista(compu)$} $\larr sacarMenor(auxCaminos)$ \complejidad{O($n*n$)}
+		\State \If {$Ultimo(camino) == d$} \complejidad{$n$}
+			\State $res \larr camino$ \complejidad{$O(1)$}
+		\EndIf
+		\State \Var{vecinos:$Lista(compu)$} $\larr nuevosVecinos(camino,visitados)$ \complejidad{O($n*n*n$)}
+		\State \While {$Longitud(vecinos) != 0$}
+			\State \Var{caminoAux:$Lista(compu)$} $\larr camino$ \complejidad{$O(1)$}
+			\State $AgregarPrimero(caminoAux,vecinos[0])$ \complejidad{$O(1)$}
+			\State $Eliminar(vecinos,vecinos[0])$ \complejidad{$O(n)$}
+			\State $AgregarPrimero(auxCaminos, caminoAuxiliar)$ \complejidad{$O(n*n)$}
+		\EndWhile
+		\State $AgregarAVisitados(visitados, auxCaminos)$ \complejidad{$O(n*n)$}
+	\EndWhile
+	\State $res \larr Vacia(Vacia())$ \complejidad{O(1)}
+}{O($n^5$)}
+
+\algoritmo{iNuevosVecinos}{in camino:$Lista(compu)$, in visitados:$Lista(compu)$}{res : $Lista(compu)$}{
+	\State \Var{vecinos:$Lista(compu)$} $\larr Vacia()$ \complejidad{O(1)}
+	\State \Var{i:$nat$} $\larr 0$
+	\State \Var{long:$nat$} $\larr Longitud(camino)$
+	\State \While {$i < long$}
+		\State \Var{j:$nat$} $\larr 0$
+		\State \While {$j < camino[i].conexiones.length$} 
+			\Var{vecino:$puntero(Nodo)$} $\larr (camino[i].conexiones[j])*$
+			\State \If {$vecino != NULL$}
+				\State \If {$\neg(Esta(visitados,dameCompu(ip(vecino))))$}
+					\State $AgregarUltimo(vecinos, (dameCompu(ip(vecino))))$
+				\EndIf
+			\EndIf
+			\State $j++$
+		\EndWhile
+		\State $i++$
+	\EndWhile
+	\State $res \larr vecinos$
+}{}
+
+\algoritmo{iSacarMenor}{in/out caminos:$Lista(Lista(compu)$}{res:$Lista(compu)$}{
+	\State \Var{size:$nat$} $\larr Longitud(caminos)$
+	\State \Var{i:$nat$} $\larr 0$
+ 	\State \While {$i < size$}
+		\State \If{$Longitud(caminos[i]) == minimo(caminos)$}
+			\State $Eliminar(caminos,caminos[i])$
+			\State $res \larr caminos[i]$
+		\EndIf
+		\State $i++$
+	\EndWhile
+}
+{}
+
+\algoritmo{iAgregarVisitados}{in/out visitados:$Lista(compu)$, in caminos:$Lista(Lista(compu))$}{}{
+	\State \Var{size:$nat$} $\larr Longitud(caminos)$
+	\State \Var{i:$nat$} $\larr 0$
+ 	\State \While {$i < size$}
+		\State $AgregarUltimo(visitados, Ultimo(caminos[i]))$
+		\State $i++$
+	\EndWhile
+}{}
