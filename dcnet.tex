@@ -20,7 +20,7 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
  {true}
  {$\var{res} \igobs iniciarDCNet(r)$}
  {Crea un sistema DCNet.}
- {O(???)}
+ {O(max\{$n^2 \times complejidad(caminominimo),n \times L\}$)}
  {el campo.red del modulo devuelto es un puntero a la red de entrada}
 
 \operacion{crearPaquete}{in/out s: dcnet,in p: paquete}{}
@@ -69,9 +69,9 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
 \operacion{laQueMasEnvio}{in s: dcnet}{res : compu}
  {$true$}
  {$\var{res} \igobs laQueMasEnvio(s,p)$}
- {Devuelve la computadora que más paquetes envió.}
+ {Devuelve la computadora que más paquetes envió}
  {O(1)}
- {POR AHORA DEVUELVE EL IP DE LA COMPU}
+ 
  
 
  
@@ -191,7 +191,7 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
 		\complejidad{O(1)}
 %holi
 }
-{O(max\{$n^2 \times O(complejidad cammin(red)),n \times L\}$)}
+{O(max\{$n^5,n \times L\}$)}
 
 \algoritmo{icrearPaquete}{in/out s:dcnet,in/out p: paquete}{}{ %hay que cambiar nombres segun heap y avl
   \State $t_1:\ <nat,conjLog(paquete,<_{id}),conjLog(paquete,<_{p}), $\\$ conjLog(paquetePos,<_{id}),conjLog(paquetePos,<_{p}) >$
@@ -271,7 +271,6 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
            \complejidad{O(1)}
     \State $proxima \larr s.CaminosMinimos[\Fun{indiceOrigen}(p')][\Fun{indicedestino}(p')][\Fun{indiceActual}(p')+1]$
     		\complejidad{O(L) (se copia)}
-    \textbf{ACLARACION:} coherente con caminoMinimo (sup que da un arreglo de IP)
      \If{$s.Compus[i].\#PaqE > max$}
           \complejidad{O(1)}
       \State $ max \larr i$
@@ -289,7 +288,9 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
   \State $i \larr 0$
         \complejidad{O(1)}
   \While{$i < \Fun{Longitud}(s.Compus)$}
+  	\complejidad{O(n)}
   \If{$paqYProxDes[i]\neq 0$}
+  	\complejidad{O(1)}
   	\State $p'\larr \pi_1(paqYProxDes[i])$
   	\complejidad{O(1)}
   	\State $proxima \larr \pi_2(paqYProxDes[i])$
@@ -337,9 +338,6 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
   \Var{b: bool}
   \State $b \larr \neg(\Fun{pertenece?}(p,$*$(s.compus[i].pN)))$
         \complejidad{O($log(k)$)}
-        
-ESTA BIEN ESTE PERTENECE?
-Y CREO que la estructura deberria apuntar a colalog con paquetespos tambien
   \While{$b \land i<n$}
         \complejidad{O(n)} 
     \State $i \larr i + 1$
@@ -348,9 +346,12 @@ Y CREO que la estructura deberria apuntar a colalog con paquetespos tambien
           \complejidad{O($log(k)$)}
   \EndWhile
   \If{$i=n \land b$}
+  	\complejidad{O(1)}
   	\State $res \larr false$
+  		\complejidad{O(1)}
   \Else
   \State $res \larr true$
+  		\complejidad{O(1)}
   \EndIf
 }{O($n \times log(k)$}
 
@@ -360,8 +361,6 @@ Y CREO que la estructura deberria apuntar a colalog con paquetespos tambien
         \complejidad{O(1)}
   \Var{b: bool}
   \State $b \larr \neg(\Fun{pertenece?}(p,$*$(s.compus[i].pN)))$
-  ESTA BIEN ESTE PERTENECE?
-  Y CREO que la estructura deberria apuntar a colalog con paquetespos tambien
         \complejidad{O($log(k)$)}
   \While{$b$}
         \complejidad{O(n)} 
@@ -379,6 +378,7 @@ Y CREO que la estructura deberria apuntar a colalog con paquetespos tambien
 %          \complejidad{O(1)}
 %  \EndWhile
   \State $res \larr s.CaminosMinimos[\Fun{indiceOrigen}(p')][i]$
+  	\complejidad{O(n) (por copia)}
 }
 {O($n \times log(k)$)}
 
