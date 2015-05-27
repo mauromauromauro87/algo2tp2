@@ -79,8 +79,8 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
 {true}
 {$\var{res} = paqueteEnTransito?(s,p)$}
 {Devuelve true si el paquete se encuentra en transito en el sistema}
-{O($n \times log(g)$}
- {}
+{O($n \times log(k)$)}
+{}
 
  
 Las complejidades están en función de las siguientes variables:\\
@@ -166,11 +166,7 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
 		\complejidad{O(n)}
 		\State $res.CaminosMinimos[i] \larr \Fun{CrearArreglo}(n)$ 
 			\complejidad{O(n)}
-		\State $p[i] \larr NULL$
-			\complejidad{O(1)}
-		\State $res.Compus[i] \larr $ $<compu(r,i),p[i],0>$ 
-			\complejidad{O(1)}
-		\State s:$ \ <nat,conjLog(paquete,<_{id}),conjLog(paquete,<_{p}), $\\$ conjLog(<paquete, indiceActual, indiceOrigen, indiceDestino>,<_{id}),conjLog(<paquete, indiceActual, indiceOrigen, indiceDestino>,<_{p}) >$
+		\State s:$ \ <nat,conjLog(paquete,<_{id}),conjLog(paquete,<_{p}), $\\$ conjLog(paquetePos,<_{id}),conjLog(paquetePos,<_{p}) >$
 		%HAY que ver bien donde definir la relacion!!
 		\State $\pi_1(s) \larr compu(r,i)$
 		\State $\pi_2(s) \larr \Fun{nuevo}()$
@@ -179,6 +175,10 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
 		\State $\pi_5(s) \larr \Fun{nuevo}()$
 		\State \Fun{definir}(res.CompusPorPref,compu(r,i),s)
 			\complejidad{O(L)}
+		\State $p[i] \larr pi_3(s)$
+		\State $p'[i] \larr pi_5(s) $
+		\State $res.Compus[i] \larr $ $<compu(r,i),p[i],p'[i],0>$ 
+			\complejidad{O(1)}
 		\While{j$<$n}
 			\complejidad{O(n)}
 			\State $res.CaminosMinimos[i][j] \larr caminoMinimo(compu(r,i),compu(r,j),r)$
