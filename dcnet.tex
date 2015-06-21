@@ -61,15 +61,15 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
 \operacion{enEspera}{in s: dcnet,in c: compu}{res: puntero(conjLogP(paquete)))}
  {$c \in computadoras(red(s))$}
  {$\var{res} \igobs enEspera(s,c)$}
- {Devuelve un iterador a los paquetes de la computadora.}
+ {Devuelve un puntero a los paquetes de la computadora.}
  {O(L)}
- {Hay aliasing entre res y el conjunto de paquetes de la computadora pasada por parámetro}
+ {(ACA NO HAY ALIASING, QUE OPINAN ?)Hay aliasing entre res y el conjunto de paquetes de la computadora pasada por parámetro}
 
  
 \operacion{laQueMasEnvio}{in s: dcnet}{res : compu}
  {$true$}
  {$\var{res} \igobs laQueMasEnvio(s,p)$}
- {Devuelve la computadora que más paquetes envió}
+ {Devuelve la computadora que más paquetes envió por referencia} 
  {O(1)}
  
  
@@ -153,14 +153,14 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
 %inicializacion Caminos Minimos
 	\State $res.red \larr r$
 	\State $n \larr \#(\Fun{compus}(red))$
-		\complejidad{O($\#$compus(red)=n)?}
+		\complejidad{O(1)} ACA LE PUSE O(1 PORQUE PODEMOS SUPONER QUE TENEMOS GUARDADA LA cant DE COMPUS)
 	\State $i\larr 0$
 	\State $j\larr 0$
 		\complejidad{O(1)}
 	\State $res.Compus \larr \Fun{CrearArreglo}(n)$
-		\complejidad{O(n)}
+		\complejidad{O(1)}
 	\State $res.CaminosMinimos\larr \Fun{CrearArreglo}(n)$
-		\complejidad{O(n)}
+		\complejidad{O(1)}
 	\Var{p: arreglo$\_$dimensionable de puntero(conjLog(paquete))}	
 	\While{i$<$n}
 		\complejidad{O(n)}
@@ -182,7 +182,7 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
 		\While{j$<$n}
 			\complejidad{O(n)}
 			\State $res.CaminosMinimos[i][j] \larr caminoMinimo(compu(r,i),compu(r,j),r)$
-				\complejidad{O(complejidad cammin(red))}
+				\complejidad{O(CAMINO MINIMO???)}
 			\State $j++$
 		\EndWhile
 		\State $i++$	
