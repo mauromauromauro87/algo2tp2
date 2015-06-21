@@ -1,0 +1,259 @@
+%!TEX root = tp2.tex
+
+\section{Módulo Red}
+
+El módulo red permite crear una red de computadoras, agregar nuevas, conectarlas y averiguar el camino mínimo entre dos de ellas.
+
+\subsection{Interfaz}
+
+\sexc{Red}
+\generos{red}
+
+\subsubsection*{Operaciones}
+
+\operacion{Nueva}{}{res : red}
+ {true}
+ {$\var{res} \equiv$ iniciarRed}
+ {Crea una red vacía}
+ {O(1)}
+
+\operacion{AgregarCompu}{in/out r : red,in c : compu}{}
+ {$r \equiv r_0$ $\land$ ($\forall$ $\var{$c_{1}$}$:compu)($\var{$c_{1}$}$ $\in$ computadoras($\var{r}$))$\implies$ IP($\var{c}$) $\neq$ IP($\var{$c_{1}$}$)}
+ {$\var{r} \equiv$ agregarComputadora($\var{r},\var{c}$)}
+ {Agrega a la red $\var r$ la computadora $\var c$}
+ {O(n + copy(c))}
+
+\operacion{Conectar}{in/out r : red,in c1 : compu,in i1 : interfaz,in c2 : compu,in i2 : interfaz}{}
+ {$r \equiv r_0$ $\land$ $\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$) $\land$ IP(c1) $\neq$ IP(c2) \\ $\land$ $\neg$conectadas(r,c1,c2) $\land$ $\neg$UsaInterfaz?(r,c1,i1) $\land$ $\neg$UsaInterfaz?(r,c2,i2)}
+ {$\var{r} \equiv$ conectar($\var{r},\var{c1},\var{i1},\var{c2},\var{i2}$)}
+ {Conecta las computadoras $\var{$c_{1}$}$ y $\var{$c_{2}$}$}
+ {O(n)}
+
+\operacion{CaminosMinimos}{in r : red,in c1 : compu,in c2 : compu}{res : conj(secu(nat))}
+ {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
+ {$\var{r} \equiv$ caminosMinimos($\var{r}$,$\var{$c_{1}$}$,$\var{$c_{2}$}$)}
+ {Devuelve los caminos mínimos entre dos computadoras}
+ {O(?)}
+
+\operacion{CaminoMinimo}{in r : red, in f : compu, in d : compu}{res : secu(compu)}
+ {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
+ {$\var{r} \equiv$ caminosMinimos($\var{r}$,$\var{$c_{1}$}$,$\var{$c_{2}$}$)}
+ {Devuelve los caminos mínimos entre dos computadoras}
+ {O($n^5$)}
+
+
+\operacion{StringAIndice}{in r : red,in c : compu}{res : nat}
+ {$\var{c}$ $\in$ computadoras($\var{r}$)}
+ {$\var{res}$ $\equiv$ indice($\var{r}$,$\var{c}$)}
+ {Devuelve un nat distinto para cada IP}
+ {O(n)}
+
+\operacion{UsaInterfaz?}{in r : red,in c : compu,in i : interfaz}{res : bool}
+ {$\var{c}$ $\in$ computadoras($\var{r}$) $\land$ $\var{i}$ $\in$ interfaces($\var{c}$)}
+ {$\var{res} \equiv UsaInterfaz?(r,c,i)$}
+ {Devuelve TRUE si y solo si la interfaz está siendo utilizada}
+ {O(n)}
+
+\operacion{HayCamino?}{in r : red,in c1 : compu,in c2 : compu}{res : bool}
+ {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
+ {$\var{res} \equiv HayCamino?(r,c1,c2)$}
+ {Devuelve TRUE sí y solo sí hay un camino válido entre las dos computadoras}
+ {O($n^5$)}
+
+\subsection{Extensión del TAD Red}
+\fannot{indice}{\tipo{red} \x \tipo{copmu}}{\tipo{nat}}{}
+$\fun{indice}(iniciarRed, c) \equiv 0$ \\
+$\fun{indice}(conectar(r,c_{1},i_{1},c_{2},i_{2}), c_{3}) \equiv 0$ \\
+$\fun{indice}(agregarComputadora(r,c_{1}), c_{2}) \equiv$ 
+	\\ if $c_{1}$ = $c_{2}$ then \\ 1 + indice($r,c_{2}$) \\ else \\ indice($r,c_{2}$)
+
+
+\subsection{Representación}
+Red está representada por un conjunto de computadoras y un puntero al primer Nodo, que coincide con la primer computadora que se agrega. El Nodo está representado por el IP de la computadora, un puntero a la próxima computadora, que forma una lista circular que conecta todas las computadoras agregadas y un arreglo de punteros que simboliza las interfaces y a dónde se conectan.
+Para el modulo red, se podría haber agregado un modulo intermedio de abstracción (por ejemplo con un diccionario), pero no aportaba mucho al diseño modular. Tampoco facilitaba mucho la escritura del Invariante. Por eso, y para conciliar tiempo disponible con calidad de diseño, decidimos representarlo como se muestra a continuación. Por simplicidad, se asume que el conjunto de interfaces está formado por nats consecutivos, empezando desde cero(si no fuera así, se podrían mapear las interfaces a nats consecutivos sin afectar la complejidad).
+
+\serc{redstr}{
+	\donde{redstr}{\tupla{
+						Compus : conj(compu),
+						Web : puntero(Nodo)
+						}
+				  }
+% 
+\\
+	\donde{Nodo}{\tupla{
+						IP : String,
+						Proxima : puntero(Nodo),
+						Conexiones : arreglo\_dimensionable de puntero(Nodo)
+						}
+				}
+%
+\\
+	\donde{compu}{\tupla{
+						IP : String,
+						Interfaces : conj(nat)
+						}
+				 }
+}
+
+
+\subsubsection*{Invariante de representación}
+
+\begin{enumerate}
+	\item El conjunto Compus es vacío sí y solo sí Web apunta a NULL.
+	\item Partiendo del Nodo apuntado por Web, y avanzando por Proxima, se vuelve al Nodo apuntado por Web.
+	\item Partiendo del Nodo apuntado por Web, y avanzando por Proxima, cada nodo corresponde a una computadora: \\El proyector IP de Nodo de todos los nodos conectados avanzando por Proxima, partiendo desde el Nodo apuntado por Web pertenece al conjunto formado por la unión de todos los proyectores IP de compu, para todas las compu en Compus.
+	\item El tamaño del arreglo corresponde a la cantidad de interfaces: \\El proyector Conexiones de Nodo de todos los nodos conectados avanzando por Proxima, partiendo desde el Nodo apuntado por Web es un arreglo cuya longitud es igual al cardinal del conjunto Interfaces de la compu cuyo proyector IP es igual al proyector IP del Nodo formado por dicho proyector Conexiones, para todas las compu en Compus.
+	\item Si la compu $\var a$ está conectada con $\var b$, entonces $\var b$ está conectada con $\var a$: \\Para todos los punteros del proyector Conexiones de Nodo de todos los nodos conectados avanzando por Proxima, partiendo desde el Nodo apuntado por Web, el Nodo al que apunta dicho puntero tiene en alguna posición de su proyector Conexiones un puntero al Nodo en el cual esta el arreglo del cual el primer puntero forma parte.
+	
+
+		% \rep{restr}{r} \textbf{if} $(r.izq \neq \NULL)$ \textbf{then} \\
+		% \textbf{if} ($r.der = \NULL$) \textbf{then} \\
+		% $*r.val = "NOT" \land rep(*r.izq)$ \\
+		% \textbf{else} $*r.val \in Ag("OR", Ag("AND",vacio)) \land rep(*r.izq) \land rep(*r.der)$
+		\end{enumerate}
+
+\subsubsection*{Función de abstracción}
+
+ \abs{redstr}{red}{e}{r} \\
+ computadoras(r) $\igobs$ e.Compus $\land$ \\
+ conectadas?($\var{r,c1,c2}$) $\igobs$ \"\ Existe Nodo avanzando por Próximo, tal que \" \ 
+ 							($\exists$i:nat)( 0 $\leq$ i $\leq$ tam(Conexiones) $\land$ IP(Nodo) = IP($\var{c1}$) ) $\implies$ IP(*Conexiones[i]) = IP($\var{c2}$) $\land$ \\
+ interfazUsada($\var{r,c1,c2}$) $\igobs$ i | \"\ Existe un par de nodos avanzando por Próximo, tal que \" \
+ 							 (IP(Nodo1) = IP($\var{c1}$) $\land$ IP(Nodo2) = IP($\var{c2}$) ) $\implies$ Conexiones(Nodo1)[i] = Nodo2
+
+
+\subsubsection*{Algoritmos}
+
+
+
+\algoritmo{iNueva}{}{res : redstr}{
+
+	\State $res.Compus \larr Vacio()$			\complejidad{O($1$)}
+	\State $res.Web \larr NULL$					\complejidad{O($1$)}
+
+}{O(1)}
+
+
+\algoritmo{iAgregarCompu}{in/out r : redstr,in c : compu}{}{
+
+	\State $AgregarRapido(r.Compus,c)$				\complejidad{O(copy(c))}
+	\If {r.Web == NULL} 						\complejidad{O(1)}
+			\State $r.Web \larr \&c$			\complejidad{O($1$)}
+	\Else
+		\State $var aux \larr r.Web$
+		\While{(aux.Proxima != Web)}			\complejidad{O($n$)}
+			\State $aux \larr aux.Proxima$
+		\EndWhile
+		\State Nodo n = crearNodo(c)			\complejidad{O(copy(c))}
+		\State $n.Proxima \larr Web$			\complejidad{O(1)}
+		\State $aux.Proxima \larr n$			\complejidad{O(1)}
+
+	\EndIf
+
+
+}{O(n + copy(c))}
+
+
+\algoritmo{iConectar}{in/out r : redstr,in c1 : compu,in i1 : interfaz,in c2 : compu,in i2 : interfaz}{}{
+		
+		\State $var aux \larr r.Web$					\complejidad{O($1$)}
+		\While{(aux.IP != c1)}							\complejidad{O($n$)}
+			\State $aux \larr aux.Proxima$				\complejidad{O($1$)}
+		\EndWhile
+		\State $var aux2 \larr r.Web$					\complejidad{O($1$)}
+		\While{(aux2.IP != c2)}							\complejidad{O($n$)}
+			\State $aux2 \larr aux.Proxima$				\complejidad{O($1$)}
+		\EndWhile
+		\State aux.Conexiones[i1] $\larr$ aux2			\complejidad{O($1$)}
+		\State aux2.Conexiones[i2] $\larr$ aux1			\complejidad{O($1$)}
+
+}{O(n)}
+
+
+\algoritmo{iStringAIndice}{in r : redstr,in c : compu}{res : nat}{
+
+	\State $var$ aux $\larr r.Web$					\complejidad{O($1$)}
+	\State $var$ i $\larr 0$						\complejidad{O($1$)}
+	\While{(aux.IP != c1)}							\complejidad{O($n$)}
+		\State $aux \larr aux.Proxima$				\complejidad{O($1$)}
+		\State $var$ i++							\complejidad{O($1$)}
+	\EndWhile
+	\State $res \larr i$
+
+}{O(n)}
+
+
+\algoritmo{iUsaInterfaz?}{in r : red,in c : compu,in i : interfaz}{res : bool}{
+
+	\State $var$ i $\larr 0$						\complejidad{O($1$)}
+	\While{(aux.IP != c1)}							\complejidad{O($n$)}
+		\State $aux \larr aux.Proxima$				\complejidad{O($1$)}
+	\EndWhile
+	\State $res \larr$ aux.Conexiones[i] != NULL	\complejidad{O($1$)}
+
+}{O(n)}
+
+\newpage
+\algoritmo{iCaminoMinimo}{in r:red, in f:compu, in d:compu}{res : bool}{
+	\State \Var{auxCaminos:$Lista(Lista(compu))$} $\larr Vacia()$ \complejidad{O(1)}
+	\State \Var{visitados:$Lista(compu)$} $\larr Vacia()$ \complejidad{O(1)}
+	\State AgregarAdelante(auxCaminos, Lista(f)) \complejidad{O(1)}
+	\State AgregarAdelante(visitados, f) \complejidad{O(1)}
+	\State \While {$Longitud(auxCaminos) != 0$} \complejidad{O(1)}
+		\State \Var{camino:$Lista(compu)$} $\larr sacarMenor(auxCaminos)$ \complejidad{O($n*n$)}
+		\State \If {$Ultimo(camino) == d$} \complejidad{$n$}
+			\State $res \larr camino$ \complejidad{$O(1)$}
+		\EndIf
+		\State \Var{vecinos:$Lista(compu)$} $\larr nuevosVecinos(camino,visitados)$ \complejidad{O($n*n*n$)}
+		\State \While {$Longitud(vecinos) != 0$}
+			\State \Var{caminoAux:$Lista(compu)$} $\larr camino$ \complejidad{$O(1)$}
+			\State $AgregarPrimero(caminoAux,vecinos[0])$ \complejidad{$O(1)$}
+			\State $Eliminar(vecinos,vecinos[0])$ \complejidad{$O(n)$}
+			\State $AgregarPrimero(auxCaminos, caminoAuxiliar)$ \complejidad{$O(n*n)$}
+		\EndWhile
+		\State $AgregarAVisitados(visitados, auxCaminos)$ \complejidad{$O(n*n)$}
+	\EndWhile
+	\State $res \larr Vacia(Vacia())$ \complejidad{O(1)}
+}{O($n^5$)}
+
+\algoritmo{iNuevosVecinos}{in camino:$Lista(compu)$, in visitados:$Lista(compu)$}{res : $Lista(compu)$}{
+	\State \Var{vecinos:$Lista(compu)$} $\larr Vacia()$ \complejidad{O(1)}
+	\State \Var{i:$nat$} $\larr 0$
+	\State \Var{long:$nat$} $\larr Longitud(camino)$
+	\State \While {$i < long$}
+		\State \Var{j:$nat$} $\larr 0$
+		\State \While {$j < camino[i].conexiones.length$} 
+			\Var{vecino:$puntero(Nodo)$} $\larr (camino[i].conexiones[j])*$
+			\State \If {$vecino != NULL$}
+				\State \If {$\neg(Esta(visitados,dameCompu(ip(vecino))))$}
+					\State $AgregarUltimo(vecinos, (dameCompu(ip(vecino))))$
+				\EndIf
+			\EndIf
+			\State $j++$
+		\EndWhile
+		\State $i++$
+	\EndWhile
+	\State $res \larr vecinos$
+}{}
+
+\algoritmo{iSacarMenor}{in/out caminos:$Lista(Lista(compu)$}{res:$Lista(compu)$}{
+	\State \Var{size:$nat$} $\larr Longitud(caminos)$
+	\State \Var{i:$nat$} $\larr 0$
+ 	\State \While {$i < size$}
+		\State \If{$Longitud(caminos[i]) == minimo(caminos)$}
+			\State $Eliminar(caminos,caminos[i])$
+			\State $res \larr caminos[i]$
+		\EndIf
+		\State $i++$
+	\EndWhile
+}
+{}
+
+\algoritmo{iAgregarVisitados}{in/out visitados:$Lista(compu)$, in caminos:$Lista(Lista(compu))$}{}{
+	\State \Var{size:$nat$} $\larr Longitud(caminos)$
+	\State \Var{i:$nat$} $\larr 0$
+ 	\State \While {$i < size$}
+		\State $AgregarUltimo(visitados, Ultimo(caminos[i]))$
+		\State $i++$
+	\EndWhile
+}{}
