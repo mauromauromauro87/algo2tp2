@@ -268,7 +268,7 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
           \complejidad{O($log(k)$)}
     \State $s.Compus[i].\#PaqE \larr s.compus[i].\#PaqE + 1$ 
            \complejidad{O(1)}
-    \State $proxima \larr s.CaminosMinimos[\Fun{indiceOrigen}(p')][\Fun{indicedestino}(p')][\Fun{indiceActual}(p')+1]$
+    \State $proxima \larr s.CaminosMinimos[\Fun{indiceOrigen}(p')][\Fun{indicedestino}(p')][\Fun{PosActual}(p')+1]$
     		\complejidad{O(L) (se copia)}
      \If{$s.Compus[i].\#PaqE > max$}
           \complejidad{O(1)}
@@ -377,7 +377,7 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
 %          \complejidad{O(1)}
 %  \EndWhile
   \State $res \larr s.CaminosMinimos[\Fun{indiceOrigen}(p')][i]$
-  	\complejidad{O(n) (por copia)}
+  	\complejidad{O(1)}
 }
 {O($n \times log(k)$)}
 
