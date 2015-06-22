@@ -59,7 +59,7 @@
 {$cl_0 \igobs Agregar(cl_0, e)$}
 {Inserta un nuevo elemento en el conjunto}
 {O($log(\#(cl))$)}
-{}
+{Hay aliasing entre el elemento recibido y el que se inserta en el conjunto}
 
 \operacion{borrar}{in/out cl:cl($\alpha$), in e:$\alpha$}{}
 {$cl_0 \igobs cl \land (e \in cl)$}
@@ -103,10 +103,7 @@
 $((\paratodo{\alpha}{e}) e \in c \impluego esta(cl,e)) \land size(cl) = \#(c)$
 
 \subsubsection{Aclaración de complejidades}{
-	Este módulo es un AVL y fue diseñado para poder cumplir con las especificaciones de complejidad de dcnet.
-	Si bien es paramétrico, está pensado para trabajar con tipo 'paquete' en el que la 
-	copia se puede realizar en tiempo constante.
-	En resumen, todas las operaciones de comparación, asignacion y copia del tipo paramétrico $\alpha$
+	Las operaciones de comparación, asignacion y copia del tipo paramétrico $\alpha$
 	deben poder ser realizadas en O(1).
 }
 

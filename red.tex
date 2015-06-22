@@ -48,18 +48,11 @@ El módulo red permite crear una red de computadoras, agregar nuevas, conectarla
  {Conecta las computadoras $\var{$c_{1}$}$ y $\var{$c_{2}$}$}
  {O(n)}
 
-\operacion{CaminosMinimos}{in r : red,in c1 : compu,in c2 : compu}{res : conj(secu(nat))}
- {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
- {$\var{r} \equiv$ caminosMinimos($\var{r}$,$\var{$c_{1}$}$,$\var{$c_{2}$}$)}
- {Devuelve los caminos mínimos entre dos computadoras}
- {O(?)}
-
 \operacion{CaminoMinimo}{in r : red, in f : compu, in d : compu}{res : secu(compu)}
  {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
  {$\var{r} \equiv$ caminosMinimos($\var{r}$,$\var{$c_{1}$}$,$\var{$c_{2}$}$)}
  {Devuelve los caminos mínimos entre dos computadoras}
- {O($n^5$)}
-
+ {O($????????????????????????????$)}
 
 \operacion{StringAIndice}{in r : red,in c : compu}{res : nat}
  {$\var{c}$ $\in$ computadoras($\var{r}$)}
@@ -77,7 +70,7 @@ El módulo red permite crear una red de computadoras, agregar nuevas, conectarla
  {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
  {$\var{res} \equiv HayCamino?(r,c1,c2)$}
  {Devuelve TRUE sí y solo sí hay un camino válido entre las dos computadoras}
- {O($n^5$)}
+ {O($???????????????????????????$)}
 
 \subsection{Representación}
 \serc{redstr}{
@@ -194,59 +187,60 @@ $interfazUsada(r,c_0,c_1)$ $\igobs$ $dameClave(significado(rstr.conexiones,c_0),
 	\State \Var{visitados:$Lista(compu)$} $\larr Vacia()$ \complejidad{O(1)}
 	\State AgregarAdelante(auxCaminos, Lista(f)) \complejidad{O(1)}
 	\State AgregarAdelante(visitados, f) \complejidad{O(1)}
-	\State \While {$Longitud(auxCaminos) != 0$} \complejidad{O(1)}
-		\State \Var{camino:$Lista(compu)$} $\larr sacarMenor(auxCaminos)$ \complejidad{O($n*n$)}
-		\State \If {$Ultimo(camino) == d$} \complejidad{$n$}
+	\State \While {$(Longitud(auxCaminos) != 0)$} \complejidad{O(1)}
+		\State \Var{camino:$Lista(compu)$} $\larr sacarMenor(auxCaminos)$ \complejidad{O($??????????????$)}
+		\State \If {$Ultimo(camino) == d$} \complejidad{$O(1)$}
 			\State $res \larr camino$ \complejidad{$O(1)$}
+			\State $return$ $res$ \complejidad{O(1)}
 		\EndIf
-		\State \Var{vecinos:$Lista(compu)$} $\larr nuevosVecinos(camino,visitados)$ \complejidad{O($n*n*n$)}
-		\State \While {$Longitud(vecinos) != 0$}
+		\State \Var{vecinos:$Lista(compu)$} $\larr nuevosVecinos(camino,visitados)$ \complejidad{O($?????????????????$)}
+		\State \While {$Longitud(vecinos) != 0$} \complejidad{O(1)}
 			\State \Var{caminoAux:$Lista(compu)$} $\larr camino$ \complejidad{$O(1)$}
 			\State $AgregarPrimero(caminoAux,vecinos[0])$ \complejidad{$O(1)$}
 			\State $Eliminar(vecinos,vecinos[0])$ \complejidad{$O(n)$}
-			\State $AgregarPrimero(auxCaminos, caminoAuxiliar)$ \complejidad{$O(n*n)$}
+			\State $AgregarPrimero(auxCaminos, caminoAuxiliar)$ \complejidad{$O(??????????????????)$}
 		\EndWhile
-		\State $AgregarAVisitados(visitados, auxCaminos)$ \complejidad{$O(n*n)$}
+		\State $AgregarAVisitados(visitados, auxCaminos)$ \complejidad{$O(???????????????????????)$}
 	\EndWhile
 	\State $res \larr Vacia(Vacia())$ \complejidad{O(1)}
-}{O($n^5$)}
+}{O($????????????????????????$)}
 
 \algoritmo{iNuevosVecinos}{in r:redstr, in camino:$Lista(compu)$, in visitados:$Lista(compu)$}{res : $Lista(compu)$}{
 	\State \Var{long:$nat$} $\larr$ $Longitud(camino)$ \complejidad{O(1)}
-	\State \Var{vecinos:$Lista$} $\larr$ $significados(significado(r.conexiones,camino[long-1]))$ \complejidad{O(1)}
+	\State \Var{vecinos:$Lista$} $\larr$ $significados(significado(r.conexiones,camino[long-1]))$ \complejidad{O($\#(r.compus)$)}
 	\State \Var{itVecinos:$itDicc$}$(interfaz,compu)$ $\larr$ $CrearIterador(vecinos)$ \complejidad{O(1)}
 	\State \Var{haySiguiente:$bool$} $\larr$ $(longitud(vecinos) != 0)$ \complejidad{O(1)}
-	\While {$haySiguiente$} \complejidad{O($\#(r.compus)$)}
+	\While {$haySiguiente$} \complejidad{O($1$)}
 		\State \Var{vecino:$compu$} $\larr$ $actual(itVecinos)$ \complejidad{O(1)}
-		\If {$\neg(Esta(visitados,vecino))$} \complejidad{O(1)}
+		\If {$\neg(Esta(visitados,vecino))$} \complejidad{O($\#(r.compus)$)}
 			\State $AgregarUltimo(vecinos,vecino)$ \complejidad{O(1)}
 		\EndIf
 		\State $avanzar(itVecinos)$ \complejidad{O(1)}
 		\State $haySiguiente$ $\larr$ $haySiguiente(itVecinos)$ \complejidad{O(1)}
 	\EndWhile
-	\State $res$ $\larr$ $vecinos$
+	\State $res$ $\larr$ $vecinos$ \complejidad{O(1)}
 }
-{O($\#(r.compus)$)}
+{O($\#(r.compus)^2$)}
 
 \algoritmo{iSacarMenor}{in/out caminos:$Lista(Lista(compu)$}{res:$Lista(compu)$}{
-	\State \Var{size:$nat$} $\larr Longitud(caminos)$
-	\State \Var{i:$nat$} $\larr 0$
- 	\State \While {$i < size$}
-		\State \If{$Longitud(caminos[i]) == minimo(caminos)$}
-			\State $Eliminar(caminos,caminos[i])$
-			\State $res \larr caminos[i]$
+	\State \Var{size:$nat$} $\larr Longitud(caminos)$ \complejidad{O(1)}
+	\State \Var{i:$nat$} $\larr 0$ \complejidad{O(1)}
+ 	\State \While {$i < size$} \complejidad{O(1)}
+		\State \If{$Longitud(caminos[i]) == minimo(caminos)$} \complejidad{O($???????????$)}
+			\State $Eliminar(caminos,caminos[i])$ \complejidad{O($???????????$)}
+			\State $res \larr caminos[i]$ \complejidad{O(1)}
 		\EndIf
 		\State $i++$
 	\EndWhile
 }
-{}
+{O(?????????????????????)}
 
 \algoritmo{iAgregarVisitados}{in/out visitados:$Lista(compu)$, in caminos:$Lista(Lista(compu))$}{}{
-	\State \Var{size:$nat$} $\larr Longitud(caminos)$
-	\State \Var{i:$nat$} $\larr 0$
- 	\State \While {$i < size$}
-		\State $AgregarUltimo(visitados, Ultimo(caminos[i]))$
-		\State $i++$
+	\State \Var{size:$nat$} $\larr Longitud(caminos)$ \complejidad{O(1)}
+	\State \Var{i:$nat$} $\larr 0$ \complejidad{O(1)}
+ 	\State \While {$i < size$} \complejidad{O(1)}
+		\State $AgregarUltimo(visitados, Ultimo(caminos[i]))$ \complejidad{O(1)}
+		\State $i++$ \complejidad{O(1)}
 	\EndWhile
 }
-{}
+{O(????????????????)}
