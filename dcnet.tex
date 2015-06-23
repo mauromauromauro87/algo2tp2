@@ -20,8 +20,8 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
  {true}
  {$\var{res} \igobs iniciarDCNet(r)$}
  {Crea un sistema DCNet.}
- {O(max\{$n^2 \times complejidad(caminominimo),n \times L\}$)}
- {el campo.red del modulo devuelto es un puntero a la red de entrada}
+ {O($L \times n^5$)}
+ {res.red es un puntero a la red que recibimos por parámetro}
 
 \operacion{crearPaquete}{in/out s: dcnet,in p: paquete}{}
  {$s \igobs s_0 \land (\forall p_0:paquete,paqueteEnTransito?(p,s))$ ¬$(p_0 \igobs p) \land$ \\ $destino(p) \in compus(red) \land origen(p) \in compus(red) \yluego $ \\ $haycamino?(destino(p),origen(p),red(s))$}
@@ -34,7 +34,7 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
  {$s \igobs s_0$}
  {$s \igobs avanzarSegundo(s_0)$}
  {Avanza un segundo el sistema. Todas las computadoras envían su respectivo paquete y en consecuencia se actualizar los paquetes en espera de cada una de ellas.}
- {O($n \times\ (L + log(k))$)}
+ {O($n \times (L + log(k))$)}
  
 \operacion{dameRed}{in s: dcnet}{res :puntero(red)}
  {$true$}
@@ -55,7 +55,7 @@ Compu, Paquete, Red, diccPref, conjLog, conjLogP
  {$\var{res} \igobs cantidadEnviados(s,c)$}
  {Devuelve la cantidad de paquetes enviados por una computadora.}
  {O($n$)} %es recorrer todas lascompus del vector e ir al heap que tiene guardado cuantos paquetes envio cada una no ?
-{}
+ {}
 
  
 \operacion{enEspera}{in s: dcnet,in c: compu}{res: puntero(conjLogP(paquete)))}
@@ -107,9 +107,6 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
 	Red: \mbox{red}	
 	}}
 }
-
-esto se puede borrar despues:
-aclaracion en compus en cada indice del arreglo esta la compu correspondiente a esa numeracion
 
 \subsubsection*{Invariante de representación}
 
@@ -171,7 +168,9 @@ aclaracion en compus en cada indice del arreglo esta la compu correspondiente a 
 \subsubsection*{Funci\'on de abstracción}
 
 \abs{dcnet}{DCNet}{s}{dc} \\
-$red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$(enEspera(s,c)) \land$ \\$  cantidadEnviados(dc,c)=cantidadEnviados(s,c)) \land $ \\ $(\forall p:paquete,paqueteEnTransito?(dc,p)) caminoRecorrido(dc,p)=$*$(caminoRecorrido(s,p)) $
+$red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$(enEspera(s,c)) \land$ \\
+$  cantidadEnviados(dc,c)=cantidadEnviados(s,c)) \land $ \\ 
+$(\forall p:paquete,paqueteEnTransito?(dc,p)) caminoRecorrido(dc,p)=$*$(caminoRecorrido(s,p)) $
 
 \newpage
 
@@ -180,8 +179,7 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
 \algoritmo{icrearSistema}{in r:red}{res:dcnet}{
 %inicializacion Caminos Minimos
 	\State $res.red \larr r$
-	\State $n \larr \#(\Fun{compus}(red))$
-		\complejidad{O(1)} 
+	\State $n \larr Longitud(\Fun{compus}(red))$ \complejidad{O(1)}
 	\State $i\larr 0$
 	\State $j\larr 0$
 		\complejidad{O(1)}
@@ -190,7 +188,7 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
 	\State $res.CaminosMinimos\larr \Fun{CrearArreglo}(n)$
 		\complejidad{O(1)}
 	\Var{p: arreglo$\_$dimensionable de puntero(conjLog(paquete))}	
-	\While{i$<$n}
+	\While{i$<$n} \complejidad{O($L*n^5$)}
 		\complejidad{O(n)}
 		\State $res.CaminosMinimos[i] \larr \Fun{CrearArreglo}(n)$ 
 			\complejidad{O(n)}
@@ -207,10 +205,10 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
 		\State $p'[i] \larr pi_5(s) $
 		\State $res.Compus[i] \larr $ $<compu(r,i),p[i],p'[i],0>$ 
 			\complejidad{O(1)}
-		\While{j$<$n}
+		\While{j$<$n} \complejidad{O($L*n^4$)}
 			\complejidad{O(n)}
 			\State $res.CaminosMinimos[i][j] \larr caminoMinimo(compu(r,i),compu(r,j),r)$
-				\complejidad{O(CAMINO MINIMO???)}
+				\complejidad{O($L*n^3$)}
 			\State $j++$
 		\EndWhile
 		\State $i++$	
@@ -219,7 +217,7 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
 		\complejidad{O(1)}
 %holi
 }
-{O(max\{$n^5,n \times L\}$)}
+{O($L \times n^5$)}
 
 \algoritmo{icrearPaquete}{in/out s:dcnet,in/out p: paquete}{}{ %hay que cambiar nombres segun heap y avl
   \State $t_1:\ <nat,conjLog(paquete,<_{id}),conjLog(paquete,<_{p}), $\\$ conjLog(paquetePos,<_{id}),conjLog(paquetePos,<_{p}) >$
@@ -284,7 +282,7 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
           \complejidad{O(L)}
     \Var{p: paquete}
     \If{$\neg\Fun{vacia?}(\pi_5(t_1))$}%hay paquete para mandar
-    \State $p' \larr \Fun{sacarMax}(\pi_5(t_1))$ %tengo en p el paquete que voy a mover
+    \State $p' \larr \Fun{menor}(\pi_5(t_1))$ %tengo en p el paquete que voy a mover
           \complejidad{O($log(k)$)}
     \State \Fun{borrar}($\pi_2(t_1),\ \Fun{paquete}(p')$) %lo borro del avl por prioridad
           \complejidad{O($log(k)$)}
@@ -412,11 +410,6 @@ $red(dc)=$*$(s.red) \land (\forall c:compu, c\in compus(dc))( enEspera(dc,c)=$*$
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Servicios Usados}
-Del modulo ConjLog requerimos \fun{pertenece}, \fun{buscar}, \fun{sacarMax}, \fun{insertar} y \fun{borrar} en O($log(k)$) .
+Del modulo ConjLog requerimos \fun{pertenece}, \fun{buscar}, \fun{menor}, \fun{insertar} y \fun{borrar} en O($log(k)$) .
 
 Del modulo Diccionario Por Prefijos requerimos \fun{Def?}, \fun{obtener} en O($L$).
-
-
-
-
-

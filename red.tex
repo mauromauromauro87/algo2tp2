@@ -59,7 +59,7 @@ El módulo red permite crear una red de computadoras, agregar nuevas, conectarla
 \operacion{StringAIndice}{in r : red,in c : compu}{res : nat}
  {$\var{c}$ $\in$ computadoras($\var{r}$)}
  {$\var{res}$ $\equiv$ indice($\var{r}$,$\var{c}$)}
- {Devuelve un nat distinto para cada IP}
+ {Devuelve un nat distinto para cada IP, una vez creada la red siempre retorna el mismo para cada compu}
  {O(n)}
 
 \operacion{UsaInterfaz?}{in r : red,in c : compu,in i : interfaz}{res : bool}
@@ -72,7 +72,7 @@ El módulo red permite crear una red de computadoras, agregar nuevas, conectarla
  {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
  {$\var{res} \equiv \neg(Vacia?(caminoMinimo(r,c1,c2)))$}
  {Devuelve TRUE sí y solo sí hay un camino válido entre las dos computadoras}
- {O($L*n^2$)}
+ {O($L*n^3$)}
 
 \subsection{Representación}
 \serc{redstr}{
@@ -251,6 +251,8 @@ $interfazUsada(r,c_0,c_1)$ $\igobs$ $dameClave(significado(rstr.conexiones,c_0),
 		\State $haySiguiente$ $\larr$ $haySiguiente?(itVecinos)$ \complejidad{O(1)}
 		\Var{v:nat} $\larr$ $stringAIndice(stringAIndice(vec))$ \complejidad{O(L*n)}
 		\Var{vecino:tupla}(nat,nat) $\larr$ $CrearTupla(v,dist[v])$ \complejidad{O(1)}
+		\State // \textit{Si el vecino es mayor que el de mas prioridad,}
+		\State // \textit{entonces todavia esta en la cola (no fue desencolado)}
 		\If {cp.maxP $<$ vecino} \complejidad{O(1)}
 			\State AgAdelante(res,r.compus[$\pi_1$(vecino)]) \complejidad{O(1)}
 		\EndIf
