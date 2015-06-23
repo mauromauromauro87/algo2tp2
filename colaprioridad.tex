@@ -1,0 +1,93 @@
+\section{ColaP}
+
+\subsection{Interfaz($\alpha, \igsub{\alpha}, <_\alpha$)}
+
+\subsubsection{parámetros formales}
+	\begin{description}[labelindent=1cm]
+	\item[] \textbf{g\'eneros} $\alpha$
+	\item[] \textbf{operaciones} 
+			\begin{description}[labelindent=1cm] 
+			\item[] $\bullet$ $\igsub{\alpha}$ $\bullet$ $:$ $\alpha$ $\times$ $\alpha$ $\rarr$ $bool$ \indent Relación de equivalencia
+			\item[] $\bullet$ $<_\alpha$ $\bullet$ $:$ $\alpha$ $\times$ $\alpha$ $\rarr$ $bool$	\indent Relación de orden
+			\end{description}
+	\end{description}
+	
+\sexc{Cola($\alpha$)}
+\generos{cp($\alpha$)}
+
+\subsection{Operaciones}
+
+\operacion{nuevo}{}{res:cp($\alpha$)}
+{true}
+{$res \igobs vacia$}
+{Crea una nueva cp}
+{O(1)}
+{}
+
+\operacion{encolar}{in/out cp:cp($\alpha$), in e:$\alpha$}{}
+{$(cp_0=cp)$}
+{$cp \igobs encolar(cp_0,e)$}
+{Se inserta el elemento e en la cola, si el elemento ya existe, no hace nada}
+{O(log(n)), n : $\#(cp.colaLog)$}
+{El elemento se inserta por referencia}
+
+\operacion{proximo}{in cp:cp($\alpha$)}{res:$\alpha$}
+{$\neg(Vacia?(cp))$}
+{$res \igobs proximo(cp)$}
+{Retorna el proximo elemento}
+{O(1)}
+{El elemento se devuelve por referencia, hay aliasing}
+
+\operacion{desencolar}{in/out cp:cp($\alpha$)}{}
+{$(cp_0 \igobs cp)$ $\land$ $\neg(Vacia?(cp))$}
+{$cp \igobs desencolar(cp_0)$}
+{Quita el elemento de mas prioridad de la cola}
+{O(log(n)), n = $\#(cp.colaLog)$}
+{}
+
+\subsection{Representación}
+\serc{cpstr}{\\
+		\donde{cpstr}{maxP : \mbox{$\alpha$}, colaLog : \mbox{$conjLog(\alpha)$}}
+}
+
+\subsubsection{Invariante de representación}
+\begin{enumerate}
+\item $\neg(Vacio?(cp.colaLog))$ $\impluego$ $cp.maxP=menor(cp.colaLog)$
+\end{enumerate}
+
+\subsection{Función de abstracción}
+\abs{cp($\alpha$)}{cola($\alpha$)}{cp}{c}\\
+$Vacia?(c) \igobs Vacio?(cp.colaLog)$ $\land$ $proximo(cp) \igobs proximo(c)$ $\land$ $desencolar(c) \igobs desencolar(cp)$
+
+\subsection{Algoritmos}
+n: cant de elementos de la cola\\
+\\
+\algoritmo{nueva}{}{res:cp($\alpha$)}{
+	\State $res$ $\larr$ $CrearTupla(\alpha, )$
+	\State $res.maxP$ $\larr$ $NULL$ \complejidad{O(1)}
+	\State $res.colaLog$ $\larr$ $nuevo()$ \complejidad{O(1)}
+	\State $return$ $res$ \complejidad{O(1)}
+}
+{O(1)}
+
+\algoritmo{encolar}{in/out cp:cp($\alpha$),in e:$\alpha$}{}{
+	\If {$\neg(Vacia?(cp))$} \complejidad{O(1)}
+		\State $cp.maxP$ $\larr$ $e$ \complejidad{O(1)}
+		\State $insertar(cp.colaLog,e)$ \complejidad{O(1)}
+	\Else
+		\If {$cp.maxP > e$} \complejidad{$O(1)$}
+			\State $cp.maxP$ $\larr$ $e$ \complejidad{O(1)}
+		\EndIf
+		\State $insertar(cp.colaLog,e)$ \complejidad{O($log(n)$)}
+	\EndIf
+}{O(log(n))}
+
+\algoritmo{desencolar}{in/out cp:cp($\alpha$)}{}{
+	\State $Borrar(cp.colaLog,menor(cp.colaLog))$ \complejidad{O(log(n))}
+	\State $cp.maxP$ $\larr$ $menor(cp.colaLog)$ \complejidad{O(1)}
+}{O(log(n))}
+
+\algoritmo{proximo}{in cp:cp($\alpha$)}{res:$\alpha$}{
+	\State $res$ $\larr$ $cp.maxP$ \complejidad{O(1)}
+	\State $return$ $res$ \complejidad{O(1)}
+}{O(1)}

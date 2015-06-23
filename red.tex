@@ -10,6 +10,8 @@ El módulo red permite crear una red de computadoras, agregar nuevas, conectarla
 
 \subsubsection*{Operaciones}
 
+\textit{Aclaración: n=$\# (r.compus)$, L=Longitud de IP más larga}
+
 \operacion{Nueva}{}{res : red}
  {true}
  {$\var{res} \equiv$ iniciarRed}
@@ -52,7 +54,7 @@ El módulo red permite crear una red de computadoras, agregar nuevas, conectarla
  {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
  {$\var{r} \equiv$ caminosMinimos($\var{r}$,$\var{$c_{1}$}$,$\var{$c_{2}$}$)}
  {Devuelve los caminos mínimos entre dos computadoras}
- {O($????????????????????????????$)}
+ {O($L*n^3$)}
 
 \operacion{StringAIndice}{in r : red,in c : compu}{res : nat}
  {$\var{c}$ $\in$ computadoras($\var{r}$)}
@@ -68,9 +70,9 @@ El módulo red permite crear una red de computadoras, agregar nuevas, conectarla
 
 \operacion{HayCamino?}{in r : red,in c1 : compu,in c2 : compu}{res : bool}
  {$\var{$c_{1}$}$ $\in$ computadoras($\var{r}$) $\land$ $\var{$c_{2}$}$ $\in$ computadoras($\var{r}$)}
- {$\var{res} \equiv HayCamino?(r,c1,c2)$}
+ {$\var{res} \equiv \neg(Vacia?(caminoMinimo(r,c1,c2)))$}
  {Devuelve TRUE sí y solo sí hay un camino válido entre las dos computadoras}
- {O($???????????????????????????$)}
+ {O($L*n^2$)}
 
 \subsection{Representación}
 \serc{redstr}{
@@ -97,20 +99,20 @@ El módulo red permite crear una red de computadoras, agregar nuevas, conectarla
 \begin{enumerate}
 \item[] $claves(conexiones(r)) \subseteq compus(r)$ $\land$
 \item[] $((\forall c : compu)$ $c \in claves(conexiones(r))) \impluego \\
-		((\forall c_1 : compu) c_1 \in conectadas(conexiones(r),c))$ $\impluego$ $c_1 \in claves$ $\yluego$ $c \in conectadas(conexiones(r),c_1)$
+		((\forall c_1 : compu) c_1 \in significados(conexiones(r),c))$ $\impluego$ $c_1 \in claves$ $\yluego$ $c \in significados(conexiones(r),c_1)$
 \end{enumerate}
 
 \subsection{Función de abstracción}
 
 \abs{redstr}{red}{rstr}{r} \\
 $computadoras(r) \igobs rstr.compus$ $\land$ \\
-$(\forall c_0,c_1:compu)$ $conectadas?(r,c_0,c_1)$ $\igobs$ $c_1 \in conectadas(rstr.conexiones,c_0)$ $\land$\\
+$(\forall c_0,c_1:compu)$ $conectadas?(r,c_0,c_1)$ $\igobs$ $c_1 \in significados(rstr.conexiones,c_0)$ $\land$\\
 $interfazUsada(r,c_0,c_1)$ $\igobs$ $dameClave(significado(rstr.conexiones,c_0),c_1)$
 
 \subsubsection*{Extensión TAD diccionario}
 \begin{description} 
-\item[] $conectadas:$ $dicc(compu,dicc(interfaz,compu))$ $d$ $\times$ $compu$ $c$ $\rarr$ $conj(compu)$ \setlength{\parindent}{1cm} \indent
-\item[] $conectadas(d)$ $=$  $obtenerSignificados(significado(d,c),claves(significado(d,c)))$
+\item[] $significados:$ $dicc(compu,dicc(interfaz,compu))$ $d$ $\times$ $compu$ $c$ $\rarr$ $conj(compu)$ \setlength{\parindent}{1cm} \indent
+\item[] $significados(d)$ $=$  $obtenerSignificados(significado(d,c),claves(significado(d,c)))$
 \\
 \item[] $obtenerSignificados:$ $dicc(interfaz,compu)$ $d$ $\times$ $conj(interfaz)$ $ci$ $\rarr$ $conj(compu)$ \setlength{\parindent}{0.1cm} \indent
 \item[] $obtenerSignificados(d,c)$ $=$
@@ -182,65 +184,97 @@ $interfazUsada(r,c_0,c_1)$ $\igobs$ $dameClave(significado(rstr.conexiones,c_0),
 }
 {O($\#(r.compus)$)}
 
-\algoritmo{iCaminoMinimo}{in r:red, in f:compu, in d:compu}{res : bool}{
-	\State \Var{auxCaminos:$Lista(Lista(compu))$} $\larr Vacia()$ \complejidad{O(1)}
-	\State \Var{visitados:$Lista(compu)$} $\larr Vacia()$ \complejidad{O(1)}
-	\State AgregarAdelante(auxCaminos, Lista(f)) \complejidad{O(1)}
-	\State AgregarAdelante(visitados, f) \complejidad{O(1)}
-	\State \While {$(Longitud(auxCaminos) != 0)$} \complejidad{O(1)}
-		\State \Var{camino:$Lista(compu)$} $\larr sacarMenor(auxCaminos)$ \complejidad{O($??????????????$)}
-		\State \If {$Ultimo(camino) == d$} \complejidad{$O(1)$}
-			\State $res \larr camino$ \complejidad{$O(1)$}
-			\State $return$ $res$ \complejidad{O(1)}
+\algoritmo{iCaminoMinimo}{in r:red, in f:compu, in d:compu}{res : Lista(compu)}{
+	\Var{n:nat} $\larr$ $Longitud(r.compus)$ \complejidad{O(1)}
+	\Var{dist:Arreglo(nat)} $\larr$ $CrearArreglo(n)$ \complejidad{O(1)}
+	\Var{prev:Arreglo(nat)} $\larr$ $CrearArreglo(n)$ \complejidad{O(1)}
+	\Var{s:nat} $larr$ $stringAIndice(r,f)$ \complejidad{O(L*n)}
+	\State $dist[s]$ $\larr$ $0$ \complejidad{O(1)}
+	\State $prev[s]$ $\larr$ $NULL$ \complejidad{O(1)}
+	\Var{haySiguiente:bool} $\larr$ $\neg(Longitud(r.compus)==0)$ \complejidad{O(1)}
+	\Var{it:itConj} $\larr$ $CrearIt(r.compus)$ \complejidad{O(1)}
+	\Var{v:nat} $\larr$ $0$ \complejidad{O(1)}
+	\State $vd:tupla(nat,nat)$ \complejidad{O(1)}
+	\State // $vd_0,vd_1 : Tupla(nat,nat)$
+	\State // $vd_0$ $=_\alpha$ $vd_1$ $\iff$ $\pi_1(vd_0) = \pi_1(vd_1)$
+	\State // $vd_0$ $<_\alpha$ $vd_1$ $\iff$ $(\pi_2(vd_0)=pi_2(vd_1)$ $\land$ $\pi_1(vd_0) < \pi_1(vd_1))$ $\lor$
+	\State // \indent \indent $\ \ \ ((\pi_2(vd_0) < \pi_2(vd_1))$
+	\State \Var{cp:cp}$(tupla(nat,nat),<_\alpha)$ \complejidad{O(1)}
+	\State // Inicializo las distancias y previos de cada compu \complejidad{O(1)}	
+	\While {$haySiguiente$} \complejidad{O($n*log(n)$)}
+		\State $haySiguiente$ $\larr$ $haySiguiente?(it)$ \complejidad{O(1)}
+		\If {$\neg(v=s))$} \complejidad{O(1)}
+			\State $dist[v]$ $\larr$ $infinito()$ \complejidad{O(1)}
+			\State $prev[v]$ $\larr$ $NULL$ \complejidad{O(1)}
 		\EndIf
-		\State \Var{vecinos:$Lista(compu)$} $\larr nuevosVecinos(camino,visitados)$ \complejidad{O($?????????????????$)}
-		\State \While {$Longitud(vecinos) != 0$} \complejidad{O(1)}
-			\State \Var{caminoAux:$Lista(compu)$} $\larr camino$ \complejidad{$O(1)$}
-			\State $AgregarPrimero(caminoAux,vecinos[0])$ \complejidad{$O(1)$}
-			\State $Eliminar(vecinos,vecinos[0])$ \complejidad{$O(n)$}
-			\State $AgregarPrimero(auxCaminos, caminoAuxiliar)$ \complejidad{$O(??????????????????)$}
+		\State $vd$ $\larr$ $CrearTupla(v,dist[v])$ \complejidad{O(1)}
+		\State $encolar(cp,vd)$ \complejidad{O(log(n))}
+		\State $v++$ \complejidad{O(1)}
+		\State $avanzar(it)$ \complejidad{O(1)}
+	\EndWhile
+	\State // Calculo distancias
+	\While {$\neg Vacia?(cp)$} \complejidad{O($L*n^3$)}
+		\State \Var{u:nat} $\larr$ $proximo(cp)$ \complejidad{O(1)}
+		\State $desencolar(cp)$ \complejidad{O(log(n))}
+		\State // Vecinos de $u$ que todavía están en cp
+		\Var{vecinos:Lista($compu$)} $\larr$ $nuevosVecinos(r,u,cp)$ \complejidad{O(n)}
+		\Var{itVecinos:itLista} $\larr$ $CrearIt(itVecinos)$ \complejidad{O(1)}
+		\Var{haySiguiente:bool} $\larr$ $Vacia?(vecinos)$ \complejidad{O(1)}
+		\While {haySiguiente} \complejidad{O($L*n^2$)}
+			\State $haySiguiente$ $\larr$ $haySiguiente?(itVecinos)$ \complejidad{O(1)}
+			\Var{vert:nat} $\larr$ $stringAIndice(anterior(siguiente(itVecinos)))$ \complejidad{O(L*n)}
+			\Var{distAux:nat} $\larr$ $dist[\pi_1(u)] + 1$ \complejidad{O(1)}
+			\If {distAux $<$ dist[vert]} \complejidad{O(1)}
+				\State dist[vert] $\larr$ distAux \complejidad{O(1)}
+				\State prev[vert] $\larr$ u \complejidad{O(1)}
+			\EndIf
+			\State $avanzar(itVecinos)$ \complejidad{O(1)}
 		\EndWhile
-		\State $AgregarAVisitados(visitados, auxCaminos)$ \complejidad{$O(???????????????????????)$}
 	\EndWhile
-	\State $res \larr Vacia(Vacia())$ \complejidad{O(1)}
-}{O($????????????????????????$)}
+	\State // Agrego desde el destino hacia la fuente las compus, recorriendolas sobre el arreglo prev y agregandolas por ref.
+	\State $agAdelante(res,destino)$ \complejidad{O(1)}
+	\Var{cactual:nat} $\larr$ $stringAIndice(r,destino)$ \complejidad{O(L*n)}
+	\While {$\neg(cactual=s)$} \complejidad{O(n)}
+		\State $agAdelante(res,r.compus[prev[cactual]])$ \complejidad{O(1)}
+		\State $cactual$ $\larr$ $prev[cactual]$ \complejidad{O(1)}
+	\EndWhile
+	\If {$stringAIndice(primero(res)) != s$} \complejidad{O(n)}
+		\State $res$ $\larr$ $Vacia$
+	\EndIf
+	\State $return$ $res$
+}{O($L*n^3$)}
 
-\algoritmo{iNuevosVecinos}{in r:redstr, in camino:$Lista(compu)$, in visitados:$Lista(compu)$}{res : $Lista(compu)$}{
-	\State \Var{long:$nat$} $\larr$ $Longitud(camino)$ \complejidad{O(1)}
-	\State \Var{vecinos:$Lista$} $\larr$ $significados(significado(r.conexiones,camino[long-1]))$ \complejidad{O($\#(r.compus)$)}
-	\State \Var{itVecinos:$itDicc$}$(interfaz,compu)$ $\larr$ $CrearIterador(vecinos)$ \complejidad{O(1)}
-	\State \Var{haySiguiente:$bool$} $\larr$ $(longitud(vecinos) != 0)$ \complejidad{O(1)}
-	\While {$haySiguiente$} \complejidad{O($1$)}
-		\State \Var{vecino:$compu$} $\larr$ $actual(itVecinos)$ \complejidad{O(1)}
-		\If {$\neg(Esta(visitados,vecino))$} \complejidad{O($\#(r.compus)$)}
-			\State $AgregarUltimo(vecinos,vecino)$ \complejidad{O(1)}
+\algoritmo{iNuevosVecinos}{in r:redstr, in u:tupla, in cp:cp, in dist:Arreglo(nat)}{res : Lista(compu)}{
+	\Var{vecinos:Lista(compu)} $\larr$ $significados(r.conexiones,r.compus[\pi_1(u)])$ \complejidad{O(n)}
+	\Var{itVecinos:$itLista$} $\larr$ $CrearIt(vecinos)$ \complejidad{O(1)}
+	\While {$haySiguiente$} \complejidad{O($L*n^2$)}
+		\State $haySiguiente$ $\larr$ $haySiguiente?(itVecinos)$ \complejidad{O(1)}
+		\Var{v:nat} $\larr$ $stringAIndice(stringAIndice(vec))$ \complejidad{O(L*n)}
+		\Var{vecino:tupla}(nat,nat) $\larr$ $CrearTupla(v,dist[v])$ \complejidad{O(1)}
+		\If {cp.maxP $<$ vecino} \complejidad{O(1)}
+			\State AgAdelante(res,r.compus[$\pi_1$(vecino)]) \complejidad{O(1)}
 		\EndIf
-		\State $avanzar(itVecinos)$ \complejidad{O(1)}
-		\State $haySiguiente$ $\larr$ $haySiguiente(itVecinos)$ \complejidad{O(1)}
 	\EndWhile
-	\State $res$ $\larr$ $vecinos$ \complejidad{O(1)}
-}
-{O($\#(r.compus)^2$)}
+	\State $return$ $ret$ \complejidad{O(1)}
+}{O($L*n^2$)}
 
-\algoritmo{iSacarMenor}{in/out caminos:$Lista(Lista(compu)$}{res:$Lista(compu)$}{
-	\State \Var{size:$nat$} $\larr Longitud(caminos)$ \complejidad{O(1)}
-	\State \Var{i:$nat$} $\larr 0$ \complejidad{O(1)}
- 	\State \While {$i < size$} \complejidad{O(1)}
-		\State \If{$Longitud(caminos[i]) == minimo(caminos)$} \complejidad{O($???????????$)}
-			\State $Eliminar(caminos,caminos[i])$ \complejidad{O($???????????$)}
-			\State $res \larr caminos[i]$ \complejidad{O(1)}
-		\EndIf
-		\State $i++$
-	\EndWhile
-}
-{O(?????????????????????)}
+\subsubsection{Extensión módulo diccionario}
 
-\algoritmo{iAgregarVisitados}{in/out visitados:$Lista(compu)$, in caminos:$Lista(Lista(compu))$}{}{
-	\State \Var{size:$nat$} $\larr Longitud(caminos)$ \complejidad{O(1)}
-	\State \Var{i:$nat$} $\larr 0$ \complejidad{O(1)}
- 	\State \While {$i < size$} \complejidad{O(1)}
-		\State $AgregarUltimo(visitados, Ultimo(caminos[i]))$ \complejidad{O(1)}
-		\State $i++$ \complejidad{O(1)}
+\operacion{significados}{in d:dicc($\alpha_0$ dicc($\alpha_1$ $\alpha_0$)), in c:$\alpha_0$}{res:Lista($\alpha_0$)}
+{$definida?(d,c)$}
+{$res \igobs significados(d)$}
+{Retorna todos los significados de la clave c}
+{O($\# claves(significado(d,c))$)}
+{Hay aliasing en res}
+
+\algoritmo{significados}{in d:dicc($\alpha_0$ dicc($\alpha_1$ $\alpha_0)$),in c:$\alpha_0$}{res:Lista($\alpha_0$)}{
+	\Var{itSignificados:itDicc} $\larr$ $CrearIt(significado(d,c))$ \complejidad{O(1)}
+	\Var{haySiguiente:bool} $\larr$ $\# claves(significado(d,c)) != 0$ \complejidad{O(1)}
+	\While {haySiguiente} \complejidad{O(n)}
+		\State $haySiguiente$ $\larr$ $haySiguiente?(itDicc)$ \complejidad{O(1)}
+		\State // Se agregan los elementos por referencia
+		\State $AgAtras(res,anteriorSignificado(siguienteSignificado(itDicc)))$ \complejidad{O(1)}
+		\State $avanzar(itDicc)$ \complejidad{O(1)}
 	\EndWhile
-}
-{O(????????????????)}
+	\State $return$ $res$ \complejidad{O(1)}
+}{O(n)}

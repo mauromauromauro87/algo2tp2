@@ -10,13 +10,13 @@
 \contentsline {subsection}{\numberline {2.3}Invariante de representaci\IeC {\'o}n}{11}{subsection.2.3}
 \contentsline {subsection}{\numberline {2.4}Funci\IeC {\'o}n de abstracci\IeC {\'o}n}{12}{subsection.2.4}
 \contentsline {subsection}{\numberline {2.5}Algoritmos}{12}{subsection.2.5}
+\contentsline {subsubsection}{\numberline {2.5.1}Extensi\IeC {\'o}n m\IeC {\'o}dulo diccionario}{15}{subsubsection.2.5.1}
 \contentsline {section}{\numberline {3}ConjLog}{16}{section.3}
 \contentsline {subsection}{\numberline {3.1}Interfaz($\ensuremath {\mathalpha \xspace }, \ensuremath {=_{\mathrm {\ensuremath {\mathalpha \xspace }}}}, <_\ensuremath {\mathalpha \xspace }$)}{16}{subsection.3.1}
 \contentsline {subsubsection}{\numberline {3.1.1}par\IeC {\'a}metros formales}{16}{subsubsection.3.1.1}
 \contentsline {subsection}{\numberline {3.2}Representaci\IeC {\'o}n}{17}{subsection.3.2}
 \contentsline {subsection}{\numberline {3.3}Invariante de representaci\IeC {\'o}n}{18}{subsection.3.3}
 \contentsline {subsection}{\numberline {3.4}Funci\IeC {\'o}n de abstracci\IeC {\'o}n}{18}{subsection.3.4}
-\contentsline {subsubsection}{\numberline {3.4.1}Aclaraci\IeC {\'o}n de complejidades}{18}{subsubsection.3.4.1}
 \contentsline {subsection}{\numberline {3.5}Algoritmos}{19}{subsection.3.5}
 \contentsline {subsection}{\numberline {3.6}Auxiliares}{23}{subsection.3.6}
 \contentsline {subsection}{\numberline {3.7}Operaciones auxiliares de conj($\ensuremath {\mathalpha \xspace }$)}{28}{subsection.3.7}
@@ -28,3 +28,11 @@
 \contentsline {section}{\numberline {6}PaquetePos}{34}{section.6}
 \contentsline {subsection}{\numberline {6.1}Interfaz}{34}{subsection.6.1}
 \contentsline {subsection}{\numberline {6.2}Representaci\IeC {\'o}n}{35}{subsection.6.2}
+\contentsline {section}{\numberline {7}ColaP}{36}{section.7}
+\contentsline {subsection}{\numberline {7.1}Interfaz($\ensuremath {\mathalpha \xspace }, \ensuremath {=_{\mathrm {\ensuremath {\mathalpha \xspace }}}}, <_\ensuremath {\mathalpha \xspace }$)}{36}{subsection.7.1}
+\contentsline {subsubsection}{\numberline {7.1.1}par\IeC {\'a}metros formales}{36}{subsubsection.7.1.1}
+\contentsline {subsection}{\numberline {7.2}Operaciones}{36}{subsection.7.2}
+\contentsline {subsection}{\numberline {7.3}Representaci\IeC {\'o}n}{36}{subsection.7.3}
+\contentsline {subsubsection}{\numberline {7.3.1}Invariante de representaci\IeC {\'o}n}{37}{subsubsection.7.3.1}
+\contentsline {subsection}{\numberline {7.4}Funci\IeC {\'o}n de abstracci\IeC {\'o}n}{37}{subsection.7.4}
+\contentsline {subsection}{\numberline {7.5}Algoritmos}{37}{subsection.7.5}
