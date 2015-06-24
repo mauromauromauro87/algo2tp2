@@ -35,28 +35,28 @@ Un PaquetePos es
  \operacion{getPaquete}{in ppos:${<paquete,nat,nat,nat>}$}{res:paquete}
  {true}
  {$res \igobs \pi_1(paquete)$}
- {Getter de paquete}
+ {Retorna el paquete}
  {O(1)}
  {}
  
  \operacion{indiceOrigen}{in p:${<paquete,nat,nat,nat>}$}{res:nat}
  {true}
  {$res = \pi_2(p)$}
- {Getter de indiceOrigen}
+ {Retorna el valor indiceOrigen}
  {O(1)}
  {}
  
  \operacion{indiceDestino}{in p:${<paquete,nat,nat,nat>}$}{res:nat}
  {true}
  {$res = \pi_3(p)$}
- {Getter de indiceDestino}
+ {Retorna el valor indiceDestino}
  {O(1)}
  {}  
  
  \operacion{posActual}{in p:${<paquete,nat,nat,nat>}$}{res:nat}
  {true}
  {$res = \pi_4(p)$}
- {Getter de posActual}
+ {Retorna el valor posActual}
  {O(1)}
  {} 
   
