@@ -98,8 +98,10 @@ El módulo red permite crear una red de computadoras, agregar nuevas, conectarla
 \subsubsection*{Rep.}
 \begin{enumerate}
 \item[] $claves(conexiones(r)) \subseteq compus(r)$ $\land$
-\item[] $((\forall c : compu)$ $c \in claves(conexiones(r))) \impluego \\
-		((\forall c_1 : compu) c_1 \in significados(conexiones(r),c))$ $\impluego$ $c_1 \in claves$ $\yluego$ $c \in significados(conexiones(r),c_1)$
+\item[] $((\forall c : compu)$ $c \in claves(r.conexiones)) \impluego$ \\
+		\indent $\ \ claves(significado(r.conexiones,c))$ $\subseteq$ $c.interfaces$ $\land$ \\
+		\indent $\ \ ((\forall c_1 : compu) c_1 \in significados(conexiones(r),c))$ $\impluego$ \\
+		\indent $\ \ c_1 \in claves(r.conexiones)$ $\yluego$ $c \in significados(conexiones(r),c_1)$ $\land$ \\
 \end{enumerate}
 
 \subsection{Función de abstracción}
