@@ -108,6 +108,8 @@ $k$ : la cola de paquetes más larga de todas las computadoras.
 	}}
 }
 
+Aclaraci\'on: cada vez que dice arreglo en esta estructura nos referimos a arreglo\_dimensionable
+
 \subsubsection*{Invariante de representación}
 
 \begin{enumerate}
@@ -184,9 +186,9 @@ $(\forall p:paquete,paqueteEnTransito?(dc,p)) caminoRecorrido(dc,p)=$*$(caminoRe
 	\State $j\larr 0$
 		\complejidad{O(1)}
 	\State $res.Compus \larr \Fun{CrearArreglo}(n)$
-		\complejidad{O(1)}
+		\complejidad{O(n)}
 	\State $res.CaminosMinimos\larr \Fun{CrearArreglo}(n)$
-		\complejidad{O(1)}
+		\complejidad{O(n)}
 	\Var{p: arreglo$\_$dimensionable de puntero(conjLog(paquete))}	
 	\While{i$<$n} \complejidad{O($L*n^5$)}
 		\complejidad{O(n)}
@@ -201,8 +203,8 @@ $(\forall p:paquete,paqueteEnTransito?(dc,p)) caminoRecorrido(dc,p)=$*$(caminoRe
 		\State $\pi_5(s) \larr \Fun{nuevo}()$
 		\State \Fun{definir}(res.CompusPorPref,compu(r,i),s)
 			\complejidad{O(L)}
-		\State $p[i] \larr pi_3(s)$
-		\State $p'[i] \larr pi_5(s) $
+		\State $p[i] \larr \pi_3(s)$
+		\State $p'[i] \larr \pi_5(s) $
 		\State $res.Compus[i] \larr $ $<compu(r,i),p[i],p'[i],0>$ 
 			\complejidad{O(1)}
 		\While{j$<$n} \complejidad{O($L*n^4$)}
@@ -227,11 +229,11 @@ $(\forall p:paquete,paqueteEnTransito?(dc,p)) caminoRecorrido(dc,p)=$*$(caminoRe
   \State $t_2 \larr \Fun{Obtener}(destino(p),\ \var{s}.CompusPorPref)$
   	\complejidad{O($L$)}
   \State $p$'$:paquetePos$ 
-  \State $indiceOrigen(p$'$) \larr \pi_1(t_1)$
+  \State $\Fun{indiceOrigen}(p$'$) \larr \pi_1(t_1)$
   	\complejidad{O(1)}
-  \State $indiceDestino(p$'$) \larr \pi_1(t_2)$
+  \State $\Fun{indiceDestino}(p$'$) \larr \pi_1(t_2)$
   	\complejidad{O(1)}
-  \State $indiceActual(p$'$) \larr 0$
+  \State $\Fun{posActual}(p$'$) \larr 0$
   \State \Fun{insertar}($\pi_2(t),p$) %agrega segun nombre
         \complejidad{O($log(k)$)}
   \State \Fun{insertar}($\pi_3(t),p$) %agrega segun prioridad
@@ -270,7 +272,7 @@ $(\forall p:paquete,paqueteEnTransito?(dc,p)) caminoRecorrido(dc,p)=$*$(caminoRe
   \State $i \larr 0$
         \complejidad{O(1)}
   \Var{m: nat}
-  \State $m \larr s.Compus[LaQMasEnvio].\#PaqE$
+  \State $m \larr s.Compus[LaQMasEnvio].\#PaquetesEnviados$
   \While{$i < \Fun{Longitud}(s.Compus)$} %aca supongo que el modulo arreglo tiene la operacion longitud 
         \complejidad{O(n)} 
   	\Var{paqYProxDes: arreglo\_dimensionable de tupla de paquetePos y nat}
@@ -292,11 +294,11 @@ $(\forall p:paquete,paqueteEnTransito?(dc,p)) caminoRecorrido(dc,p)=$*$(caminoRe
           \complejidad{O($log(k)$)}
     \State \Fun{borrar}($\pi_5(t_1),\ p'$) %lo borro del avl por nombre
           \complejidad{O($log(k)$)}
-    \State $s.Compus[i].\#PaqE \larr s.compus[i].\#PaqE + 1$ 
+    \State $s.Compus[i].\#PaquetesEnviados \larr s.compus[i].\#PaquetesEnviados + 1$ 
            \complejidad{O(1)}
-    \State $proxima \larr s.CaminosMinimos[\Fun{indiceOrigen}(p')][\Fun{indicedestino}(p')][\Fun{PosActual}(p')+1]$
+    \State $proxima \larr s.CaminosMinimos[\Fun{indiceOrigen}(p')][\Fun{indicedestino}(p')][\Fun{posActual}(p')+1]$
     		\complejidad{O(L) (se copia)}
-     \If{$s.Compus[i].\#PaqE > max$}
+     \If{$s.Compus[i].\#PaquetesEnviados > max$}
           \complejidad{O(1)}
       \State $ max \larr i$
            \complejidad{O(1)}
@@ -351,7 +353,7 @@ $(\forall p:paquete,paqueteEnTransito?(dc,p)) caminoRecorrido(dc,p)=$*$(caminoRe
     \State $i \larr i + 1$
           \complejidad{O(1)}
   \EndWhile
-  \State $res \larr s.compus[i].\#PaqE$
+  \State $res \larr s.compus[i].\#PaquetesEnviados$
         \complejidad{O(1)}
 }
 {O(n)}
