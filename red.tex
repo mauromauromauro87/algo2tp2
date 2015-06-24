@@ -262,6 +262,10 @@ $interfazUsada(r,c_0,c_1)$ $\igobs$ $dameClave(significado(rstr.conexiones,c_0),
 	\State $return$ $ret$ \complejidad{O(1)}
 }{O($L*n^2$)}
 
+\algoritmo{hayCamino?}{in r:redstr, in $c_0$:compu, in $c_1$:compu}{res:bool}{
+	\State $res$ $\larr$ $Longitud(caminoMinimo(r,c_0,c_1)) != 0$ \complejidad{O($L*n^3$)}
+}{O($L*n^3$)}
+
 \subsubsection{Extensión módulo diccionario}
 
 \operacion{significados}{in d:dicc($\alpha_0$ dicc($\alpha_1$ $\alpha_0$)), in c:$\alpha_0$}{res:Lista($\alpha_0$)}
