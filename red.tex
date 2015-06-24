@@ -186,8 +186,8 @@ $interfazUsada(r,c_0,c_1)$ $\igobs$ $dameClave(significado(rstr.conexiones,c_0),
 
 \algoritmo{iCaminoMinimo}{in r:red, in f:compu, in d:compu}{res : Lista(compu)}{
 	\Var{n:nat} $\larr$ $Longitud(r.compus)$ \complejidad{O(1)}
-	\Var{dist:Arreglo(nat)} $\larr$ $CrearArreglo(n)$ \complejidad{O(1)}
-	\Var{prev:Arreglo(nat)} $\larr$ $CrearArreglo(n)$ \complejidad{O(1)}
+	\Var{dist:Arreglo(nat)} $\larr$ $CrearArreglo(n)$ \complejidad{O(n)}
+	\Var{prev:Arreglo(nat)} $\larr$ $CrearArreglo(n)$ \complejidad{O(n)}
 	\Var{s:nat} $larr$ $stringAIndice(r,f)$ \complejidad{O(L*n)}
 	\State $dist[s]$ $\larr$ $0$ \complejidad{O(1)}
 	\State $prev[s]$ $\larr$ $NULL$ \complejidad{O(1)}
